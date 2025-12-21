@@ -1,5 +1,7 @@
 // src/app/about/page.js
 
+import Image from 'next/image';
+
 export default function AboutPage() {
     return (
       <div className="container mx-auto p-8 sm:p-12">
@@ -14,7 +16,7 @@ export default function AboutPage() {
             </p>
         </div>
 
-        {/* Mission Section - Changed header color */}
+        {/* Mission Section */}
         <section className="grid md:grid-cols-2 gap-12 items-center py-10">
             <div>
                 <h2 className="text-3xl font-bold text-teal-700 mb-4">The AnandaYog Mission</h2>
@@ -25,9 +27,15 @@ export default function AboutPage() {
                     &quot;Ananda&quot; means bliss, and &quot;Yog&quot; means union. Our goal is to help you achieve the union of mind and body, leading to lasting joy.
                 </p>
             </div>
-            {/* Image Placeholder */}
-            <div className="h-64 bg-gray-200 rounded-lg shadow-md flex items-center justify-center text-gray-500">
-                [Placeholder: Image of a peaceful studio or a founding teacher]
+            {/* Image Placeholder REPLACED with Next.js Image Component */}
+            <div className="rounded-lg shadow-md overflow-hidden relative h-64 md:h-96">
+                <Image
+                    src="/studio.jpg" // Replace with your image filename
+                    alt="A peaceful yoga and meditation studio interior"
+                    fill // Fills the parent container (h-64/h-96)
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                />
             </div>
         </section>
 
