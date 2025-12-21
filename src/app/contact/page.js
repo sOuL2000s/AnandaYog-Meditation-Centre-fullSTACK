@@ -1,40 +1,60 @@
 // src/app/contact/page.js
-"use client"; // Form handling usually requires a Client Component
+"use client";
 
 import { useState } from 'react';
 
 export default function ContactPage() {
-    const [status, setStatus] = useState('');
+    const [status, setStatus] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         setStatus('Sending...');
         
-        // --- REAL WORLD TODO: 
-        // Implement form submission logic here (e.g., using a serverless function)
-        
-        setTimeout(() => {
-            setStatus('Thank you! Your message has been received.');
-            e.target.reset();
-        }, 2000);
+        const formData = {
+            name: e.target.name.value,
+            email: e.target.email.value,
+            message: e.target.message.value,
+        };
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                setStatus('Thank you! Your message has been received.');
+                e.target.reset();
+            } else {
+                const errorData = await response.json();
+                setStatus(`Error: ${errorData.error || 'Failed to submit form.'}`);
+            }
+        } catch (error) {
+            setStatus('Network error. Please try again later.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
-      <div className="container mx-auto p-8 sm:p-12 max-w-4xl">
+      <div className="container mx-auto p-8 max-w-4xl">
         
-        <div className="text-center mb-10">
-            <h1 className="text-4xl font-serif font-extrabold text-indigo-800 mb-3">
+        <div className="text-center mb-12">
+            <h1 className="text-5xl font-serif font-extrabold text-indigo-800 mb-4">
                 Connect With Us
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-xl text-gray-600">
                 We are here to answer your questions and guide your practice.
             </p>
         </div>
 
-        <div className="bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
+        <div className="bg-white p-10 rounded-2xl shadow-2xl border border-gray-100">
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1">
                         Full Name
                     </label>
                     <input
@@ -42,12 +62,12 @@ export default function ContactPage() {
                         id="name"
                         name="name"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
                     />
                 </div>
                 
                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1">
                         Email Address
                     </label>
                     <input
@@ -55,33 +75,33 @@ export default function ContactPage() {
                         id="email"
                         name="email"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-1">
                         Your Message
                     </label>
                     <textarea
                         id="message"
                         name="message"
-                        rows="4"
+                        rows="5"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
                     ></textarea>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                    disabled={status.includes('Sending') || status.includes('received')}
+                    className="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition duration-300 shadow-md disabled:opacity-50"
+                    disabled={isSubmitting}
                 >
-                    {status.includes('Sending') ? 'Sending...' : 'Send Message'}
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
                 
-                {status && !status.includes('Sending') && (
-                    <p className={`mt-4 text-center ${status.includes('received') ? 'text-green-600' : 'text-red-500'}`}>
+                {status && (
+                    <p className={`mt-4 text-center text-sm font-medium ${status.includes('Thank you') ? 'text-green-600' : 'text-red-500'}`}>
                         {status}
                     </p>
                 )}
@@ -91,3 +111,4 @@ export default function ContactPage() {
       </div>
     );
 }
+

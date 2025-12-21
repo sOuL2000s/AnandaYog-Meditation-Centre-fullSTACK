@@ -1,26 +1,48 @@
 /* 
  * FIX for Tailwind CSS v4: 
  * Use the single @import "tailwindcss" directive. 
- * This includes preflight (base), utilities, and components automatically.
  */
 @import "tailwindcss";
 
 
-/* Add custom styles below if needed */
+/* --- Custom Visual Enhancement: Fonts and Colors --- */
+
+/* Import Google Fonts (or specify fallback) */
+@layer base {
+  /* This assumes you'd link the font in the layout head, but uses system fallback for guaranteed rendering */
+  .font-serif {
+    font-family: 'Playfair Display', Georgia, serif; 
+  }
+  .font-sans {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fdfdfd; /* Light Cream */
+  --foreground: #1a1a1a;
+  --primary-indigo: 67 56 202; /* indigo-700 */
+  --primary-purple: 147 51 234; /* purple-600 */
+  --accent-green: 16 185 129; /* emerald-500 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0d0d0d;
+    --foreground: #e0e0e0;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Apply default font */
+  @apply font-sans; 
 }
+
+/* Custom class for the serene background used on the homepage */
+.bg-serene-gradient {
+  background-image: linear-gradient(135deg, rgba(78, 56, 189, 0.9) 0%, rgba(135, 78, 201, 0.8) 100%);
+}
+
+

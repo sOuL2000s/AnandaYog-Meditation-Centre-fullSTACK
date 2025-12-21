@@ -1,10 +1,9 @@
-// src/components/PaymentInitiator.js
+// src/components/PaymentInitiator.js (UPDATED for secure verification)
 "use client";
 
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-// Utility function to load the Razorpay script dynamically
 const loadRazorpayScript = (src) => {
   return new Promise((resolve) => {
     const script = document.createElement('script');
@@ -16,9 +15,19 @@ const loadRazorpayScript = (src) => {
 };
 
 export default function PaymentInitiator() {
-  const { currentUser } = useAuth();
+  const { currentUser, userData } = useAuth();
   const [status, setStatus] = useState('');
   
+  if (userData?.isSubscribed) {
+      return (
+        <div className="p-6 bg-green-50 border border-green-200 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold text-green-700 mb-2">Subscription Active!</h3>
+            <p className="text-gray-600">You have unlimited access to all courses. Enjoy your bliss.</p>
+        </div>
+      );
+  }
+
+
   const handleCheckout = async () => {
     setStatus('Preparing checkout...');
     
@@ -30,11 +39,12 @@ export default function PaymentInitiator() {
     }
 
     // 2. Request a secure Order ID from our Node.js API Route
+    const paymentAmountINR = 500;
     const orderDataResponse = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        amount: 500, // Example: ₹500 (API converts to paisa)
+        amount: paymentAmountINR, 
         receiptId: currentUser.uid 
       }),
     });
@@ -48,48 +58,65 @@ export default function PaymentInitiator() {
 
     // 3. Configure the Razorpay Checkout
     const options = {
-      key: orderData.key, // Public Key ID from .env.local
-      amount: orderData.amount, // Amount in paisa
+      key: orderData.key,
+      amount: orderData.amount,
       currency: orderData.currency,
       name: "AnandaYog Subscription",
-      description: "Monthly Unlimited Access",
+      description: "Yogi Monthly Unlimited Access (₹500)",
       order_id: orderData.id,
-      handler: function (response) {
-        // SUCCESS: Send response to a secure webhook route for final verification
-        // NOTE: You MUST implement a secure verification webhook on the server
-        console.log("Payment successful. Verifying payment...");
-        setStatus(`Payment Successful! ID: ${response.razorpay_payment_id}. Status update pending.`);
+      
+      handler: async function (response) {
+        setStatus('Payment successful, securely verifying...');
         
-        // **TODO: Call /api/verify-payment Webhook here**
+        // 4. CRITICAL: Send response to the secure server verification endpoint
+        const verificationResponse = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                userId: currentUser.uid,
+                amount: paymentAmountINR // send amount for double check
+            }),
+        });
+        
+        if (verificationResponse.ok) {
+            setStatus('Subscription Activated! Welcome, Yogi.');
+            // AuthContext's onSnapshot listener handles the state refresh
+        } else {
+            setStatus('Verification failed. Contact support with payment ID.');
+        }
       },
       prefill: {
         name: currentUser.displayName,
         email: currentUser.email,
       },
       theme: {
-        color: "#4f46e5" // Indigo theme
+        color: "#4f46e5"
       }
     };
     
     const rzp = new window.Razorpay(options);
     rzp.open();
-    setStatus('');
+    setStatus('Waiting for payment...');
   };
 
   return (
-    <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold text-indigo-700 mb-4">Start Your Subscription</h3>
-      <p className="mb-4">Get unlimited access to all courses for only ₹500/month.</p>
+    <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-lg shadow-xl">
+      <h3 className="text-2xl font-bold text-indigo-700 mb-4">Unlock Unlimited Bliss</h3>
+      <p className="mb-4 text-gray-700">Get unlimited access to all courses, live sessions, and the community archive for only ₹500/month.</p>
       
       <button 
         onClick={handleCheckout}
-        disabled={status.includes('Preparing')}
-        className="bg-purple-600 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300 disabled:opacity-50"
+        disabled={status.includes('Preparing') || status.includes('Verifying') || status.includes('Waiting')}
+        className="bg-purple-600 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300 disabled:opacity-50 shadow-md"
       >
-        Subscribe Now (UPI/Card)
+        {status.includes('Waiting') ? 'Payment Window Open...' : 'Subscribe Now (₹500/mo)'}
       </button>
 
-      {status && <p className="mt-4 text-sm text-gray-600">{status}</p>}
+      {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-green-600 font-medium' : 'text-gray-600'}`}>{status}</p>}
     </div>
   );
 }
+
