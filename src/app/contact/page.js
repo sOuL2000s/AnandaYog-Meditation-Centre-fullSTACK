@@ -43,7 +43,7 @@ export default function ContactPage() {
       <div className="container mx-auto p-8 max-w-4xl">
         
         <div className="text-center mb-12">
-            <h1 className="text-5xl font-serif font-extrabold text-indigo-800 mb-4">
+            <h1 className="text-5xl font-serif font-extrabold text-teal-800 mb-4">
                 Connect With Us
             </h1>
             <p className="text-xl text-gray-600">
@@ -62,7 +62,7 @@ export default function ContactPage() {
                         id="name"
                         name="name"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
                     />
                 </div>
                 
@@ -75,7 +75,7 @@ export default function ContactPage() {
                         id="email"
                         name="email"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
                     />
                 </div>
 
@@ -88,13 +88,13 @@ export default function ContactPage() {
                         name="message"
                         rows="5"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
                     ></textarea>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition duration-300 shadow-md disabled:opacity-50"
+                    className="w-full bg-amber-600 text-white font-bold py-3 rounded-lg hover:bg-amber-700 transition duration-300 shadow-md disabled:opacity-50"
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
@@ -111,4 +111,3 @@ export default function ContactPage() {
       </div>
     );
 }
-

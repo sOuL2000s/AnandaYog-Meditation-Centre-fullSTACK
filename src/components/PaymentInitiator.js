@@ -1,4 +1,4 @@
-// src/components/PaymentInitiator.js (UPDATED for secure verification)
+// src/components/PaymentInitiator.js (UPDATED for secure verification and color)
 "use client";
 
 import { useState } from 'react';
@@ -93,7 +93,8 @@ export default function PaymentInitiator() {
         email: currentUser.email,
       },
       theme: {
-        color: "#4f46e5"
+        // Updated theme color to Deep Teal
+        color: "#0E5B6A" 
       }
     };
     
@@ -103,14 +104,16 @@ export default function PaymentInitiator() {
   };
 
   return (
-    <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-lg shadow-xl">
-      <h3 className="text-2xl font-bold text-indigo-700 mb-4">Unlock Unlimited Bliss</h3>
+    // Changed colors to Sage/Teal
+    <div className="p-6 bg-teal-50 border border-teal-200 rounded-lg shadow-xl">
+      <h3 className="text-2xl font-bold text-teal-700 mb-4">Unlock Unlimited Bliss</h3>
       <p className="mb-4 text-gray-700">Get unlimited access to all courses, live sessions, and the community archive for only ₹500/month.</p>
       
       <button 
         onClick={handleCheckout}
         disabled={status.includes('Preparing') || status.includes('Verifying') || status.includes('Waiting')}
-        className="bg-purple-600 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300 disabled:opacity-50 shadow-md"
+        // Changed CTA to Warm Gold accent color
+        className="bg-amber-500 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-amber-600 transition duration-300 disabled:opacity-50 shadow-md"
       >
         {status.includes('Waiting') ? 'Payment Window Open...' : 'Subscribe Now (₹500/mo)'}
       </button>
@@ -119,4 +122,3 @@ export default function PaymentInitiator() {
     </div>
   );
 }
-

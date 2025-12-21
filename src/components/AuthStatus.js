@@ -60,7 +60,7 @@ export default function AuthStatus() {
       ) : (
         <button 
           onClick={handleLogin}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200"
+          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded transition duration-200"
         >
           Login with Google
         </button>

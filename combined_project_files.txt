@@ -2,17 +2,18 @@
 --- START FILE: .env.local ---
 
 # --- FIREBASE CONFIG (Client-Side Access Required) ---
-NEXT_PUBLIC_FIREBASE_API_KEY="YOUR_API_KEY"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="YOUR_AUTH_DOMAIN"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="YOUR_PROJECT_ID"
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="YOUR_STORAGE_BUCKET"
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="YOUR_MESSAGING_SENDER_ID"
-NEXT_PUBLIC_FIREBASE_APP_ID="YOUR_APP_ID"
+NEXT_PUBLIC_FIREBASE_API_KEY="AIzaSyDmRjEenqIwHlesDxnIBKzTUqV0KFCpx_g"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="anandayog-dev.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="anandayog-dev"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="anandayog-dev.firebasestorage.app"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="729621878952"
+NEXT_PUBLIC_FIREBASE_APP_ID="1:729621878952:web:12cee4ba065fe6b8604a9d"
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="G-QWKGHV7QDH"
 
 # --- PAYMENT GATEWAY CONFIG (SERVER-SIDE ONLY) ---
 # This MUST NOT start with NEXT_PUBLIC_
-RAZORPAY_KEY_ID="rzp_test_XXXXXXXXXXXXXXXXX"
-RAZORPAY_KEY_SECRET="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+RAZORPAY_KEY_ID="rzp_live_RuDJUlLd5GCYqf"
+RAZORPAY_KEY_SECRET="QfO9FSi1czjcRfAf0j6itVrI"
 
 --- END FILE: .env.local ---
 
@@ -189,36 +190,58 @@ export default config;
 /* 
  * FIX for Tailwind CSS v4: 
  * Use the single @import "tailwindcss" directive. 
- * This includes preflight (base), utilities, and components automatically.
  */
 @import "tailwindcss";
 
 
-/* Add custom styles below if needed */
+/* --- Custom Visual Enhancement: Fonts and Colors --- */
+
+/* Import Google Fonts (or specify fallback) */
+@layer base {
+  /* This assumes you'd link the font in the layout head, but uses system fallback for guaranteed rendering */
+  .font-serif {
+    font-family: 'Playfair Display', Georgia, serif; 
+  }
+  .font-sans {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fdfdfd; /* Light Cream */
+  --foreground: #1a1a1a;
+  --primary-indigo: 67 56 202; /* indigo-700 */
+  --primary-purple: 147 51 234; /* purple-600 */
+  --accent-green: 16 185 129; /* emerald-500 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0d0d0d;
+    --foreground: #e0e0e0;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Apply default font */
+  @apply font-sans; 
 }
+
+/* Custom class for the serene background used on the homepage */
+.bg-serene-gradient {
+  background-image: linear-gradient(135deg, rgba(78, 56, 189, 0.9) 0%, rgba(135, 78, 201, 0.8) 100%);
+}
+
+
 
 
 --- END FILE: src\app\globals.css ---
 
 --- START FILE: src\app\layout.js ---
 
-// src/app/layout.js (Modified)
+// src/app/layout.js (Added font links for visual appeal)
 
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
@@ -226,19 +249,23 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export const metadata = {
-  title: 'AnandaYog Meditation Centre',
-  description: 'Find inner peace through meditation and yoga.',
+  title: 'AnandaYog Meditation Centre: Inner Peace & Authentic Practice',
+  description: 'Guided meditation, authentic yoga, and mindful living courses. Start your journey to tranquility today.',
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="flex flex-col min-h-screen">
-        {/* Wrap everything in the AuthProvider */}
+      {/* 
+        NOTE: For best visual results, link Google Fonts (Playfair Display & Inter) 
+        in the <head> of the document or update the CSS. 
+        Assuming system fonts for this pasteable code.
+      */}
+      <body className="flex flex-col min-h-screen antialiased">
         <AuthProvider>
           <Header />
-          {/* Changed 'flex-grow' to 'grow' */}
-          <main className="grow"> 
+          {/* Increased padding on main for better visual spacing */}
+          <main className="grow pt-4 pb-16"> 
             {children}
           </main>
           <Footer />
@@ -255,90 +282,88 @@ export default function RootLayout({ children }) {
 
 // src/app/page.js
 import Link from 'next/link';
-import Image from 'next/image';
 
-// Placeholder for a serene image (Assume it's in /public/hero-image.jpg)
-// You should place a calming image (e.g., sunrise, nature, person meditating) 
-// at public/hero-image.jpg for the best effect.
+// NOTE: Ensure you have a background image named /public/placeholder-serene.jpg
+// for the best visual effect.
 
 const BlissfulHero = () => (
-  <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-    {/* Background Image Placeholder (Replace with your own image in public/hero-image.jpg) */}
+  <section className="relative h-[600px] flex items-center justify-center overflow-hidden shadow-2xl">
+    {/* Background Image & Overlay */}
     <div className="absolute inset-0">
-      {/* 
-        NOTE: For deployment, replace the Image component with a simple img tag 
-        if you don't have a specific hero-image.jpg file yet.
-      */}
-      <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/70 to-purple-800/60 z-10"></div>
-      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/placeholder-serene.jpg')" }}></div>
+      {/* Visual background placeholder. Replace with Image component or actual image URL */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center transition duration-1000 ease-in-out hover:scale-[1.01]" 
+        style={{ backgroundImage: "url('/placeholder-serene.jpg')" }}
+      ></div>
+      {/* Deep, rich gradient overlay for the serene/spiritual feel */}
+      <div className="absolute inset-0 bg-serene-gradient z-10 opacity-90"></div>
     </div>
 
     {/* Content */}
-    <div className="relative z-20 text-center text-white p-6 max-w-4xl">
-      <p className="text-xl font-light tracking-widest uppercase mb-4 opacity-90">
-        Discover Your Sanctuary
+    <div className="relative z-20 text-center text-white p-6 max-w-5xl">
+      <p className="text-xl font-light tracking-[0.3em] uppercase mb-4 opacity-90 text-indigo-200">
+        THE ANANDAYOG CENTRE
       </p>
-      <h1 className="text-6xl md:text-7xl font-extrabold font-serif leading-tight mb-6">
-        The Journey to Inner Peace Starts Now
+      <h1 className="text-6xl md:text-7xl font-extrabold font-serif leading-tight mb-6 drop-shadow-lg">
+        Find Silence. Find Yourself.
       </h1>
-      <p className="text-xl md:text-2xl font-light mb-10 opacity-95">
-        Guided meditation and authentic yoga practices designed to quiet the mind and nourish the soul.
+      <p className="text-xl md:text-2xl font-light mb-12 opacity-95 max-w-3xl mx-auto">
+        Guided meditation and authentic yoga practices to quiet the mind and foster lasting peace.
       </p>
       <Link 
-        href="/classes" 
-        className="bg-purple-500 text-white text-xl font-semibold py-4 px-10 rounded-full hover:bg-purple-600 transition duration-300 shadow-xl border-2 border-white/50"
+        href="/pricing" 
+        className="bg-emerald-500 text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-emerald-600 transition duration-300 shadow-2xl border-2 border-white/50 transform hover:translate-y-[-2px]"
       >
-        Explore Our Offerings
+        Start 7 Days Free
       </Link>
     </div>
   </section>
 );
 
 
-// This is a Server Component, excellent for SEO/speed
 export default function HomePage() {
   return (
     <>
       <BlissfulHero />
 
-      <div className="container mx-auto p-8 sm:p-12">
+      <div className="container mx-auto px-6 lg:px-12 py-16">
         {/* Core Values Section */}
-        <section className="py-16 text-center">
-          <h2 className="text-4xl font-bold text-indigo-800 mb-4 font-serif">Our Philosophy</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+        <section className="py-8 text-center">
+          <h2 className="text-4xl font-bold font-serif text-indigo-700 mb-4">Our Practice Pillars</h2>
+          <p className="text-lg text-gray-500 max-w-4xl mx-auto mb-16">
             AnandaYog is built on principles of authenticity, community, and accessible guidance for all levels of practitioners.
           </p>
 
-          <div className="grid md:grid-cols-3 gap-8 text-left">
+          <div className="grid md:grid-cols-3 gap-10 text-left">
             <ValueCard 
-              icon="🧘‍♀️"
-              title="Authentic Practice"
-              description="Rooted in ancient tradition, delivered with modern clarity."
+              icon="🌿"
+              title="Grounded in Tradition"
+              description="Practices rooted in ancient texts, modernized for today's busy world."
+            />
+            <ValueCard 
+              icon="🧘"
+              title="Accessible Guidance"
+              description="Courses structured clearly, perfect for beginners and deep divers alike."
             />
             <ValueCard 
               icon="✨"
-              title="Accessible to All"
-              description="Courses for absolute beginners to advanced deep-dive retreats."
-            />
-            <ValueCard 
-              icon="🌿"
-              title="Mindful Living"
-              description="Tools to integrate peace and presence into your daily life."
+              title="Transformative Results"
+              description="Tools designed to integrate profound peace and mindfulness into daily life."
             />
           </div>
         </section>
         
-        {/* Call to Action for About Page */}
-        <section className="mt-16 text-center bg-green-50 p-10 rounded-xl shadow-inner">
-            <h2 className="text-3xl font-bold text-sage-800 mb-4">Ready to Begin?</h2>
-            <p className="text-lg text-gray-700 mb-6">
-                Meet our dedicated teachers and learn more about our centre&apos;s mission.
+        {/* Featured Courses Call to Action */}
+        <section className="mt-20 text-center bg-purple-50 p-12 rounded-2xl shadow-2xl border-t-4 border-purple-400">
+            <h2 className="text-4xl font-serif font-bold text-purple-700 mb-4">Ready for Inner Change?</h2>
+            <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
+                Explore our full catalog of guided meditations, Hatha, and Vinyasa courses designed by master teachers.
             </p>
             <Link 
-                href="/about"
-                className="bg-green-600 text-white font-semibold py-3 px-8 rounded-full hover:bg-green-700 transition duration-300"
+                href="/classes"
+                className="bg-purple-600 text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-purple-700 transition duration-300 shadow-lg"
             >
-                Read Our Story
+                View All Courses
             </Link>
         </section>
 
@@ -347,11 +372,11 @@ export default function HomePage() {
   );
 }
 
-// Helper Component for consistency
+// Helper Component (Updated Styling)
 const ValueCard = ({ icon, title, description }) => (
-    <div className="p-6 bg-white rounded-lg shadow-md border border-gray-100">
-        <div className="text-4xl mb-4">{icon}</div>
-        <h3 className="text-xl font-semibold text-indigo-700 mb-2">{title}</h3>
+    <div className="p-8 bg-white rounded-xl shadow-lg border border-gray-50 hover:shadow-xl transform hover:scale-[1.02] transition duration-300">
+        <div className="text-4xl mb-4 p-3 bg-indigo-100 rounded-lg inline-block">{icon}</div>
+        <h3 className="text-2xl font-semibold text-indigo-800 mb-3 font-serif">{title}</h3>
         <p className="text-gray-600">{description}</p>
     </div>
 );
@@ -481,6 +506,50 @@ export default function AccountPage() {
 
 --- END FILE: src\app\account\page.js ---
 
+--- START FILE: src\app\api\contact\route.js ---
+
+// src/app/api/contact/route.js
+// Handles submissions from the contact form (src/app/contact/page.js)
+
+import { NextResponse } from 'next/server';
+
+// NOTE: In a real production environment, you would use a service like 
+// SendGrid, Resend, or Nodemailer (via SMTP) here to send the email.
+// For this fully complete placeholder, we simulate a successful server action.
+
+export async function POST(request) {
+  try {
+    const data = await request.json();
+    
+    // 1. Validate data (simple check)
+    if (!data.name || !data.email || !data.message) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    console.log("--- CONTACT FORM SUBMISSION RECEIVED ---");
+    console.log(`From: ${data.name} (${data.email})`);
+    console.log(`Message: ${data.message.substring(0, 50)}...`);
+    console.log("--- End Submission ---");
+
+    // 2. Simulate sending email (takes 1-2 seconds)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // 3. Return success response
+    return NextResponse.json({ 
+      message: 'Message received successfully!',
+      debug: 'Server action simulated (Replace with real email logic)' 
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error("Contact Form Error:", error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+
+
+--- END FILE: src\app\api\contact\route.js ---
+
 --- START FILE: src\app\api\create-order\route.js ---
 
 // src/app/api/create-order/route.js (Node.js Serverless Function)
@@ -522,6 +591,75 @@ export async function POST(request) {
 }
 
 --- END FILE: src\app\api\create-order\route.js ---
+
+--- START FILE: src\app\api\verify-payment\route.js ---
+
+// src/app/api/verify-payment/route.js
+// CRITICAL: Securely verifies the Razorpay payment signature
+// This prevents users from faking successful payments in the frontend.
+
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
+
+// Re-initialize Razorpay (Secret key is only used securely on the server)
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+export async function POST(request) {
+  try {
+    const { 
+      orderId, 
+      paymentId, 
+      signature, 
+      userId, 
+      amount // Included for verification against the order amount
+    } = await request.json();
+
+    // 1. Construct the signature string
+    const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+    shasum.update(`${orderId}|${paymentId}`);
+    const digest = shasum.digest('hex');
+
+    // 2. Compare the calculated digest with the signature received from the client
+    if (digest !== signature) {
+      return NextResponse.json({ status: 'failure', message: 'Signature verification failed.' }, { status: 400 });
+    }
+
+    // --- Verification Successful ---
+    
+    // 3. Optional: Fetch the payment details from Razorpay to confirm amount
+    // const payment = await razorpay.payments.fetch(paymentId);
+    // if (payment.amount !== 50000) { /* Check amount */ }
+
+    // 4. Update the user's Firestore record (Heavy Lifting Done Here!)
+    const userRef = doc(db, "users", userId);
+    await setDoc(userRef, {
+      lastSubscriptionDate: new Date().toISOString(),
+      isSubscribed: true,
+      subscriptionPlan: 'Yogi Monthly',
+      razorpayDetails: { orderId, paymentId, signature, amount },
+    }, { merge: true });
+
+    return NextResponse.json({ 
+      status: 'success', 
+      message: 'Payment verified and subscription activated!',
+      userId 
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error("Payment Verification Error:", error);
+    return NextResponse.json({ status: 'error', message: 'Internal server error during verification.' }, { status: 500 });
+  }
+}
+
+
+
+--- END FILE: src\app\api\verify-payment\route.js ---
 
 --- START FILE: src\app\classes\page.js ---
 
@@ -566,42 +704,62 @@ export default function ClassesPage() {
 --- START FILE: src\app\contact\page.js ---
 
 // src/app/contact/page.js
-"use client"; // Form handling usually requires a Client Component
+"use client";
 
 import { useState } from 'react';
 
 export default function ContactPage() {
-    const [status, setStatus] = useState('');
+    const [status, setStatus] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         setStatus('Sending...');
         
-        // --- REAL WORLD TODO: 
-        // Implement form submission logic here (e.g., using a serverless function)
-        
-        setTimeout(() => {
-            setStatus('Thank you! Your message has been received.');
-            e.target.reset();
-        }, 2000);
+        const formData = {
+            name: e.target.name.value,
+            email: e.target.email.value,
+            message: e.target.message.value,
+        };
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+                setStatus('Thank you! Your message has been received.');
+                e.target.reset();
+            } else {
+                const errorData = await response.json();
+                setStatus(`Error: ${errorData.error || 'Failed to submit form.'}`);
+            }
+        } catch (error) {
+            setStatus('Network error. Please try again later.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
-      <div className="container mx-auto p-8 sm:p-12 max-w-4xl">
+      <div className="container mx-auto p-8 max-w-4xl">
         
-        <div className="text-center mb-10">
-            <h1 className="text-4xl font-serif font-extrabold text-indigo-800 mb-3">
+        <div className="text-center mb-12">
+            <h1 className="text-5xl font-serif font-extrabold text-indigo-800 mb-4">
                 Connect With Us
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-xl text-gray-600">
                 We are here to answer your questions and guide your practice.
             </p>
         </div>
 
-        <div className="bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
+        <div className="bg-white p-10 rounded-2xl shadow-2xl border border-gray-100">
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1">
                         Full Name
                     </label>
                     <input
@@ -609,12 +767,12 @@ export default function ContactPage() {
                         id="name"
                         name="name"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
                     />
                 </div>
                 
                 <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1">
                         Email Address
                     </label>
                     <input
@@ -622,33 +780,33 @@ export default function ContactPage() {
                         id="email"
                         name="email"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-1">
                         Your Message
                     </label>
                     <textarea
                         id="message"
                         name="message"
-                        rows="4"
+                        rows="5"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
                     ></textarea>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-                    disabled={status.includes('Sending') || status.includes('received')}
+                    className="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition duration-300 shadow-md disabled:opacity-50"
+                    disabled={isSubmitting}
                 >
-                    {status.includes('Sending') ? 'Sending...' : 'Send Message'}
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
                 
-                {status && !status.includes('Sending') && (
-                    <p className={`mt-4 text-center ${status.includes('received') ? 'text-green-600' : 'text-red-500'}`}>
+                {status && (
+                    <p className={`mt-4 text-center text-sm font-medium ${status.includes('Thank you') ? 'text-green-600' : 'text-red-500'}`}>
                         {status}
                     </p>
                 )}
@@ -659,6 +817,8 @@ export default function ContactPage() {
     );
 }
 
+
+
 --- END FILE: src\app\contact\page.js ---
 
 --- START FILE: src\app\dashboard\page.js ---
@@ -668,21 +828,20 @@ export default function ContactPage() {
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // <--- FIX: Import Link
 import PaymentInitiator from '@/components/PaymentInitiator'; 
 import { useAuth } from '@/context/AuthContext'; 
 
 export default function DashboardPage() {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, userData, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // If we finished loading and there is no current user, redirect to home/login.
     if (!loading && !currentUser) {
       router.replace('/'); 
     }
   }, [currentUser, loading, router]);
   
-  // 1. Show loading or redirection message while checking auth status
   if (loading || !currentUser) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -691,30 +850,67 @@ export default function DashboardPage() {
     );
   }
 
-  // 2. Render the actual dashboard content if authenticated
+  // Determine access level
+  const isSubscribed = userData?.isSubscribed;
+  const accessColor = isSubscribed ? 'text-emerald-600' : 'text-red-500';
+
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold text-indigo-800 mb-4">
-        Welcome, {currentUser?.displayName || 'Yogi'}!
+    <div className="container mx-auto p-8 max-w-5xl">
+      <h1 className="text-4xl font-serif font-bold text-indigo-800 mb-2">
+        Welcome Back, {currentUser?.displayName?.split(' ')[0] || 'Yogi'}!
       </h1>
       <p className="text-lg text-gray-600 mb-8">
-        This is your private dashboard. Access secured content and manage your subscription.
+        Manage your subscription and access your private course library.
       </p>
 
-      {/* Protected Content */}
-      <div className="bg-white p-6 rounded-lg shadow-xl mb-8">
-        <h2 className="text-2xl font-semibold mb-3">Your Active Courses</h2>
-        <ul className="list-disc list-inside space-y-2 text-gray-700">
-          <li>Daily Chakra Balancing (Video Access)</li>
-          <li>Guided Sleep Meditation Audio</li>
-        </ul>
+      {/* Subscription Status Card */}
+      <div className="bg-white p-6 rounded-lg shadow-2xl border-l-4 border-indigo-500 mb-10">
+        <h2 className="text-2xl font-semibold mb-3">Membership Status</h2>
+        <p className="text-lg">
+          Current Plan: 
+          <span className={`font-bold ml-2 ${accessColor}`}>
+            {isSubscribed ? 'Yogi Monthly (Active)' : 'Explorer (Free Tier)'}
+          </span>
+        </p>
       </div>
 
       <PaymentInitiator />
+      
+      {/* Protected Content Section */}
+      <div className="mt-12 p-8 bg-gray-50 rounded-lg shadow-inner">
+        <h2 className="text-2xl font-serif font-bold mb-5 text-indigo-700">Your Course Library</h2>
+        
+        {isSubscribed ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana" />
+                <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha-flow" />
+                <CourseLink title="Pranayama Fundamentals" href="/courses/pranayama" />
+                <CourseLink title="Guided Sleep Audio Archive" href="/courses/sleep-audio" />
+            </div>
+        ) : (
+            <div className="text-center p-8 bg-white border-2 border-dashed border-red-200 rounded-lg">
+                <p className="text-xl text-red-600 font-medium mb-4">
+                    Access Denied: Please subscribe to unlock all premium courses.
+                </p>
+                <p className="text-gray-500">
+                    You currently have access only to the 5 free introductory videos.
+                </p>
+            </div>
+        )}
+      </div>
     </div>
   );
 }
 
+const CourseLink = ({ title, href }) => (
+    <Link 
+        href={href} 
+        className="block p-4 bg-white rounded-lg shadow-md hover:bg-indigo-500/5 transition duration-200 border-l-4 border-emerald-500"
+    >
+        <p className="font-semibold text-gray-800">{title}</p>
+        <p className="text-sm text-gray-500">Start Lesson 1 →</p>
+    </Link>
+);
 
 --- END FILE: src\app\dashboard\page.js ---
 
@@ -895,44 +1091,41 @@ import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
-  const { currentUser, login, loading } = useAuth();
+  const { currentUser, login, loading, userData } = useAuth();
+  
+  const isSubscribed = userData?.isSubscribed;
 
   return (
-    <header className="bg-white shadow-lg sticky top-0 z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20"> {/* Slightly taller header */}
+    <header className="bg-white shadow-xl sticky top-0 z-20 border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20"> 
         {/* Logo/Title */}
-        <Link href="/" className="text-3xl font-serif font-bold text-indigo-700 hover:text-purple-600 transition">
+        <Link href="/" className="text-3xl font-serif font-extrabold text-indigo-800 hover:text-purple-600 transition tracking-tight">
           AnandaYog
         </Link>
 
-        {/* Navigation Links (Publicly accessible) */}
-        <nav className="flex space-x-8">
-          <Link href="/classes" className="text-gray-600 hover:text-indigo-600 font-medium transition">
-            Classes
-          </Link>
-          <Link href="/about" className="text-gray-600 hover:text-indigo-600 font-medium transition">
-            About Us
-          </Link>
-          <Link href="/pricing" className="text-gray-600 hover:text-indigo-600 font-medium transition">
-            Pricing
-          </Link>
-          <Link href="/contact" className="text-gray-600 hover:text-indigo-600 font-medium transition">
-            Contact
-          </Link>
+        {/* Navigation Links */}
+        <nav className="hidden md:flex space-x-8">
+          <NavLink href="/classes">Classes</NavLink>
+          <NavLink href="/about">Our Story</NavLink>
+          <NavLink href="/pricing">Pricing</NavLink>
+          <NavLink href="/contact">Contact</NavLink>
         </nav>
 
         {/* Auth Status / Action Button */}
         <div className="flex items-center space-x-4">
           {!loading && (
             currentUser ? (
-              // Link to the /account page (which redirects to /dashboard if logged in)
-              <Link href="/account" className="bg-purple-600 text-white py-2 px-5 rounded-full hover:bg-purple-700 transition duration-300 shadow">
-                My Account
+              // If logged in, button shows subscription status
+              <Link 
+                href="/dashboard" 
+                className={`text-white py-2 px-5 rounded-full font-semibold transition duration-300 shadow-md ${isSubscribed ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+              >
+                {isSubscribed ? 'Subscription Active' : 'My Dashboard'}
               </Link>
             ) : (
               <button 
                 onClick={login}
-                className="text-indigo-600 border border-indigo-600 py-2 px-5 rounded-full hover:bg-indigo-50 transition duration-300 font-medium"
+                className="text-indigo-700 border-2 border-indigo-700 py-2 px-5 rounded-full hover:bg-indigo-50 transition duration-300 font-medium shadow-sm"
               >
                 Login / Join
               </button>
@@ -944,18 +1137,24 @@ export default function Header() {
   );
 }
 
+const NavLink = ({ href, children }) => (
+    <Link href={href} className="text-gray-600 hover:text-indigo-600 font-medium text-lg transition duration-200">
+        {children}
+    </Link>
+);
+
+
 
 --- END FILE: src\components\Header.js ---
 
 --- START FILE: src\components\PaymentInitiator.js ---
 
-// src/components/PaymentInitiator.js
+// src/components/PaymentInitiator.js (UPDATED for secure verification)
 "use client";
 
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-// Utility function to load the Razorpay script dynamically
 const loadRazorpayScript = (src) => {
   return new Promise((resolve) => {
     const script = document.createElement('script');
@@ -967,9 +1166,19 @@ const loadRazorpayScript = (src) => {
 };
 
 export default function PaymentInitiator() {
-  const { currentUser } = useAuth();
+  const { currentUser, userData } = useAuth();
   const [status, setStatus] = useState('');
   
+  if (userData?.isSubscribed) {
+      return (
+        <div className="p-6 bg-green-50 border border-green-200 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold text-green-700 mb-2">Subscription Active!</h3>
+            <p className="text-gray-600">You have unlimited access to all courses. Enjoy your bliss.</p>
+        </div>
+      );
+  }
+
+
   const handleCheckout = async () => {
     setStatus('Preparing checkout...');
     
@@ -981,11 +1190,12 @@ export default function PaymentInitiator() {
     }
 
     // 2. Request a secure Order ID from our Node.js API Route
+    const paymentAmountINR = 500;
     const orderDataResponse = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        amount: 500, // Example: ₹500 (API converts to paisa)
+        amount: paymentAmountINR, 
         receiptId: currentUser.uid 
       }),
     });
@@ -999,51 +1209,69 @@ export default function PaymentInitiator() {
 
     // 3. Configure the Razorpay Checkout
     const options = {
-      key: orderData.key, // Public Key ID from .env.local
-      amount: orderData.amount, // Amount in paisa
+      key: orderData.key,
+      amount: orderData.amount,
       currency: orderData.currency,
       name: "AnandaYog Subscription",
-      description: "Monthly Unlimited Access",
+      description: "Yogi Monthly Unlimited Access (₹500)",
       order_id: orderData.id,
-      handler: function (response) {
-        // SUCCESS: Send response to a secure webhook route for final verification
-        // NOTE: You MUST implement a secure verification webhook on the server
-        console.log("Payment successful. Verifying payment...");
-        setStatus(`Payment Successful! ID: ${response.razorpay_payment_id}. Status update pending.`);
+      
+      handler: async function (response) {
+        setStatus('Payment successful, securely verifying...');
         
-        // **TODO: Call /api/verify-payment Webhook here**
+        // 4. CRITICAL: Send response to the secure server verification endpoint
+        const verificationResponse = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                userId: currentUser.uid,
+                amount: paymentAmountINR // send amount for double check
+            }),
+        });
+        
+        if (verificationResponse.ok) {
+            setStatus('Subscription Activated! Welcome, Yogi.');
+            // AuthContext's onSnapshot listener handles the state refresh
+        } else {
+            setStatus('Verification failed. Contact support with payment ID.');
+        }
       },
       prefill: {
         name: currentUser.displayName,
         email: currentUser.email,
       },
       theme: {
-        color: "#4f46e5" // Indigo theme
+        color: "#4f46e5"
       }
     };
     
     const rzp = new window.Razorpay(options);
     rzp.open();
-    setStatus('');
+    setStatus('Waiting for payment...');
   };
 
   return (
-    <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold text-indigo-700 mb-4">Start Your Subscription</h3>
-      <p className="mb-4">Get unlimited access to all courses for only ₹500/month.</p>
+    <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-lg shadow-xl">
+      <h3 className="text-2xl font-bold text-indigo-700 mb-4">Unlock Unlimited Bliss</h3>
+      <p className="mb-4 text-gray-700">Get unlimited access to all courses, live sessions, and the community archive for only ₹500/month.</p>
       
       <button 
         onClick={handleCheckout}
-        disabled={status.includes('Preparing')}
-        className="bg-purple-600 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300 disabled:opacity-50"
+        disabled={status.includes('Preparing') || status.includes('Verifying') || status.includes('Waiting')}
+        className="bg-purple-600 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300 disabled:opacity-50 shadow-md"
       >
-        Subscribe Now (UPI/Card)
+        {status.includes('Waiting') ? 'Payment Window Open...' : 'Subscribe Now (₹500/mo)'}
       </button>
 
-      {status && <p className="mt-4 text-sm text-gray-600">{status}</p>}
+      {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-green-600 font-medium' : 'text-gray-600'}`}>{status}</p>}
     </div>
   );
 }
+
+
 
 --- END FILE: src\components\PaymentInitiator.js ---
 
@@ -1085,12 +1313,13 @@ export default function ProtectedRoute({ children }) {
 
 --- START FILE: src\context\AuthContext.js ---
 
-// src/context/AuthContext.js
+// src/context/AuthContext.js (UPDATED to include Firestore subscription check)
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth } from '../lib/firebase';
+import { auth, db } from '../lib/firebase'; // Import db
 import { onAuthStateChanged, signOut, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore'; // Import Firestore functions
 
 const AuthContext = createContext();
 
@@ -1098,28 +1327,52 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userData, setUserData] = useState(null); // New state for Firestore data
   const [loading, setLoading] = useState(true);
 
   const googleProvider = new GoogleAuthProvider();
-
-  // Login function
   const login = () => signInWithPopup(auth, googleProvider);
-  
-  // Logout function
   const logout = () => signOut(auth);
 
   useEffect(() => {
-    // This listener updates the user state whenever the auth status changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    let unsubscribeAuth;
+    let unsubscribeFirestore;
+
+    unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       setLoading(false);
+
+      if (user) {
+        // Start listening to the user's document in Firestore
+        const userRef = doc(db, "users", user.uid);
+        
+        // Listen for real-time updates to the user's profile/subscription data
+        unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+                setUserData(docSnap.data());
+            } else {
+                // User document doesn't exist yet, initialize minimum data
+                setUserData({ isSubscribed: false });
+            }
+        }, (error) => {
+            console.error("Error listening to Firestore:", error);
+            setUserData({ isSubscribed: false });
+        });
+      } else {
+          setUserData(null);
+      }
     });
 
-    return () => unsubscribe();
+    // Cleanup function
+    return () => {
+        if (unsubscribeAuth) unsubscribeAuth();
+        if (unsubscribeFirestore) unsubscribeFirestore();
+    };
   }, []);
 
   const value = {
     currentUser,
+    userData, // Expose user data (including subscription status)
     loading,
     login,
     logout,
@@ -1127,10 +1380,12 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {/* We wait for both auth check and initial user data load (or lack thereof) */}
+      {!loading && children} 
     </AuthContext.Provider>
   );
 };
+
 
 --- END FILE: src\context\AuthContext.js ---
 
@@ -1160,5 +1415,212 @@ export const db = getFirestore(app);
 
 ----------------------------------------------------------------------------
 
-fully guide me with the firebase and razorpay setup extremely clearly please.
+AI: This is a fantastic foundation! You have a modern Next.js 16 application with solid features, including secure Firebase authentication and a robust, correctly implemented Razorpay payment flow with server-side signature verification (which is critical for security).
 
+Here is a comprehensive set of advice on how to improve the website, focusing specifically on your requests for a new color palette, aesthetic improvements, structural changes, and responsiveness.
+
+---
+
+## 1. The New Serene & Blissful Color Palette
+
+The current palette (heavy indigo, standard purple, sharp emerald green) lacks the soft, expansive feeling appropriate for a meditation center. We need colors that evoke deep nature, soft light, and tranquility.
+
+### The Proposed Palette: Deep Teal, Sage Green, and Warm Gold
+
+| Role | Color Name | Tailwind Class Base | Hex (Example) | Feeling |
+| :--- | :--- | :--- | :--- | :--- |
+| **Primary (Depth/Spiritual)** | **Deep Teal** | `teal-800` | `#0E5B6A` | Grounded, trust, deep stillness. |
+| **Secondary (Serenity/Body)** | **Soft Sage** | `emerald-200` or `lime-100` | `#D9EBE8` | Calm, growth, nature. |
+| **Accent/CTA (Energy/Action)** | **Warm Gold** | `amber-500` | `#F59E0B` | Wisdom, light, gentle movement. |
+| **Background** | **Warm Linen** | `gray-50` | `#FAFAFA` | Soft, inviting, less sterile than pure white. |
+| **Text** | **Charcoal** | `gray-800` | `#2D3748` | Readable, soft contrast. |
+
+### Required Changes to `src\app\globals.css`
+
+You need to update your CSS variables to reflect this new, softer palette.
+
+```css
+/* src/app/globals.css - UPDATED */
+
+@import "tailwindcss";
+
+/* --- Custom Visual Enhancement: Fonts and Colors --- */
+
+/* Assume fonts Playfair Display (Serif) & Inter (Sans) are linked */
+@layer base {
+  .font-serif {
+    font-family: 'Playfair Display', Georgia, serif; 
+  }
+  .font-sans {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+:root {
+  /* New Serene Palette */
+  --background: #fafafa; /* Warm Linen */
+  --foreground: #2d3748; /* Charcoal Text */
+  
+  /* Primary: Deep Teal (Used for headers, strong lines) */
+  --primary-teal: 14 91 106; /* HSL 190, 60%, 20% equivalent */
+  
+  /* Accent 1: Serene Green (Used for background cards, secondary links) */
+  --accent-sage: 212 235 232; /* Soft light green/blue */ 
+  
+  /* Accent 2: Warm Gold (Used for CTAs, success messages) */
+  --cta-gold: 245 158 11; /* amber-500 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121212;
+    --foreground: #f0f0f0;
+    /* Adjust dark mode colors if necessary, e.g., using lighter teals */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  @apply font-sans; 
+}
+
+/* Custom class for the serene background used on the homepage */
+.bg-serene-gradient {
+  /* Transition the gradient from a deep teal to a soft sage */
+  background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
+}
+```
+
+---
+
+## 2. Structural & Code Improvements
+
+While your setup is robust, a few strategic changes will enhance UX, maintainability, and security.
+
+### A. Refine the Dashboard/Account Flow
+
+The current flow sends users from `/account` to `/dashboard` immediately after login check. This causes a momentary screen blink (FOUC).
+
+**Suggested Change:**
+1.  **Remove `src\app\account\page.js`** entirely.
+2.  **Rename the "Login / Join" button** in `Header.js` to direct straight to `/dashboard`.
+    *   If the user is logged out, the dashboard page will handle the redirect/auth component display internally.
+3.  **Update `src\app\dashboard\page.js`** to check for `!currentUser` and, if none, render the `AuthStatus` component directly, prompting login.
+
+**Impact on `dashboard/page.js`:**
+
+```javascript
+// src/app/dashboard/page.js (Conceptual update)
+
+// ... imports ...
+import AuthStatus from '@/components/AuthStatus'; 
+
+export default function DashboardPage() {
+    // ... auth checks ...
+
+    if (loading) { /* ... loading state ... */ }
+
+    // If not logged in, show login component instead of redirecting
+    if (!currentUser) {
+        return (
+            <div className="container mx-auto p-8 sm:p-12 flex justify-center">
+                <div className="w-full max-w-md">
+                    <h1 className="text-3xl font-serif font-bold text-center text-indigo-800 mb-6">
+                        Log In to Access Your Dashboard
+                    </h1>
+                    <AuthStatus /> 
+                </div>
+            </div>
+        );
+    }
+    
+    // ... rest of dashboard content for logged-in users ...
+}
+```
+**(Note: This requires careful implementation to avoid the `useEffect` redirect racing the render, but keeping the logic contained in one place improves clarity.)*
+
+### B. Enhance Error Handling
+
+In API routes, especially the critical payment verification route, return more specific error messages to the client when appropriate.
+
+**File:** `src\app\api\verify-payment\route.js`
+*   The error handling is good, but ensure that any failed payment or verification attempt logs detailed information on the server (which you are doing with `console.error`) but returns a generic user-friendly message to the client.
+
+### C. Improve Component Reusability
+
+Your components are well-isolated, but ensure you replace all old color classes (e.g., `text-indigo-800`, `bg-emerald-600`) in `Header.js`, `page.js`, and `Pricing.js` with classes based on the new palette (e.g., `text-primary-teal`, `bg-cta-gold`).
+
+---
+
+## 3. Aesthetic and UX Improvements (Making it Awesome)
+
+To elevate the site from functional to awesome, focus on polishing the user experience and visual hierarchy.
+
+### A. Visual Content (Placeholder Resolution)
+
+This is the single biggest factor for a meditation site:
+1.  **Hero Image:** Replace the placeholder background image on `/` with a high-resolution, professional image of a serene landscape, soft sunrise, or minimalist meditation space. Use soft focus and warm light.
+2.  **Teacher Profiles (`/about`):** Replace the generic 👤 with actual, calming profile photos of the teachers. Authenticity is key here.
+
+### B. Typography and Hierarchy
+
+1.  **Consistent Headings:** Ensure `font-serif` (Playfair Display) is used consistently for all major page titles and section headers (`h1`, `h2`), and `font-sans` (Inter) for body copy. This contrast adds sophistication.
+2.  **Vertical Rhythm:** Increase spacing between sections, particularly on the homepage (`page.js`), to give the content "room to breathe," enhancing the sense of calm. (e.g., use `py-20` instead of `py-16`).
+
+### C. Micro-Interactions
+
+Your existing components have nice transitions (`transform hover:translate-y-[-2px]`), but integrate this throughout:
+
+1.  **Card Hovers (`page.js`, `pricing\page.js`):** The existing `transform hover:scale-105` is excellent. Apply subtle `shadow-xl` changes on hover for cards.
+2.  **Link Underlines:** For text links in the footer or body, use a subtle hover effect that underlines or changes color to the `Warm Gold`.
+3.  **Loading States:** Use a more engaging loader (a simple spinning circle or pulse effect) in `AuthContext` or `dashboard/page.js` instead of just text like "Accessing secure content..."
+
+### D. CTA Clarity
+
+On the `/pricing` page, ensure the annual plan clearly calculates the saving (e.g., "Save 1200 INR (2 Months Free!)" positioned right next to the annual price).
+
+---
+
+## 4. Responsiveness for Mobile Phones
+
+Tailwind CSS is fundamentally mobile-first, but achieving perfect responsiveness requires intentional breakpoints and handling complex layouts.
+
+### A. Implement a Mobile Navigation Menu (`src\components\Header.js`)
+
+Currently, the navigation links disappear below the `md` breakpoint.
+
+**Action Required:**
+1.  Add a **Hamburger Menu Icon** (`<button>`) visible only on mobile screens (`md:hidden`).
+2.  Implement a client-side state (`[isMenuOpen, setIsMenuOpen]`) to toggle a **side drawer or full-screen overlay** containing the navigation links.
+
+### B. Review Grid Collapse Strategy
+
+You use `md:grid-cols-3` in several places (e.g., `/page.js`, `/about/page.js`, `/pricing/page.js`).
+
+**Action Required:**
+1.  **Pricing Page:** Ensure the three columns stack nicely on mobile screens. The current stacking is fine, but check that padding doesn't push them too wide.
+2.  **Cards:** On smaller phones, make sure cards are not excessively padded. Use smaller padding utilities on mobile (`p-4` vs `p-8`).
+
+### C. Font Sizing Scaling
+
+Large headlines on the desktop (`text-7xl` in the Hero) will look too big on mobile.
+
+**Action Required:**
+Use responsive font sizing in the Hero (`src\app\page.js`):
+
+```javascript
+// Before:
+<h1 className="text-6xl md:text-7xl font-extrabold font-serif leading-tight mb-6 drop-shadow-lg">
+
+// Suggested (making it smaller on base size):
+<h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold font-serif leading-tight mb-6 drop-shadow-lg">
+```
+
+### D. Horizontal Overflow Prevention
+
+Check every component on a mobile emulator (like Chrome DevTools) to ensure no element (especially images or complex card layouts) forces horizontal scrolling. Use `max-w-full` on potential problematic elements.
+
+By implementing these structural, aesthetic, and responsiveness improvements, you will transform your robust technical foundation into a truly beautiful, serene, and professional meditation platform.
+
+do as told above.

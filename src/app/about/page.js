@@ -4,9 +4,9 @@ export default function AboutPage() {
     return (
       <div className="container mx-auto p-8 sm:p-12">
         
-        {/* Hero Section */}
-        <div className="bg-indigo-50 p-10 rounded-xl shadow-inner mb-12 text-center">
-            <h1 className="text-5xl font-serif font-extrabold text-indigo-800 mb-4">
+        {/* Hero Section - Changed background and text colors */}
+        <div className="bg-teal-50 p-10 rounded-xl shadow-inner mb-12 text-center">
+            <h1 className="text-5xl font-serif font-extrabold text-teal-800 mb-4">
                 Our Roots, Our Vision
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -14,10 +14,10 @@ export default function AboutPage() {
             </p>
         </div>
 
-        {/* Mission Section */}
+        {/* Mission Section - Changed header color */}
         <section className="grid md:grid-cols-2 gap-12 items-center py-10">
             <div>
-                <h2 className="text-3xl font-bold text-purple-700 mb-4">The AnandaYog Mission</h2>
+                <h2 className="text-3xl font-bold text-teal-700 mb-4">The AnandaYog Mission</h2>
                 <p className="text-gray-700 mb-4 leading-relaxed">
                     Founded on the belief that inner tranquility is accessible to everyone, AnandaYog was created to be a digital sanctuary. We move beyond trendy fitness routines to offer practices that truly connect you with your deepest self.
                 </p>
@@ -31,9 +31,9 @@ export default function AboutPage() {
             </div>
         </section>
 
-        {/* Teacher Profiles Section */}
+        {/* Teacher Profiles Section - Changed header color */}
         <section className="py-16 text-center">
-            <h2 className="text-3xl font-bold text-indigo-800 mb-8">Meet Our Lead Teachers</h2>
+            <h2 className="text-3xl font-bold text-teal-800 mb-8">Meet Our Lead Teachers</h2>
             <div className="grid md:grid-cols-3 gap-8">
                 <TeacherCard name="Rishi Sharma" specialty="Vipassana & Pranayama" />
                 <TeacherCard name="Maya Singh" specialty="Hatha & Restorative Yoga" />
@@ -47,12 +47,13 @@ export default function AboutPage() {
 
 const TeacherCard = ({ name, specialty }) => (
     <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100">
-        {/* Placeholder for Teacher Image */}
-        <div className="w-24 h-24 mx-auto bg-purple-100 rounded-full mb-4 flex items-center justify-center text-3xl text-purple-600">
+        {/* Changed background color and icon color */}
+        <div className="w-24 h-24 mx-auto bg-teal-100 rounded-full mb-4 flex items-center justify-center text-3xl text-teal-600">
             👤
         </div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
-        <p className="text-indigo-600 italic">{specialty}</p>
+        {/* Changed text color */}
+        <p className="text-teal-600 italic">{specialty}</p>
         <p className="text-sm text-gray-500 mt-3">Certified with 10+ years experience.</p>
     </div>
 );

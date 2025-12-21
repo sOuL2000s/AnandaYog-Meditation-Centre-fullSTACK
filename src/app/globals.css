@@ -7,9 +7,8 @@
 
 /* --- Custom Visual Enhancement: Fonts and Colors --- */
 
-/* Import Google Fonts (or specify fallback) */
+/* Assume fonts Playfair Display (Serif) & Inter (Sans) are linked */
 @layer base {
-  /* This assumes you'd link the font in the layout head, but uses system fallback for guaranteed rendering */
   .font-serif {
     font-family: 'Playfair Display', Georgia, serif; 
   }
@@ -19,30 +18,35 @@
 }
 
 :root {
-  --background: #fdfdfd; /* Light Cream */
-  --foreground: #1a1a1a;
-  --primary-indigo: 67 56 202; /* indigo-700 */
-  --primary-purple: 147 51 234; /* purple-600 */
-  --accent-green: 16 185 129; /* emerald-500 */
+  /* New Serene Palette */
+  --background: #fafafa; /* Warm Linen */
+  --foreground: #2d3748; /* Charcoal Text */
+  
+  /* Primary: Deep Teal (Used for headers, strong lines) */
+  --primary-teal: 14 91 106; /* Approximate teal-800 */
+  
+  /* Accent 1: Serene Sage/Mint (Used for soft backgrounds) */
+  --accent-sage: 217 235 232; /* Soft light green/blue */ 
+  
+  /* Accent 2: Warm Gold (Used for CTAs, success messages) */
+  --cta-gold: 245 158 11; /* amber-500 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d0d0d;
-    --foreground: #e0e0e0;
+    --background: #121212;
+    --foreground: #f0f0f0;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  /* Apply default font */
   @apply font-sans; 
 }
 
 /* Custom class for the serene background used on the homepage */
 .bg-serene-gradient {
-  background-image: linear-gradient(135deg, rgba(78, 56, 189, 0.9) 0%, rgba(135, 78, 201, 0.8) 100%);
+  /* Transition the gradient from a deep teal to a soft sage/mint */
+  background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
 }
-
-
