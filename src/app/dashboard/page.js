@@ -1,13 +1,32 @@
 // src/app/dashboard/page.js
-import ProtectedRoute from '../../components/ProtectedRoute';
-import PaymentInitiator from '../../components/PaymentInitiator';
-import { useAuth } from '../../context/AuthContext';
+"use client"; // CRITICAL: Mark this component as client-side
 
-// Since we need hooks (useAuth), this must be a client component
-// but is protected by the ProtectedRoute wrapper.
-function DashboardContent() {
-  const { currentUser } = useAuth();
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import PaymentInitiator from '@/components/PaymentInitiator'; 
+import { useAuth } from '@/context/AuthContext'; 
+
+export default function DashboardPage() {
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If we finished loading and there is no current user, redirect to home/login.
+    if (!loading && !currentUser) {
+      router.replace('/'); 
+    }
+  }, [currentUser, loading, router]);
   
+  // 1. Show loading or redirection message while checking auth status
+  if (loading || !currentUser) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-xl text-gray-500">Accessing secure content...</p>
+      </div>
+    );
+  }
+
+  // 2. Render the actual dashboard content if authenticated
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-4xl font-bold text-indigo-800 mb-4">
@@ -17,7 +36,7 @@ function DashboardContent() {
         This is your private dashboard. Access secured content and manage your subscription.
       </p>
 
-      {/* Placeholder for protected content */}
+      {/* Protected Content */}
       <div className="bg-white p-6 rounded-lg shadow-xl mb-8">
         <h2 className="text-2xl font-semibold mb-3">Your Active Courses</h2>
         <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -28,14 +47,5 @@ function DashboardContent() {
 
       <PaymentInitiator />
     </div>
-  );
-}
-
-
-export default function DashboardPage() {
-  return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
   );
 }
