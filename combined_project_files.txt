@@ -154,48 +154,6 @@ export default config;
 
 --- END FILE: postcss.config.mjs ---
 
---- START FILE: README.md ---
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
---- END FILE: README.md ---
-
 --- START FILE: public\file.svg ---
 
 <svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
@@ -228,21 +186,18 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 --- START FILE: src\app\globals.css ---
 
+/* 
+ * FIX for Tailwind CSS v4: 
+ * Use the single @import "tailwindcss" directive. 
+ * This includes preflight (base), utilities, and components automatically.
+ */
 @import "tailwindcss";
-@tailwind utilities;
-@import "tailwindcss/preflight";
+
 
 /* Add custom styles below if needed */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -282,7 +237,8 @@ export default function RootLayout({ children }) {
         {/* Wrap everything in the AuthProvider */}
         <AuthProvider>
           <Header />
-          <main className="flex-grow">
+          {/* Changed 'flex-grow' to 'grow' */}
+          <main className="grow"> 
             {children}
           </main>
           <Footer />
@@ -292,51 +248,238 @@ export default function RootLayout({ children }) {
   );
 }
 
+
 --- END FILE: src\app\layout.js ---
 
 --- START FILE: src\app\page.js ---
 
 // src/app/page.js
 import Link from 'next/link';
+import Image from 'next/image';
+
+// Placeholder for a serene image (Assume it's in /public/hero-image.jpg)
+// You should place a calming image (e.g., sunrise, nature, person meditating) 
+// at public/hero-image.jpg for the best effect.
+
+const BlissfulHero = () => (
+  <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
+    {/* Background Image Placeholder (Replace with your own image in public/hero-image.jpg) */}
+    <div className="absolute inset-0">
+      {/* 
+        NOTE: For deployment, replace the Image component with a simple img tag 
+        if you don't have a specific hero-image.jpg file yet.
+      */}
+      <div className="absolute inset-0 bg-gradient-to-t from-indigo-900/70 to-purple-800/60 z-10"></div>
+      <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/placeholder-serene.jpg')" }}></div>
+    </div>
+
+    {/* Content */}
+    <div className="relative z-20 text-center text-white p-6 max-w-4xl">
+      <p className="text-xl font-light tracking-widest uppercase mb-4 opacity-90">
+        Discover Your Sanctuary
+      </p>
+      <h1 className="text-6xl md:text-7xl font-extrabold font-serif leading-tight mb-6">
+        The Journey to Inner Peace Starts Now
+      </h1>
+      <p className="text-xl md:text-2xl font-light mb-10 opacity-95">
+        Guided meditation and authentic yoga practices designed to quiet the mind and nourish the soul.
+      </p>
+      <Link 
+        href="/classes" 
+        className="bg-purple-500 text-white text-xl font-semibold py-4 px-10 rounded-full hover:bg-purple-600 transition duration-300 shadow-xl border-2 border-white/50"
+      >
+        Explore Our Offerings
+      </Link>
+    </div>
+  </section>
+);
+
 
 // This is a Server Component, excellent for SEO/speed
 export default function HomePage() {
   return (
-    <div className="container mx-auto p-8">
-      <section className="text-center py-20 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl shadow-xl mb-12">
-        <h1 className="text-5xl font-extrabold text-gray-900 font-serif mb-4">
-          Find Your Inner Stillness at AnandaYog
-        </h1>
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Daily meditation and yoga classes to harmonize mind, body, and spirit.
-        </p>
-        <Link 
-          href="/classes" 
-          className="bg-indigo-600 text-white text-lg font-semibold py-3 px-8 rounded-full hover:bg-indigo-700 transition duration-300 shadow-lg"
-        >
-          Explore All Classes
-        </Link>
-      </section>
+    <>
+      <BlissfulHero />
 
-      <section className="grid md:grid-cols-3 gap-8 text-center">
-        <div className="p-6 bg-white rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-indigo-700 mb-3">Daily Live Sessions</h3>
-          <p className="text-gray-600">Join our community for real-time guidance from experienced instructors.</p>
-        </div>
-        <div className="p-6 bg-white rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-indigo-700 mb-3">Curated Courses</h3>
-          <p className="text-gray-600">Structured paths for beginners to advanced practitioners.</p>
-        </div>
-        <div className="p-6 bg-white rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-indigo-700 mb-3">Flexible Subscriptions</h3>
-          <p className="text-gray-600">Access unlimited content with our affordable monthly plans.</p>
-        </div>
-      </section>
-    </div>
+      <div className="container mx-auto p-8 sm:p-12">
+        {/* Core Values Section */}
+        <section className="py-16 text-center">
+          <h2 className="text-4xl font-bold text-indigo-800 mb-4 font-serif">Our Philosophy</h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+            AnandaYog is built on principles of authenticity, community, and accessible guidance for all levels of practitioners.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8 text-left">
+            <ValueCard 
+              icon="🧘‍♀️"
+              title="Authentic Practice"
+              description="Rooted in ancient tradition, delivered with modern clarity."
+            />
+            <ValueCard 
+              icon="✨"
+              title="Accessible to All"
+              description="Courses for absolute beginners to advanced deep-dive retreats."
+            />
+            <ValueCard 
+              icon="🌿"
+              title="Mindful Living"
+              description="Tools to integrate peace and presence into your daily life."
+            />
+          </div>
+        </section>
+        
+        {/* Call to Action for About Page */}
+        <section className="mt-16 text-center bg-green-50 p-10 rounded-xl shadow-inner">
+            <h2 className="text-3xl font-bold text-sage-800 mb-4">Ready to Begin?</h2>
+            <p className="text-lg text-gray-700 mb-6">
+                Meet our dedicated teachers and learn more about our centre&apos;s mission.
+            </p>
+            <Link 
+                href="/about"
+                className="bg-green-600 text-white font-semibold py-3 px-8 rounded-full hover:bg-green-700 transition duration-300"
+            >
+                Read Our Story
+            </Link>
+        </section>
+
+      </div>
+    </>
   );
 }
 
+// Helper Component for consistency
+const ValueCard = ({ icon, title, description }) => (
+    <div className="p-6 bg-white rounded-lg shadow-md border border-gray-100">
+        <div className="text-4xl mb-4">{icon}</div>
+        <h3 className="text-xl font-semibold text-indigo-700 mb-2">{title}</h3>
+        <p className="text-gray-600">{description}</p>
+    </div>
+);
+
+
 --- END FILE: src\app\page.js ---
+
+--- START FILE: src\app\about\page.js ---
+
+// src/app/about/page.js
+
+export default function AboutPage() {
+    return (
+      <div className="container mx-auto p-8 sm:p-12">
+        
+        {/* Hero Section */}
+        <div className="bg-indigo-50 p-10 rounded-xl shadow-inner mb-12 text-center">
+            <h1 className="text-5xl font-serif font-extrabold text-indigo-800 mb-4">
+                Our Roots, Our Vision
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Dedicated to spreading the wisdom of yoga and meditation in a supportive and modern environment.
+            </p>
+        </div>
+
+        {/* Mission Section */}
+        <section className="grid md:grid-cols-2 gap-12 items-center py-10">
+            <div>
+                <h2 className="text-3xl font-bold text-purple-700 mb-4">The AnandaYog Mission</h2>
+                <p className="text-gray-700 mb-4 leading-relaxed">
+                    Founded on the belief that inner tranquility is accessible to everyone, AnandaYog was created to be a digital sanctuary. We move beyond trendy fitness routines to offer practices that truly connect you with your deepest self.
+                </p>
+                <p className="text-gray-700 leading-relaxed italic">
+                    &quot;Ananda&quot; means bliss, and &quot;Yog&quot; means union. Our goal is to help you achieve the union of mind and body, leading to lasting joy.
+                </p>
+            </div>
+            {/* Image Placeholder */}
+            <div className="h-64 bg-gray-200 rounded-lg shadow-md flex items-center justify-center text-gray-500">
+                [Placeholder: Image of a peaceful studio or a founding teacher]
+            </div>
+        </section>
+
+        {/* Teacher Profiles Section */}
+        <section className="py-16 text-center">
+            <h2 className="text-3xl font-bold text-indigo-800 mb-8">Meet Our Lead Teachers</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+                <TeacherCard name="Rishi Sharma" specialty="Vipassana & Pranayama" />
+                <TeacherCard name="Maya Singh" specialty="Hatha & Restorative Yoga" />
+                <TeacherCard name="Devi Patel" specialty="Mantra & Kundalini" />
+            </div>
+        </section>
+
+      </div>
+    );
+}
+
+const TeacherCard = ({ name, specialty }) => (
+    <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100">
+        {/* Placeholder for Teacher Image */}
+        <div className="w-24 h-24 mx-auto bg-purple-100 rounded-full mb-4 flex items-center justify-center text-3xl text-purple-600">
+            👤
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
+        <p className="text-indigo-600 italic">{specialty}</p>
+        <p className="text-sm text-gray-500 mt-3">Certified with 10+ years experience.</p>
+    </div>
+);
+
+
+--- END FILE: src\app\about\page.js ---
+
+--- START FILE: src\app\account\page.js ---
+
+// src/app/account/page.js
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import AuthStatus from '@/components/AuthStatus'; 
+
+export default function AccountPage() {
+    const { currentUser, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        // If the user is logged in, immediately redirect them to their dashboard
+        if (!loading && currentUser) {
+            router.replace('/dashboard');
+        }
+    }, [currentUser, loading, router]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-96">
+                <p className="text-xl text-gray-500">Checking user status...</p>
+            </div>
+        );
+    }
+    
+    if (currentUser) {
+        // This is only shown for a split second before the redirect in useEffect fires
+        return (
+            <div className="flex justify-center items-center h-96">
+                <p className="text-xl text-indigo-600">Redirecting to Dashboard...</p>
+            </div>
+        );
+    }
+
+    // If not logged in, show the login interface
+    return (
+        <div className="container mx-auto p-8 sm:p-12 flex justify-center">
+            <div className="w-full max-w-md">
+                <h1 className="text-3xl font-serif font-bold text-center text-indigo-800 mb-6">
+                    Log In or Create Account
+                </h1>
+                <p className="text-center text-gray-600 mb-8">
+                    Access your courses, payment history, and profile settings.
+                </p>
+                {/* AuthStatus already contains the Google Login button logic */}
+                <AuthStatus />
+            </div>
+        </div>
+    );
+}
+
+
+--- END FILE: src\app\account\page.js ---
 
 --- START FILE: src\app\api\create-order\route.js ---
 
@@ -420,18 +563,135 @@ export default function ClassesPage() {
 
 --- END FILE: src\app\classes\page.js ---
 
+--- START FILE: src\app\contact\page.js ---
+
+// src/app/contact/page.js
+"use client"; // Form handling usually requires a Client Component
+
+import { useState } from 'react';
+
+export default function ContactPage() {
+    const [status, setStatus] = useState('');
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setStatus('Sending...');
+        
+        // --- REAL WORLD TODO: 
+        // Implement form submission logic here (e.g., using a serverless function)
+        
+        setTimeout(() => {
+            setStatus('Thank you! Your message has been received.');
+            e.target.reset();
+        }, 2000);
+    };
+
+    return (
+      <div className="container mx-auto p-8 sm:p-12 max-w-4xl">
+        
+        <div className="text-center mb-10">
+            <h1 className="text-4xl font-serif font-extrabold text-indigo-800 mb-3">
+                Connect With Us
+            </h1>
+            <p className="text-lg text-gray-600">
+                We are here to answer your questions and guide your practice.
+            </p>
+        </div>
+
+        <div className="bg-white p-8 rounded-xl shadow-2xl border border-gray-100">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+                
+                <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                        Your Message
+                    </label>
+                    <textarea
+                        id="message"
+                        name="message"
+                        rows="4"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                    ></textarea>
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full bg-green-600 text-white font-semibold py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                    disabled={status.includes('Sending') || status.includes('received')}
+                >
+                    {status.includes('Sending') ? 'Sending...' : 'Send Message'}
+                </button>
+                
+                {status && !status.includes('Sending') && (
+                    <p className={`mt-4 text-center ${status.includes('received') ? 'text-green-600' : 'text-red-500'}`}>
+                        {status}
+                    </p>
+                )}
+            </form>
+        </div>
+
+      </div>
+    );
+}
+
+--- END FILE: src\app\contact\page.js ---
+
 --- START FILE: src\app\dashboard\page.js ---
 
 // src/app/dashboard/page.js
-import ProtectedRoute from '../../components/ProtectedRoute';
-import PaymentInitiator from '../../components/PaymentInitiator';
-import { useAuth } from '../../context/AuthContext';
+"use client"; // CRITICAL: Mark this component as client-side
 
-// Since we need hooks (useAuth), this must be a client component
-// but is protected by the ProtectedRoute wrapper.
-function DashboardContent() {
-  const { currentUser } = useAuth();
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import PaymentInitiator from '@/components/PaymentInitiator'; 
+import { useAuth } from '@/context/AuthContext'; 
+
+export default function DashboardPage() {
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If we finished loading and there is no current user, redirect to home/login.
+    if (!loading && !currentUser) {
+      router.replace('/'); 
+    }
+  }, [currentUser, loading, router]);
   
+  // 1. Show loading or redirection message while checking auth status
+  if (loading || !currentUser) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-xl text-gray-500">Accessing secure content...</p>
+      </div>
+    );
+  }
+
+  // 2. Render the actual dashboard content if authenticated
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-4xl font-bold text-indigo-800 mb-4">
@@ -441,7 +701,7 @@ function DashboardContent() {
         This is your private dashboard. Access secured content and manage your subscription.
       </p>
 
-      {/* Placeholder for protected content */}
+      {/* Protected Content */}
       <div className="bg-white p-6 rounded-lg shadow-xl mb-8">
         <h2 className="text-2xl font-semibold mb-3">Your Active Courses</h2>
         <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -456,15 +716,80 @@ function DashboardContent() {
 }
 
 
-export default function DashboardPage() {
+--- END FILE: src\app\dashboard\page.js ---
+
+--- START FILE: src\app\pricing\page.js ---
+
+// src/app/pricing/page.js
+
+import Link from 'next/link';
+
+export default function PricingPage() {
   return (
-    <ProtectedRoute>
-      <DashboardContent />
-    </ProtectedRoute>
+    <div className="container mx-auto p-8 text-center">
+      <h1 className="text-4xl font-serif font-bold text-indigo-800 mb-10">
+        Choose Your Path to Peace
+      </h1>
+
+      <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        {/* Tier 1: Free */}
+        <div className="bg-white p-8 rounded-xl shadow-2xl border-2 border-gray-100 transform hover:scale-105 transition duration-300">
+          <h2 className="text-2xl font-bold text-gray-700 mb-2">Explorer</h2>
+          <p className="text-4xl font-extrabold text-green-600 mb-6">Free</p>
+          <ul className="text-left space-y-3 text-gray-600 mb-8">
+            <li>✓ Access to 5 Foundational Videos</li>
+            <li>✓ Weekly Newsletter</li>
+            <li>✗ Unlimited Course Access</li>
+          </ul>
+          <Link 
+            href="/classes" 
+            className="w-full inline-block bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold"
+          >
+            Start Learning
+          </Link>
+        </div>
+
+        {/* Tier 2: Monthly Subscription */}
+        <div className="bg-indigo-50 p-8 rounded-xl shadow-2xl border-2 border-indigo-600 transform hover:scale-105 transition duration-300">
+          <p className="text-sm font-semibold text-white bg-indigo-600 inline-block px-3 py-1 rounded-full mb-4">Recommended</p>
+          <h2 className="text-2xl font-bold text-indigo-800 mb-2">Yogi Monthly</h2>
+          <p className="text-4xl font-extrabold text-indigo-600 mb-6">₹500/mo</p>
+          <ul className="text-left space-y-3 text-gray-700 mb-8">
+            <li>✓ All Free Tier benefits</li>
+            <li>✓ Unlimited Course Access</li>
+            <li>✓ Live Q&A Sessions (Weekly)</li>
+          </ul>
+          <Link 
+            href="/dashboard" 
+            className="w-full inline-block bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+          >
+            Subscribe Now
+          </Link>
+        </div>
+
+        {/* Tier 3: Annual Subscription */}
+        <div className="bg-white p-8 rounded-xl shadow-2xl border-2 border-gray-100 transform hover:scale-105 transition duration-300">
+          <h2 className="text-2xl font-bold text-gray-700 mb-2">Yogi Annual</h2>
+          <p className="text-4xl font-extrabold text-purple-600 mb-6">₹4,800/yr</p>
+          <ul className="text-left space-y-3 text-gray-600 mb-8">
+            <li>✓ All Monthly benefits</li>
+            <li>✓ 2 Months Free (Save ₹1200)</li>
+            <li>✓ Private Member Community</li>
+          </ul>
+          <Link 
+            href="/dashboard" 
+            className="w-full inline-block bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+          >
+            Go Annual
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
 
---- END FILE: src\app\dashboard\page.js ---
+
+--- END FILE: src\app\pricing\page.js ---
 
 --- START FILE: src\components\AuthStatus.js ---
 
@@ -574,19 +899,25 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-lg sticky top-0 z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20"> {/* Slightly taller header */}
         {/* Logo/Title */}
-        <Link href="/" className="text-2xl font-serif font-bold text-indigo-700">
+        <Link href="/" className="text-3xl font-serif font-bold text-indigo-700 hover:text-purple-600 transition">
           AnandaYog
         </Link>
 
         {/* Navigation Links (Publicly accessible) */}
-        <nav className="flex space-x-6">
-          <Link href="/classes" className="text-gray-600 hover:text-indigo-600 transition">
+        <nav className="flex space-x-8">
+          <Link href="/classes" className="text-gray-600 hover:text-indigo-600 font-medium transition">
             Classes
           </Link>
-          <Link href="/pricing" className="text-gray-600 hover:text-indigo-600 transition">
+          <Link href="/about" className="text-gray-600 hover:text-indigo-600 font-medium transition">
+            About Us
+          </Link>
+          <Link href="/pricing" className="text-gray-600 hover:text-indigo-600 font-medium transition">
             Pricing
+          </Link>
+          <Link href="/contact" className="text-gray-600 hover:text-indigo-600 font-medium transition">
+            Contact
           </Link>
         </nav>
 
@@ -594,15 +925,16 @@ export default function Header() {
         <div className="flex items-center space-x-4">
           {!loading && (
             currentUser ? (
-              <Link href="/dashboard" className="bg-indigo-600 text-white py-2 px-4 rounded-full hover:bg-indigo-700 transition duration-300 shadow">
-                Dashboard
+              // Link to the /account page (which redirects to /dashboard if logged in)
+              <Link href="/account" className="bg-purple-600 text-white py-2 px-5 rounded-full hover:bg-purple-700 transition duration-300 shadow">
+                My Account
               </Link>
             ) : (
               <button 
                 onClick={login}
-                className="text-indigo-600 border border-indigo-600 py-2 px-4 rounded-full hover:bg-indigo-50 transition duration-300"
+                className="text-indigo-600 border border-indigo-600 py-2 px-5 rounded-full hover:bg-indigo-50 transition duration-300 font-medium"
               >
-                Login / Sign Up
+                Login / Join
               </button>
             )
           )}
@@ -611,6 +943,7 @@ export default function Header() {
     </header>
   );
 }
+
 
 --- END FILE: src\components\Header.js ---
 
@@ -825,6 +1158,7 @@ export const db = getFirestore(app);
 
 --- END FILE: src\lib\firebase.js ---
 
--------------------------------------------------------------------------------
+----------------------------------------------------------------------------
 
-I have shared an image with you please look into that image and find out why my website looks like this and I have also shared all my code of my website with you so please tell me how can I fix it?
+fully guide me with the firebase and razorpay setup extremely clearly please.
+
