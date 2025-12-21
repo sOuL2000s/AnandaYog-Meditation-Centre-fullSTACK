@@ -1,0 +1,830 @@
+
+--- START FILE: .env.local ---
+
+# --- FIREBASE CONFIG (Client-Side Access Required) ---
+NEXT_PUBLIC_FIREBASE_API_KEY="YOUR_API_KEY"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="YOUR_AUTH_DOMAIN"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="YOUR_PROJECT_ID"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="YOUR_STORAGE_BUCKET"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="YOUR_MESSAGING_SENDER_ID"
+NEXT_PUBLIC_FIREBASE_APP_ID="YOUR_APP_ID"
+
+# --- PAYMENT GATEWAY CONFIG (SERVER-SIDE ONLY) ---
+# This MUST NOT start with NEXT_PUBLIC_
+RAZORPAY_KEY_ID="rzp_test_XXXXXXXXXXXXXXXXX"
+RAZORPAY_KEY_SECRET="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+
+--- END FILE: .env.local ---
+
+--- START FILE: .gitignore ---
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+package-lock.json
+
+--- END FILE: .gitignore ---
+
+--- START FILE: eslint.config.mjs ---
+
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
+]);
+
+export default eslintConfig;
+
+
+--- END FILE: eslint.config.mjs ---
+
+--- START FILE: jsconfig.json ---
+
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+
+
+--- END FILE: jsconfig.json ---
+
+--- START FILE: next.config.mjs ---
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  /* config options here */
+};
+
+export default nextConfig;
+
+
+--- END FILE: next.config.mjs ---
+
+--- START FILE: package.json ---
+
+{
+  "name": "anandayoga-center",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "firebase": "^12.7.0",
+    "next": "16.1.0",
+    "razorpay": "^2.9.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "swr": "^2.3.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.0",
+    "tailwindcss": "^4"
+  }
+}
+
+
+--- END FILE: package.json ---
+
+--- START FILE: postcss.config.mjs ---
+
+const config = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
+
+export default config;
+
+
+--- END FILE: postcss.config.mjs ---
+
+--- START FILE: README.md ---
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+--- END FILE: README.md ---
+
+--- START FILE: public\file.svg ---
+
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
+
+--- END FILE: public\file.svg ---
+
+--- START FILE: public\globe.svg ---
+
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+
+--- END FILE: public\globe.svg ---
+
+--- START FILE: public\next.svg ---
+
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
+
+--- END FILE: public\next.svg ---
+
+--- START FILE: public\vercel.svg ---
+
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+
+--- END FILE: public\vercel.svg ---
+
+--- START FILE: public\window.svg ---
+
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+
+--- END FILE: public\window.svg ---
+
+--- START FILE: src\app\globals.css ---
+
+@import "tailwindcss";
+@tailwind utilities;
+@import "tailwindcss/preflight";
+
+/* Add custom styles below if needed */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+--- END FILE: src\app\globals.css ---
+
+--- START FILE: src\app\layout.js ---
+
+// src/app/layout.js (Modified)
+
+import './globals.css';
+import { AuthProvider } from '../context/AuthContext';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+
+export const metadata = {
+  title: 'AnandaYog Meditation Centre',
+  description: 'Find inner peace through meditation and yoga.',
+};
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className="flex flex-col min-h-screen">
+        {/* Wrap everything in the AuthProvider */}
+        <AuthProvider>
+          <Header />
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+        </AuthProvider>
+      </body>
+    </html>
+  );
+}
+
+--- END FILE: src\app\layout.js ---
+
+--- START FILE: src\app\page.js ---
+
+// src/app/page.js
+import Link from 'next/link';
+
+// This is a Server Component, excellent for SEO/speed
+export default function HomePage() {
+  return (
+    <div className="container mx-auto p-8">
+      <section className="text-center py-20 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl shadow-xl mb-12">
+        <h1 className="text-5xl font-extrabold text-gray-900 font-serif mb-4">
+          Find Your Inner Stillness at AnandaYog
+        </h1>
+        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Daily meditation and yoga classes to harmonize mind, body, and spirit.
+        </p>
+        <Link 
+          href="/classes" 
+          className="bg-indigo-600 text-white text-lg font-semibold py-3 px-8 rounded-full hover:bg-indigo-700 transition duration-300 shadow-lg"
+        >
+          Explore All Classes
+        </Link>
+      </section>
+
+      <section className="grid md:grid-cols-3 gap-8 text-center">
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-indigo-700 mb-3">Daily Live Sessions</h3>
+          <p className="text-gray-600">Join our community for real-time guidance from experienced instructors.</p>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-indigo-700 mb-3">Curated Courses</h3>
+          <p className="text-gray-600">Structured paths for beginners to advanced practitioners.</p>
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-indigo-700 mb-3">Flexible Subscriptions</h3>
+          <p className="text-gray-600">Access unlimited content with our affordable monthly plans.</p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+--- END FILE: src\app\page.js ---
+
+--- START FILE: src\app\api\create-order\route.js ---
+
+// src/app/api/create-order/route.js (Node.js Serverless Function)
+
+import { NextResponse } from 'next/server';
+import Razorpay from 'razorpay';
+
+// Use environment variables securely
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+export async function POST(request) {
+  try {
+    const { amount, currency = 'INR', receiptId } = await request.json();
+
+    const options = {
+      amount: amount * 100, // Convert to paisa
+      currency: currency,
+      receipt: receiptId,
+      payment_capture: 1, 
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    // Only expose the public key and order ID to the client
+    return NextResponse.json({
+      id: order.id,
+      currency: order.currency,
+      amount: order.amount,
+      key: process.env.RAZORPAY_KEY_ID 
+    }, { status: 200 });
+
+  } catch (error) {
+    console.error("Error creating Razorpay order:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+--- END FILE: src\app\api\create-order\route.js ---
+
+--- START FILE: src\app\classes\page.js ---
+
+// src/app/classes/page.js
+
+export default function ClassesPage() {
+  return (
+    <div className="container mx-auto p-8">
+      <h1 className="text-4xl font-serif font-bold text-gray-900 mb-8">Our Course Catalog</h1>
+      
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Example Course 1 */}
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
+          <h2 className="text-xl font-semibold text-indigo-600 mb-2">Beginner&apos;s Mind (7 Days)</h2>
+          <p className="text-gray-600 mb-4">An introductory course covering breathwork and foundational sitting techniques.</p>
+          <button 
+            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
+          >
+            Enroll Now (Login Required)
+          </button>
+        </div>
+        
+        {/* Example Course 2 */}
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
+          <h2 className="text-xl font-semibold text-indigo-600 mb-2">Vipassana Deep Dive</h2>
+          <p className="text-gray-600 mb-4">Advanced silent meditation techniques for experienced practitioners.</p>
+          <button 
+            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
+          >
+            Enroll Now (Login Required)
+          </button>
+        </div>
+        
+        {/* Placeholder for more content */}
+      </div>
+    </div>
+  );
+}
+
+--- END FILE: src\app\classes\page.js ---
+
+--- START FILE: src\app\dashboard\page.js ---
+
+// src/app/dashboard/page.js
+import ProtectedRoute from '../../components/ProtectedRoute';
+import PaymentInitiator from '../../components/PaymentInitiator';
+import { useAuth } from '../../context/AuthContext';
+
+// Since we need hooks (useAuth), this must be a client component
+// but is protected by the ProtectedRoute wrapper.
+function DashboardContent() {
+  const { currentUser } = useAuth();
+  
+  return (
+    <div className="container mx-auto p-8">
+      <h1 className="text-4xl font-bold text-indigo-800 mb-4">
+        Welcome, {currentUser?.displayName || 'Yogi'}!
+      </h1>
+      <p className="text-lg text-gray-600 mb-8">
+        This is your private dashboard. Access secured content and manage your subscription.
+      </p>
+
+      {/* Placeholder for protected content */}
+      <div className="bg-white p-6 rounded-lg shadow-xl mb-8">
+        <h2 className="text-2xl font-semibold mb-3">Your Active Courses</h2>
+        <ul className="list-disc list-inside space-y-2 text-gray-700">
+          <li>Daily Chakra Balancing (Video Access)</li>
+          <li>Guided Sleep Meditation Audio</li>
+        </ul>
+      </div>
+
+      <PaymentInitiator />
+    </div>
+  );
+}
+
+
+export default function DashboardPage() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+--- END FILE: src\app\dashboard\page.js ---
+
+--- START FILE: src\components\AuthStatus.js ---
+
+// src/components/AuthStatus.js (React Component in JavaScript)
+"use client"; // Required for client-side components in Next.js App Router
+
+import React, { useState, useEffect } from 'react';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+const provider = new GoogleAuthProvider();
+
+export default function AuthStatus() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // useEffect hook to listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    // Clean up the subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Login failed:", error.message);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout failed:", error.message);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-4 text-gray-500">Loading user status...</div>;
+  }
+
+  return (
+    <div className="p-4 bg-white shadow-md rounded-lg">
+      <h2 className="text-xl font-bold mb-2">User Authentication</h2>
+      {currentUser ? (
+        <div className="space-y-2">
+          <p className="text-sm text-green-600">
+            Logged in as: <span className="font-semibold">{currentUser.email}</span>
+          </p>
+          <button 
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200"
+          >
+            Sign Out
+          </button>
+        </div>
+      ) : (
+        <button 
+          onClick={handleLogin}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200"
+        >
+          Login with Google
+        </button>
+      )}
+    </div>
+  );
+}
+
+--- END FILE: src\components\AuthStatus.js ---
+
+--- START FILE: src\components\Footer.js ---
+
+// src/components/Footer.js
+
+export default function Footer() {
+  return (
+    <footer className="bg-gray-800 text-white mt-8">
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+        <p>&copy; {new Date().getFullYear()} AnandaYog Meditation Centre. All rights reserved.</p>
+        <div className="mt-4 space-x-4">
+          <a href="#" className="hover:text-indigo-400 transition">Privacy Policy</a>
+          <a href="#" className="hover:text-indigo-400 transition">Terms of Service</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+--- END FILE: src\components\Footer.js ---
+
+--- START FILE: src\components\Header.js ---
+
+// src/components/Header.js
+"use client";
+
+import Link from 'next/link';
+import { useAuth } from '../context/AuthContext';
+
+export default function Header() {
+  const { currentUser, login, loading } = useAuth();
+
+  return (
+    <header className="bg-white shadow-lg sticky top-0 z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+        {/* Logo/Title */}
+        <Link href="/" className="text-2xl font-serif font-bold text-indigo-700">
+          AnandaYog
+        </Link>
+
+        {/* Navigation Links (Publicly accessible) */}
+        <nav className="flex space-x-6">
+          <Link href="/classes" className="text-gray-600 hover:text-indigo-600 transition">
+            Classes
+          </Link>
+          <Link href="/pricing" className="text-gray-600 hover:text-indigo-600 transition">
+            Pricing
+          </Link>
+        </nav>
+
+        {/* Auth Status / Action Button */}
+        <div className="flex items-center space-x-4">
+          {!loading && (
+            currentUser ? (
+              <Link href="/dashboard" className="bg-indigo-600 text-white py-2 px-4 rounded-full hover:bg-indigo-700 transition duration-300 shadow">
+                Dashboard
+              </Link>
+            ) : (
+              <button 
+                onClick={login}
+                className="text-indigo-600 border border-indigo-600 py-2 px-4 rounded-full hover:bg-indigo-50 transition duration-300"
+              >
+                Login / Sign Up
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+--- END FILE: src\components\Header.js ---
+
+--- START FILE: src\components\PaymentInitiator.js ---
+
+// src/components/PaymentInitiator.js
+"use client";
+
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+
+// Utility function to load the Razorpay script dynamically
+const loadRazorpayScript = (src) => {
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
+export default function PaymentInitiator() {
+  const { currentUser } = useAuth();
+  const [status, setStatus] = useState('');
+  
+  const handleCheckout = async () => {
+    setStatus('Preparing checkout...');
+    
+    // 1. Load Razorpay script
+    const loaded = await loadRazorpayScript('https://checkout.razorpay.com/v1/checkout.js');
+    if (!loaded) {
+      setStatus('Razorpay SDK failed to load. Check network.');
+      return;
+    }
+
+    // 2. Request a secure Order ID from our Node.js API Route
+    const orderDataResponse = await fetch('/api/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        amount: 500, // Example: ₹500 (API converts to paisa)
+        receiptId: currentUser.uid 
+      }),
+    });
+    
+    if (!orderDataResponse.ok) {
+        setStatus('Failed to create order on server.');
+        return;
+    }
+
+    const orderData = await orderDataResponse.json();
+
+    // 3. Configure the Razorpay Checkout
+    const options = {
+      key: orderData.key, // Public Key ID from .env.local
+      amount: orderData.amount, // Amount in paisa
+      currency: orderData.currency,
+      name: "AnandaYog Subscription",
+      description: "Monthly Unlimited Access",
+      order_id: orderData.id,
+      handler: function (response) {
+        // SUCCESS: Send response to a secure webhook route for final verification
+        // NOTE: You MUST implement a secure verification webhook on the server
+        console.log("Payment successful. Verifying payment...");
+        setStatus(`Payment Successful! ID: ${response.razorpay_payment_id}. Status update pending.`);
+        
+        // **TODO: Call /api/verify-payment Webhook here**
+      },
+      prefill: {
+        name: currentUser.displayName,
+        email: currentUser.email,
+      },
+      theme: {
+        color: "#4f46e5" // Indigo theme
+      }
+    };
+    
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+    setStatus('');
+  };
+
+  return (
+    <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-lg shadow-md">
+      <h3 className="text-xl font-bold text-indigo-700 mb-4">Start Your Subscription</h3>
+      <p className="mb-4">Get unlimited access to all courses for only ₹500/month.</p>
+      
+      <button 
+        onClick={handleCheckout}
+        disabled={status.includes('Preparing')}
+        className="bg-purple-600 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300 disabled:opacity-50"
+      >
+        Subscribe Now (UPI/Card)
+      </button>
+
+      {status && <p className="mt-4 text-sm text-gray-600">{status}</p>}
+    </div>
+  );
+}
+
+--- END FILE: src\components\PaymentInitiator.js ---
+
+--- START FILE: src\components\ProtectedRoute.js ---
+
+// src/components/ProtectedRoute.js
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
+
+// Wraps the content of a page that requires authentication
+export default function ProtectedRoute({ children }) {
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      // If not loading and no user is found, redirect to the home page
+      router.push('/');
+    }
+  }, [currentUser, loading, router]);
+
+  if (loading || !currentUser) {
+    // Show a loading screen while checking status
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-xl text-gray-500">Accessing secure content...</p>
+      </div>
+    );
+  }
+
+  // If authenticated, render the children (the actual page content)
+  return children;
+}
+
+--- END FILE: src\components\ProtectedRoute.js ---
+
+--- START FILE: src\context\AuthContext.js ---
+
+// src/context/AuthContext.js
+"use client";
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged, signOut, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const googleProvider = new GoogleAuthProvider();
+
+  // Login function
+  const login = () => signInWithPopup(auth, googleProvider);
+  
+  // Logout function
+  const logout = () => signOut(auth);
+
+  useEffect(() => {
+    // This listener updates the user state whenever the auth status changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const value = {
+    currentUser,
+    loading,
+    login,
+    logout,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+};
+
+--- END FILE: src\context\AuthContext.js ---
+
+--- START FILE: src\lib\firebase.js ---
+
+// src/lib/firebase.js
+
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+};
+
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+--- END FILE: src\lib\firebase.js ---
+
+-------------------------------------------------------------------------------
+
+I have shared an image with you please look into that image and find out why my website looks like this and I have also shared all my code of my website with you so please tell me how can I fix it?
