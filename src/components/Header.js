@@ -28,7 +28,8 @@ const ThemeToggle = () => {
   return (
     <button
         onClick={toggleTheme}
-        className="p-2 rounded-full text-teal-700 hover:bg-teal-50 dark:text-amber-300 dark:hover:bg-gray-700 transition"
+        // Refactored to use custom primary colors
+        className="p-2 rounded-full text-brand-primary hover:bg-surface-2 transition"
         aria-label="Toggle Dark Mode"
     >
         {theme === 'light' ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
@@ -44,10 +45,11 @@ export default function Header() {
   const isSubscribed = userData?.isSubscribed;
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 border-b border-gray-100 dark:border-gray-700">
+    // Refactored background to Surface 1
+    <header className="bg-surface-1 shadow-lg sticky top-0 z-50 border-b border-gray-100 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20"> 
-        {/* Logo/Title */}
-        <Link href="/" className="text-3xl font-serif font-extrabold text-teal-800 hover:text-teal-600 transition tracking-tight dark:text-teal-400">
+        {/* Logo/Title - Refactored text color */}
+        <Link href="/" className="text-3xl font-serif font-extrabold text-brand-primary hover:text-brand-primary-darker transition tracking-tight">
           AnandaYog
         </Link>
 
@@ -73,8 +75,9 @@ export default function Header() {
                 href="/dashboard" 
                 className={`text-sm sm:text-base text-white py-2 px-3 sm:px-5 rounded-full font-semibold transition duration-300 shadow-md whitespace-nowrap
                 ${isSubscribed 
-                    ? 'bg-green-600 hover:bg-green-700 dark:bg-green-500' 
-                    : 'bg-teal-600 hover:bg-teal-700 dark:bg-teal-700'
+                    // Use status success colors if subscribed, primary if logged in but not subscribed
+                    ? 'bg-status-success hover:bg-green-700' 
+                    : 'bg-brand-primary hover:bg-brand-primary-darker'
                 }`}
               >
                 {/* FIX: Shortened text for mobile screens */}
@@ -83,8 +86,8 @@ export default function Header() {
             ) : (
               <button 
                 onClick={login}
-                // FIX: Added sm:text-base for mobile scaling
-                className="text-sm sm:text-base text-teal-700 border-2 border-teal-700 py-2 px-3 sm:px-5 rounded-full hover:bg-teal-50 transition duration-300 font-medium shadow-sm dark:text-teal-400 dark:border-teal-400 dark:hover:bg-gray-700 whitespace-nowrap"
+                // Refactored button to use primary brand color for border and hover
+                className="text-sm sm:text-base text-brand-primary border-2 border-brand-primary py-2 px-3 sm:px-5 rounded-full hover:bg-surface-2 transition duration-300 font-medium shadow-sm whitespace-nowrap"
               >
                 Login / Join
               </button>
@@ -95,7 +98,7 @@ export default function Header() {
           {/* FIX: Ensure the button has space and is not clipped */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden text-teal-700 p-2 dark:text-teal-400 flex-shrink-0"
+            className="md:hidden text-brand-primary p-2 flex-shrink-0"
             aria-label="Toggle navigation"
           >
             {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -103,9 +106,9 @@ export default function Header() {
         </div>
       </div>
       
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Menu Drawer - Refactored background to Surface 1 */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute w-full bg-white dark:bg-gray-800 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
+        <div className="md:hidden absolute w-full bg-surface-1 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
             <nav className="flex flex-col space-y-2 px-4">
                 <MobileNavLink href="/classes" onClick={() => setIsMobileMenuOpen(false)}>Classes</MobileNavLink>
                 <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</MobileNavLink>
@@ -119,13 +122,15 @@ export default function Header() {
 }
 
 const NavLink = ({ href, children }) => (
-    <Link href={href} className="text-gray-600 hover:text-teal-600 font-medium text-lg transition duration-200 dark:text-gray-300 dark:hover:text-teal-400">
+    // Refactored hover color to primary brand
+    <Link href={href} className="text-text-muted hover:text-brand-primary font-medium text-lg transition duration-200">
         {children}
     </Link>
 );
 
 const MobileNavLink = ({ href, children, onClick }) => (
-    <Link href={href} onClick={onClick} className="block px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700">
+    // Refactored background hover color to Surface 2
+    <Link href={href} onClick={onClick} className="block px-3 py-2 text-text-base hover:bg-surface-2 rounded-md text-base font-medium">
         {children}
     </Link>
 );

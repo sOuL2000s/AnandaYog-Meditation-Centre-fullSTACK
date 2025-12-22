@@ -43,18 +43,19 @@ export default function ContactPage() {
       <div className="container mx-auto p-8 max-w-4xl">
         
         <div className="text-center mb-12">
-            <h1 className="text-5xl font-serif font-extrabold text-teal-800 mb-4">
+            <h1 className="text-5xl font-serif font-extrabold text-brand-primary mb-4">
                 Connect With Us
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-text-muted">
                 We are here to answer your questions and guide your practice.
             </p>
         </div>
 
-        <div className="bg-white p-10 rounded-2xl shadow-2xl border border-gray-100">
+        {/* Refactored background to Surface 1 */}
+        <div className="bg-surface-1 p-10 rounded-2xl shadow-2xl border border-gray-100">
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label htmlFor="name" className="block text-sm font-semibold text-text-base mb-1">
                         Full Name
                     </label>
                     <input
@@ -62,12 +63,12 @@ export default function ContactPage() {
                         id="name"
                         name="name"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     />
                 </div>
                 
                 <div>
-                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label htmlFor="email" className="block text-sm font-semibold text-text-base mb-1">
                         Email Address
                     </label>
                     <input
@@ -75,12 +76,12 @@ export default function ContactPage() {
                         id="email"
                         name="email"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label htmlFor="message" className="block text-sm font-semibold text-text-base mb-1">
                         Your Message
                     </label>
                     <textarea
@@ -88,20 +89,21 @@ export default function ContactPage() {
                         name="message"
                         rows="5"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     ></textarea>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-amber-600 text-white font-bold py-3 rounded-lg hover:bg-amber-700 transition duration-300 shadow-md disabled:opacity-50"
+                    // Refactored button to use accent colors
+                    className="w-full bg-brand-accent text-white font-bold py-3 rounded-lg hover:bg-brand-accent-darker transition duration-300 shadow-md disabled:opacity-50"
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
                 
                 {status && (
-                    <p className={`mt-4 text-center text-sm font-medium ${status.includes('Thank you') ? 'text-green-600' : 'text-red-500'}`}>
+                    <p className={`mt-4 text-center text-sm font-medium ${status.includes('Thank you') ? 'text-status-success' : 'text-red-500'}`}>
                         {status}
                     </p>
                 )}

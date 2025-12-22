@@ -16,29 +16,61 @@
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* FIX 1: Ensure body uses the CSS variable, allowing it to switch */
+  /* Base Body Styling: Uses the custom variable background/foreground */
   body {
-    background: var(--background);
-    color: var(--foreground);
+    background: rgb(var(--bg-base)); 
+    color: rgb(var(--text-base));
     font-family: 'Inter', system-ui, sans-serif; 
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
   }
   
-  /* FIX 2 (CRITICAL): Force the root element background to follow the theme class 
-     to prevent system dark mode from overriding the initial background. */
+  /* FIX 2 (CRITICAL): Force the root element background to follow the theme class */
   .light {
-    background-color: var(--background);
-  }
-
-  /* FIX: Moved custom class application into @layer components or utilities */
-  .bg-serene-gradient {
-    /* Transition the gradient from a deep teal to a soft sage/mint */
-    background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
+    background-color: rgb(var(--bg-base));
   }
 }
 
+@layer components {
+    /* Define the Serene Gradient using the new primary colors */
+    .bg-serene-gradient {
+        background-image: linear-gradient(135deg, 
+            rgba(var(--brand-primary), 0.9) 0%, 
+            rgba(var(--brand-primary-light), 0.8) 100%
+        );
+    }
+}
+
 @layer utilities {
-    /* FIX: Placed the utility class application here */
+    /* Mapped custom utilities for background colors */
+    .bg-surface-1 { background-color: rgb(var(--bg-surface-1)); }
+    .bg-surface-2 { background-color: rgb(var(--bg-surface-2)); }
+    .bg-brand-primary { background-color: rgb(var(--brand-primary)); }
+    .bg-brand-accent { background-color: rgb(var(--brand-accent)); }
+    .bg-brand-primary-light { background-color: rgb(var(--brand-primary-light)); }
+
+
+    /* Mapped custom utilities for text colors */
+    .text-brand-primary { color: rgb(var(--brand-primary)); }
+    .text-brand-accent { color: rgb(var(--brand-accent)); }
+    .text-text-base { color: rgb(var(--text-base)); }
+    .text-surface-muted { color: rgb(var(--text-muted)); }
+
+    /* Mapped custom utilities for status colors */
+    .text-status-success { color: rgb(var(--status-success)); }
+    .border-status-success { border-color: rgb(var(--status-success)); }
+    .bg-status-success { background-color: rgb(var(--status-success)); }
+    .text-status-warning { color: rgb(var(--status-warning)); }
+    .border-status-warning { border-color: rgb(var(--status-warning)); }
+    .bg-status-warning { background-color: rgb(var(--status-warning)); }
+    
+
+    /* Hover States (Defined separately for control) */
+    .hover\:bg-brand-primary-darker:hover { background-color: rgb(var(--brand-primary-darker)); }
+    .hover\:bg-brand-accent-darker:hover { background-color: rgb(var(--brand-accent-darker)); }
+    .hover\:text-brand-primary-darker:hover { color: rgb(var(--brand-primary-darker)); }
+    
+    /* Example: Dark mode opacity for the gradient */
     .bg-serene-gradient {
         @apply dark:opacity-80; 
     }
@@ -46,26 +78,55 @@
 
 
 :root {
-  /* --- LIGHT MODE (Default) --- */
-  --background: #fafafa; /* Warm Linen */
-  --foreground: #2d3748; /* Charcoal Text */
+  /* --- LIGHT MODE (Default) - RGB Values --- */
   
-  /* Primary: Deep Teal (Used for headers, strong lines) */
-  --primary-teal: 14 91 106; /* Approximate teal-800 */
+  /* Base */
+  --bg-base: 250 250 250; /* Warm Linen (#FAFAFA) */
+  --text-base: 45 55 72;  /* Charcoal (#2D3748) */
+  --text-muted: 107 114 128; /* Gray 500 */
+
+  /* Surfaces (Card Backgrounds) */
+  --bg-surface-1: 255 255 255; /* White (Primary Card BG) */
+  --bg-surface-2: 241 245 249; /* Slate 100 (Secondary BG/Input fill) */
   
-  /* Accent 1: Serene Sage/Mint (Used for soft backgrounds) */
-  --accent-sage: 217 235 232; /* Soft light green/blue */ 
+  /* Brand Colors (Teal) */
+  --brand-primary: 14 91 106;      /* Deep Teal (#0E5B6A - Teal 800 equivalent) */
+  --brand-primary-light: 106 179 175; /* Soft Teal for Gradients/Hover BG */
+  --brand-primary-darker: 12 75 88; /* Darker Teal for hover */
   
-  /* Accent 2: Warm Gold (Used for CTAs, success messages) */
-  --cta-gold: 245 158 11; /* amber-500 */
+  /* Accent Colors (Amber/Gold) */
+  --brand-accent: 245 158 11;     /* Warm Gold (#F59E0B - Amber 500 equivalent) */
+  --brand-accent-darker: 217 119 6; /* Darker Gold for hover */
+
+  /* Status */
+  --status-success: 22 163 74; /* Green 600 */
+  --status-warning: 234 88 12; /* Orange 600 */
 }
 
 /* --- DARK MODE DEFINITION --- */
 .dark {
-  /* FIX 3: Updated dark mode background to #1e2939 (good visibility with light text) */
-  --background: #1e2939; 
-  --foreground: #f0f0f0; /* Light Gray Text (Visible & beautiful on the dark background) */
+  /* Base */
+  --bg-base: 30 41 57;      /* Slate 800 */
+  --text-base: 240 240 240; /* Near White */
+  --text-muted: 156 163 175; /* Gray 400 */
+  
+  /* Surfaces (Card Backgrounds) */
+  --bg-surface-1: 44 59 74;  /* Slightly lighter slate (Card BG) */
+  --bg-surface-2: 64 78 94;  /* Darker accent surface */
+  
+  /* Brand Colors (Teal - Must be lighter for contrast) */
+  --brand-primary: 90 200 180;      /* Lighter Teal (#5AC8B4 - Teal 400 equivalent) */
+  --brand-primary-light: 65 170 150; /* Slightly darker light for dark mode contrast */
+  --brand-primary-darker: 14 91 106; /* Deep Teal for hover in dark mode */
+  
+  /* Accent Colors (Amber/Gold - Must be lighter) */
+  --brand-accent: 251 191 36;     /* Lighter Gold (#FBEC24 - Amber 400 equivalent) */
+  --brand-accent-darker: 245 158 11; /* Darker Gold for hover */
+
+  /* Status */
+  --status-success: 52 211 163; /* Green 400 */
+  --status-warning: 251 191 36; /* Amber 400 */
   
   /* Ensure the dark class sets the root background for dark mode */
-  background: var(--background);
+  background: rgb(var(--bg-base));
 }

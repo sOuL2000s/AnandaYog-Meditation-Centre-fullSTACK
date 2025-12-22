@@ -400,8 +400,6 @@ const ValueCard = ({ icon, title, description }) => (
 
 --- START FILE: src\app\about\page.js ---
 
-// src/app/about/page.js
-
 import Image from 'next/image';
 
 export default function AboutPage() {
@@ -441,11 +439,15 @@ export default function AboutPage() {
             </div>
         </section>
 
-        {/* Teacher Profiles Section - Changed header color */}
+        {/* Teacher Profiles Section - UPDATED */}
         <section className="py-16 text-center">
-            <h2 className="text-3xl font-bold text-teal-800 mb-8">Meet Our Lead Teacher</h2>
+            <h2 className="text-3xl font-bold text-teal-800 dark:text-teal-400 mb-8">Meet Our Lead Teacher</h2>
             <div className="flex justify-center">
-                <TeacherCard name="Rishi Sharma" specialty="Vipassana, Pranayama, & Hatha" />
+                <TeacherCard 
+                    name="Souparna Paul" 
+                    specialty="Vipassana, Pranayama, Ashtanga & Raja Yoga" 
+                    quote="The mind is everything. What you think, you become."
+                />
             </div>
         </section>
 
@@ -453,17 +455,24 @@ export default function AboutPage() {
     );
 }
 
-const TeacherCard = ({ name, specialty }) => (
+// TeacherCard Component - Modified to remove experience text and only display the quote
+const TeacherCard = ({ name, specialty, quote }) => (
     <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100 max-w-sm">
         {/* Changed background color and icon color */}
         <div className="w-24 h-24 mx-auto bg-teal-100 rounded-full mb-4 flex items-center justify-center text-3xl text-teal-600">
-            🧘
+            🧘‍♂️
         </div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
         {/* Changed text color */}
-        <p className="text-teal-600 italic">{specialty}</p>
-        {/* FIX: Changed text-gray-500 to text-gray-700 for better visibility */}
-        <p className="text-sm text-gray-700 mt-3">Certified with 10+ years experience guiding practitioners worldwide.</p>
+        <p className="text-teal-600 italic mb-3">{specialty}</p>
+
+        {/* Quote Display - Now the final descriptive element */}
+        {quote && (
+            <p className="text-sm text-gray-800 italic border-t border-b border-gray-100 py-3">
+                &quot;{quote}&quot;
+            </p>
+        )}
+        
     </div>
 );
 
@@ -1103,11 +1112,52 @@ const CourseLink = ({ title, href }) => (
 
 --- START FILE: src\app\policy\page.js ---
 
+// src/app/policy/page.js
+// Request #7: Privacy Policy Content
+
+import Link from 'next/link';
+
 export default function PolicyPage() {
     return (
         <div className="container mx-auto p-8 max-w-4xl">
-            <h1 className="text-4xl font-serif font-bold text-teal-800 mb-6">Privacy Policy</h1>
-            <p className="text-gray-700">Detailed privacy policy content will go here.</p>
+            <h1 className="text-4xl font-serif font-bold text-teal-800 dark:text-teal-400 mb-6">Privacy Policy</h1>
+            <p className="text-sm italic text-red-600 dark:text-red-400 mb-6">
+                NOTE: This is a legal template for demonstration purposes. Please consult with a legal professional before deploying this policy in a live environment.
+            </p>
+
+            <section className="space-y-4 text-gray-700 dark:text-gray-300">
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">1. Information We Collect</h2>
+                <p>
+                    We collect personal information that you voluntarily provide to us when you register on the Services, express an interest in obtaining information about us or our products and Services, when you participate in activities on the Services, or otherwise when you contact us.
+                </p>
+                <ul className="list-disc list-inside ml-4">
+                    <li>**Personal Information:** Email address (for login via Google Authentication), display name, and unique user ID (UID).</li>
+                    <li>**Payment Data:** We do not store full credit card details. Payment processing is handled securely by Razorpay, and we only retain the payment ID, order ID, and signature for verification purposes.</li>
+                    <li>**Usage Data:** Subscription status, expiration date, completed lessons, and theme preference.</li>
+                </ul>
+
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">2. How We Use Your Information</h2>
+                <p>
+                    We use the information we collect or receive for the following purposes:
+                </p>
+                <ul className="list-disc list-inside ml-4">
+                    <li>To facilitate account creation and login process.</li>
+                    <li>To determine your access level (free vs. premium content).</li>
+                    <li>To track your course progress and store your subscription history.</li>
+                    <li>To send you administrative information, such as service changes and policy updates.</li>
+                    <li>To respond to your inquiries (via the Contact Form API endpoint).</li>
+                </ul>
+
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">3. Data Security</h2>
+                <p>
+                    We have implemented appropriate security measures designed to protect the security of any personal information we process. However, despite our safeguards and efforts to secure your information, no electronic transmission over the Internet or information storage technology can be guaranteed to be 100% secure.
+                </p>
+                
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">4. Contact Us</h2>
+                <p>
+                    If you have questions or comments about this policy, you may contact us via our <Link href="/contact" className="text-teal-600 hover:underline">Contact Page</Link>.
+                </p>
+            </section>
         </div>
     );
 }
@@ -1190,11 +1240,45 @@ export default function PricingPage() {
 
 --- START FILE: src\app\terms\page.js ---
 
+// src/app/terms/page.js
+// Request #7: Terms of Service Content
+
+import Link from 'next/link';
+
 export default function TermsPage() {
     return (
         <div className="container mx-auto p-8 max-w-4xl">
-            <h1 className="text-4xl font-serif font-bold text-teal-800 mb-6">Terms of Service</h1>
-            <p className="text-gray-700">Detailed terms and conditions will go here.</p>
+            <h1 className="text-4xl font-serif font-bold text-teal-800 dark:text-teal-400 mb-6">Terms of Service</h1>
+            <p className="text-sm italic text-red-600 dark:text-red-400 mb-6">
+                NOTE: This is a legal template for demonstration purposes. Please consult with a legal professional before deploying these terms in a live environment.
+            </p>
+
+            <section className="space-y-4 text-gray-700 dark:text-gray-300">
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">1. Agreement to Terms</h2>
+                <p>
+                    By accessing or using our website and services (AnandaYog), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you disagree with any part of the terms, then you may not access the Service.
+                </p>
+
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">2. Subscription and Payments</h2>
+                <p>
+                    Some parts of the Service are billed on a subscription basis (&quot;Subscription&quot;). You will be billed in advance on a recurring, periodic basis (such as monthly or annually). Payment processing is handled by Razorpay. Failure to pay may result in the termination of your subscription access.
+                </p>
+
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">3. Content and Intellectual Property</h2>
+                <p>
+                    All content provided on AnandaYog, including course videos, text, graphics, and logos, are the property of AnandaYog and are protected by copyright laws. You may not reproduce, redistribute, or create derivative works from the content without explicit written permission.
+                </p>
+
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">4. Limitation of Liability</h2>
+                <p>
+                    The Service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis. AnandaYog makes no representations or warranties of any kind, express or implied, as to the operation of their services, or the information, content or materials included therein. You expressly agree that your use of the Service is at your sole risk.
+                </p>
+                
+                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">5. Changes to Terms</h2>
+                <p>
+                    We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide at least 30 days notice before any new terms take effect.
+                </p>
+            </section>
         </div>
     );
 }
@@ -1831,15 +1915,6 @@ export const db = getFirestore(app);
 
 --- END FILE: src\lib\firebase.js ---
 
--------------------------------------------------
+----------------------------------------------------
 
-1. in dark mode, some texts are looking bad because of their text color fix that.
-2. make the website more professional, clean, beautiful, lively and top notch with nice finishing.
-3. our practise pillars are being shown with emojies, fix that so people take it seriously and get inspired.
-4. update the teacher info - Souparna Paul, vipassana, pranayama, ashtanga yoga, raja yoga. remove the experience part and replace it with a beautiful yet wise quote. remove the emoji and make it serious.
-5. collect info from connect with us form and send that to me as combined in an email to souparnopaulreborn@gmail.com.
-6. in dashboard "*Note: Full usage tracking implementation requires backend persistence (database updates on lesson completion)." this is written, i want the full implementation can you make that happen? please do.
-7. the privacy policy and terms of service pages are there but i want them to be written appropriately for this website so i could use them for real.
-8. i see the use of panels in this website which never change as per the themes, please do a creative switch to something so that each and everything of the website respond or change as per the theme(light/dark).
-9. make all the courses fully functional and teach me how to give an account all the permissions without getting a subscription
-10. send me the codes of the files which were modified by making the above changes exclusively.
+How can I make different text colors and different card colors? Different theming for. Each and every element of the website. For both. Light mode and dark mode.

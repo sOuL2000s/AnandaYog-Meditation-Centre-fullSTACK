@@ -11,9 +11,9 @@ export default function ClassesPage() {
 
     return (
         <div className="container mx-auto p-8">
-            <h1 className="text-4xl font-serif font-bold text-teal-800 mb-8">Our Course Catalog</h1>
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-8">Our Course Catalog</h1>
             
-            <p className="text-lg text-gray-600 mb-10">
+            <p className="text-lg text-text-muted mb-10">
                 {isSubscribed 
                     ? "Welcome! You have full access to all courses listed below."
                     : "Access limited foundational content. Subscribe now for the full catalog."
@@ -70,32 +70,31 @@ const CourseCard = ({ title, description, isPremium, isSubscribed, currentUser, 
     else if (!currentUser) {
         buttonText = "Login to Enroll";
         buttonAction = login;
-        buttonClass = "bg-teal-600 hover:bg-teal-700";
+        buttonClass = "bg-brand-primary hover:bg-brand-primary-darker";
     } else if (isPremium && !isSubscribed) {
         buttonText = "Upgrade to Unlock";
         buttonAction = () => window.location.href = '/pricing';
-        buttonClass = "bg-amber-500 hover:bg-amber-600";
+        buttonClass = "bg-brand-accent hover:bg-brand-accent-darker";
     } else if (isPremium && isSubscribed) {
         buttonText = "Access Course";
         buttonAction = () => alert(`Accessing ${title}!`); // Placeholder action
-        buttonClass = "bg-green-600 hover:bg-green-700";
+        buttonClass = "bg-status-success hover:bg-green-700";
     } else { // Free course or Subscribed
         buttonText = "Start Course";
         buttonAction = () => alert(`Starting ${title}!`); // Placeholder action
-        buttonClass = "bg-teal-600 hover:bg-teal-700";
+        buttonClass = "bg-brand-primary hover:bg-brand-primary-darker";
     }
     
     // FIX: Update badge text color for better contrast
-    const badgeColor = isPremium ? 'text-amber-600' : 'text-teal-600';
+    const badgeColor = isPremium ? 'text-brand-accent' : 'text-brand-primary';
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 flex flex-col justify-between">
+        // Refactored background to Surface 1
+        <div className="bg-surface-1 p-6 rounded-lg shadow-lg border border-gray-100 flex flex-col justify-between">
             <div>
-                <h2 className="text-xl font-semibold text-teal-600 mb-2">{title}</h2>
-                {/* FIX: Replaced low-contrast gray-400 with a brand color */}
+                <h2 className="text-xl font-semibold text-brand-primary mb-2">{title}</h2>
                 <p className={`text-sm font-medium mb-3 ${badgeColor}`}>{isPremium ? 'PREMIUM ACCESS' : 'FREE FOUNDATION'}</p>
-                {/* FIX: Ensured description text is dark enough */}
-                <p className="text-gray-700 mb-4">{description}</p>
+                <p className="text-text-base mb-4">{description}</p>
             </div>
             <button 
                 onClick={buttonAction}

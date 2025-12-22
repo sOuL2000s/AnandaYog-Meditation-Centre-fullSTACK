@@ -30,8 +30,8 @@ const BlissfulHero = () => (
       </p>
       <Link 
         href="/dashboard" // Changed to point to dashboard for login/status check
-        // Changed to Warm Gold accent color
-        className="bg-amber-500 text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-amber-600 transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
+        // Refactored to use custom accent colors
+        className="bg-brand-accent text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
       >
         Start 7 Days Free
       </Link>
@@ -49,9 +49,9 @@ export default function HomePage() {
       <div className="container mx-auto px-6 lg:px-12 py-20"> 
         {/* Core Values Section */}
         <section className="py-8 text-center">
-          {/* Changed color to Deep Teal */}
-          <h2 className="text-4xl font-bold font-serif text-teal-800 mb-4">Our Practice Pillars</h2>
-          <p className="text-lg text-gray-500 max-w-4xl mx-auto mb-16">
+          {/* Refactored text color */}
+          <h2 className="text-4xl font-bold font-serif text-brand-primary mb-4">Our Practice Pillars</h2>
+          <p className="text-lg text-surface-muted max-w-4xl mx-auto mb-16">
             AnandaYog is built on principles of authenticity, community, and accessible guidance for all levels of practitioners.
           </p>
 
@@ -75,17 +75,17 @@ export default function HomePage() {
         </section>
         
         {/* Featured Courses Call to Action */}
-        {/* Changed background/border colors to Sage and Teal */}
-        <section className="mt-20 text-center bg-gray-100 p-12 rounded-2xl shadow-2xl border-t-4 border-teal-500">
-            {/* Changed color to Deep Teal */}
-            <h2 className="text-4xl font-serif font-bold text-teal-800 mb-4">Ready for Inner Change?</h2>
-            <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
+        {/* Refactored background/border colors to Surface 2 and Primary */}
+        <section className="mt-20 text-center bg-surface-2 p-12 rounded-2xl shadow-2xl border-t-4 border-brand-primary">
+            {/* Refactored text color */}
+            <h2 className="text-4xl font-serif font-bold text-brand-primary mb-4">Ready for Inner Change?</h2>
+            <p className="text-lg text-text-base mb-8 max-w-3xl mx-auto">
                 Explore our full catalog of guided meditations, Hatha, and Vinyasa courses designed by master teachers.
             </p>
             <Link 
                 href="/classes"
-                // Changed CTA to Warm Gold accent color
-                className="bg-amber-500 text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-amber-600 transition duration-300 shadow-lg"
+                // Refactored CTA to use custom accent colors
+                className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg"
             >
                 View All Courses
             </Link>
@@ -98,12 +98,13 @@ export default function HomePage() {
 
 // Helper Component (Updated Styling)
 const ValueCard = ({ icon, title, description }) => (
-    <div className="p-8 bg-white rounded-xl shadow-lg border border-gray-50 hover:shadow-xl transform hover:scale-[1.02] transition duration-300">
-        {/* Changed background color to Sage */}
-        <div className="text-4xl mb-4 p-3 bg-teal-100 rounded-lg inline-block">{icon}</div>
-        {/* Changed text color to Deep Teal */}
-        <h3 className="text-2xl font-semibold text-teal-800 mb-3 font-serif">{title}</h3>
-        {/* FIX: Ensuring text-gray-700 for better visibility than gray-600 */}
-        <p className="text-gray-700">{description}</p>
+    // Refactored background to Surface 1
+    <div className="p-8 bg-surface-1 rounded-xl shadow-lg border border-gray-50 hover:shadow-xl transform hover:scale-[1.02] transition duration-300">
+        {/* Refactored background color */}
+        <div className="text-4xl mb-4 p-3 bg-surface-2 rounded-lg inline-block">{icon}</div>
+        {/* Refactored text color */}
+        <h3 className="text-2xl font-semibold text-brand-primary mb-3 font-serif">{title}</h3>
+        {/* Refactored text color */}
+        <p className="text-text-base">{description}</p>
     </div>
 );

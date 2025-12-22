@@ -19,6 +19,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
   const [status, setStatus] = useState('');
   
   if (userData?.isSubscribed && userData.subscriptionPlan === planName) {
+      // Success card (using standard green for universal recognition)
       return (
         <div className="p-6 bg-green-50 border border-green-200 rounded-lg shadow-md">
             <h3 className="text-xl font-bold text-green-700 mb-2">{planName} Active!</h3>
@@ -29,6 +30,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
   
   // If user is subscribed but trying to buy the other plan (e.g., currently monthly, seeing annual)
   if (userData?.isSubscribed && userData.subscriptionPlan !== planName) {
+      // Warning card (using standard yellow/orange)
       return (
         <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg shadow-md">
             <h3 className="text-xl font-bold text-yellow-700 mb-2">Upgrade/Change Plan</h3>
@@ -108,7 +110,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
         email: currentUser.email,
       },
       theme: {
-        // Updated theme color to Deep Teal
+        // Updated theme color to Deep Teal (for Razorpay popup)
         color: "#0E5B6A" 
       }
     };
@@ -118,16 +120,18 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
     setStatus('Waiting for payment...');
   };
 
-  const buttonColor = isAnnual ? 'bg-teal-600 hover:bg-teal-700' : 'bg-amber-500 hover:bg-amber-600';
-  const borderColor = isAnnual ? 'border-teal-300' : 'border-amber-300';
+  // Use custom variables for buttons and borders
+  const buttonColor = isAnnual ? 'bg-brand-primary hover:bg-brand-primary-darker' : 'bg-brand-accent hover:bg-brand-accent-darker';
+  const borderColor = isAnnual ? 'border-brand-primary' : 'border-brand-accent';
 
 
   return (
-    <div className={`p-6 bg-white border-2 ${borderColor} rounded-lg shadow-xl flex flex-col justify-between`}>
+    // Refactored background to Surface 1 and border to Primary/Accent
+    <div className={`p-6 bg-surface-1 border-2 ${borderColor} rounded-lg shadow-xl flex flex-col justify-between`}>
       <div>
-        <h3 className="text-xl font-bold text-gray-800 mb-1">{planName}</h3>
-        <p className="text-4xl font-extrabold text-teal-600 mb-3">₹{amount}</p>
-        <p className="mb-4 text-gray-700 text-sm">{description}</p>
+        <h3 className="text-xl font-bold text-text-base mb-1">{planName}</h3>
+        <p className="text-4xl font-extrabold text-brand-primary mb-3">₹{amount}</p>
+        <p className="mb-4 text-text-muted text-sm">{description}</p>
       </div>
       
       <button 
@@ -138,7 +142,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
         {status.includes('Waiting') ? 'Payment Window Open...' : `Purchase Plan (₹${amount})`}
       </button>
 
-      {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-green-600 font-medium' : 'text-gray-600'}`}>{status}</p>}
+      {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-status-success font-medium' : 'text-text-muted'}`}>{status}</p>}
     </div>
   );
 }

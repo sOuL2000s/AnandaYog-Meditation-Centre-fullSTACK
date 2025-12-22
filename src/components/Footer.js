@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
+    // Used deep gray background but maintained teal border (brand color)
     <footer className="bg-gray-900 text-white mt-8 border-t-4 border-teal-600">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
         <p>&copy; {new Date().getFullYear()} AnandaYog Meditation Centre. All rights reserved.</p>

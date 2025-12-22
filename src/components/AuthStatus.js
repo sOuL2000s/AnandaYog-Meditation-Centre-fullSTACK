@@ -47,15 +47,15 @@ export default function AuthStatus() {
 
   if (loading) {
     // If the global auth context is still loading, show a simple message
-    return <div className="p-4 text-gray-500">Checking session...</div>;
+    return <div className="p-4 text-text-muted">Checking session...</div>;
   }
 
   return (
     <div className="p-0">
       {currentUser ? (
         <div className="space-y-4">
-          <p className="text-sm text-green-600 dark:text-green-400">
-            Logged in as: <span className="font-semibold">{currentUser.email}</span>
+          <p className="text-sm text-status-success">
+            Logged in as: <span className="font-semibold text-text-base">{currentUser.email}</span>
           </p>
           <button 
             onClick={handleLogout}
@@ -65,10 +65,10 @@ export default function AuthStatus() {
           </button>
         </div>
       ) : (
-        // Redesigned Login Button
+        // Redesigned Login Button using custom primary colors
         <button 
           onClick={handleLogin}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-xl flex items-center justify-center disabled:opacity-70"
+          className="w-full bg-brand-primary hover:bg-brand-primary-darker text-white font-bold py-3 rounded-lg transition duration-200 shadow-xl flex items-center justify-center disabled:opacity-70"
           disabled={localLoading}
         >
             {localLoading ? (
