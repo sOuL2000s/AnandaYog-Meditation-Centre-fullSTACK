@@ -1,5 +1,3 @@
-// src/app/about/page.js
-
 import Image from 'next/image';
 
 export default function AboutPage() {
@@ -39,11 +37,15 @@ export default function AboutPage() {
             </div>
         </section>
 
-        {/* Teacher Profiles Section - Changed header color */}
+        {/* Teacher Profiles Section - UPDATED */}
         <section className="py-16 text-center">
-            <h2 className="text-3xl font-bold text-teal-800 mb-8">Meet Our Lead Teacher</h2>
+            <h2 className="text-3xl font-bold text-teal-800 dark:text-teal-400 mb-8">Meet Our Lead Teacher</h2>
             <div className="flex justify-center">
-                <TeacherCard name="Rishi Sharma" specialty="Vipassana, Pranayama, & Hatha" />
+                <TeacherCard 
+                    name="Souparna Paul" 
+                    specialty="Vipassana, Pranayama, Ashtanga & Raja Yoga" 
+                    quote="The mind is everything. What you think, you become."
+                />
             </div>
         </section>
 
@@ -51,16 +53,23 @@ export default function AboutPage() {
     );
 }
 
-const TeacherCard = ({ name, specialty }) => (
+// TeacherCard Component - Modified to remove experience text and only display the quote
+const TeacherCard = ({ name, specialty, quote }) => (
     <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100 max-w-sm">
         {/* Changed background color and icon color */}
         <div className="w-24 h-24 mx-auto bg-teal-100 rounded-full mb-4 flex items-center justify-center text-3xl text-teal-600">
-            🧘
+            🧘‍♂️
         </div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
         {/* Changed text color */}
-        <p className="text-teal-600 italic">{specialty}</p>
-        {/* FIX: Changed text-gray-500 to text-gray-700 for better visibility */}
-        <p className="text-sm text-gray-700 mt-3">Certified with 10+ years experience guiding practitioners worldwide.</p>
+        <p className="text-teal-600 italic mb-3">{specialty}</p>
+
+        {/* Quote Display - Now the final descriptive element */}
+        {quote && (
+            <p className="text-sm text-gray-800 italic border-t border-b border-gray-100 py-3">
+                &quot;{quote}&quot;
+            </p>
+        )}
+        
     </div>
 );
