@@ -35,8 +35,10 @@
     /* Define the Serene Gradient using the new primary colors */
     .bg-serene-gradient {
         background-image: linear-gradient(135deg, 
-            rgba(var(--brand-primary), 0.9) 0%, 
-            rgba(var(--brand-primary-light), 0.8) 100%
+            /* FIX: Changed rgba(..., 0.9) to rgb(...) to make the gradient itself fully opaque. */
+            rgb(var(--brand-primary)) 0%, 
+            /* FIX: Changed rgba(..., 0.8) to rgb(...) to make the gradient itself fully opaque. */
+            rgb(var(--brand-primary-light)) 100%
         );
     }
 }

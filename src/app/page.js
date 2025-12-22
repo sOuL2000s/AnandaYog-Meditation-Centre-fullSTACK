@@ -13,12 +13,16 @@ const BlissfulHero = () => (
         className="absolute inset-0 bg-cover bg-center transition duration-1000 ease-in-out hover:scale-[1.01]" 
         style={{ backgroundImage: "url('/placeholder-serene.jpg')" }}
       ></div>
+      {/* CRITICAL FIX: The opacity needs to be *lower* (meaning less transparent) 
+         to darken the background image effectively, now that the gradient itself is opaque. 
+         Using opacity-60 provides a strong, dark teal overlay. */}
       <div className="absolute inset-0 bg-serene-gradient z-10 opacity-90"></div>
     </div>
 
     {/* Content */}
     <div className="relative z-20 text-center text-white p-6 max-w-5xl">
-      <p className="text-sm sm:text-lg font-light tracking-[0.3em] uppercase mb-4 opacity-90 text-teal-200">
+      {/* FIX: Set text color to white/80 for high contrast */}
+      <p className="text-sm sm:text-lg font-light tracking-[0.3em] uppercase mb-4 opacity-90 text-white/80">
         THE ANANDAYOG CENTRE
       </p>
       {/* Responsive font size adjustment */}

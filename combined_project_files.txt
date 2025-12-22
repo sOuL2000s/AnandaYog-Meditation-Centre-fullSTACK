@@ -186,29 +186,61 @@ export default config;
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* FIX 1: Ensure body uses the CSS variable, allowing it to switch */
+  /* Base Body Styling: Uses the custom variable background/foreground */
   body {
-    background: var(--background);
-    color: var(--foreground);
+    background: rgb(var(--bg-base)); 
+    color: rgb(var(--text-base));
     font-family: 'Inter', system-ui, sans-serif; 
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
   }
   
-  /* FIX 2 (CRITICAL): Force the root element background to follow the theme class 
-     to prevent system dark mode from overriding the initial background. */
+  /* FIX 2 (CRITICAL): Force the root element background to follow the theme class */
   .light {
-    background-color: var(--background);
-  }
-
-  /* FIX: Moved custom class application into @layer components or utilities */
-  .bg-serene-gradient {
-    /* Transition the gradient from a deep teal to a soft sage/mint */
-    background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
+    background-color: rgb(var(--bg-base));
   }
 }
 
+@layer components {
+    /* Define the Serene Gradient using the new primary colors */
+    .bg-serene-gradient {
+        background-image: linear-gradient(135deg, 
+            rgba(var(--brand-primary), 0.9) 0%, 
+            rgba(var(--brand-primary-light), 0.8) 100%
+        );
+    }
+}
+
 @layer utilities {
-    /* FIX: Placed the utility class application here */
+    /* Mapped custom utilities for background colors */
+    .bg-surface-1 { background-color: rgb(var(--bg-surface-1)); }
+    .bg-surface-2 { background-color: rgb(var(--bg-surface-2)); }
+    .bg-brand-primary { background-color: rgb(var(--brand-primary)); }
+    .bg-brand-accent { background-color: rgb(var(--brand-accent)); }
+    .bg-brand-primary-light { background-color: rgb(var(--brand-primary-light)); }
+
+
+    /* Mapped custom utilities for text colors */
+    .text-brand-primary { color: rgb(var(--brand-primary)); }
+    .text-brand-accent { color: rgb(var(--brand-accent)); }
+    .text-text-base { color: rgb(var(--text-base)); }
+    .text-surface-muted { color: rgb(var(--text-muted)); }
+
+    /* Mapped custom utilities for status colors */
+    .text-status-success { color: rgb(var(--status-success)); }
+    .border-status-success { border-color: rgb(var(--status-success)); }
+    .bg-status-success { background-color: rgb(var(--status-success)); }
+    .text-status-warning { color: rgb(var(--status-warning)); }
+    .border-status-warning { border-color: rgb(var(--status-warning)); }
+    .bg-status-warning { background-color: rgb(var(--status-warning)); }
+    
+
+    /* Hover States (Defined separately for control) */
+    .hover\:bg-brand-primary-darker:hover { background-color: rgb(var(--brand-primary-darker)); }
+    .hover\:bg-brand-accent-darker:hover { background-color: rgb(var(--brand-accent-darker)); }
+    .hover\:text-brand-primary-darker:hover { color: rgb(var(--brand-primary-darker)); }
+    
+    /* Example: Dark mode opacity for the gradient */
     .bg-serene-gradient {
         @apply dark:opacity-80; 
     }
@@ -216,30 +248,58 @@ export default config;
 
 
 :root {
-  /* --- LIGHT MODE (Default) --- */
-  --background: #fafafa; /* Warm Linen */
-  --foreground: #2d3748; /* Charcoal Text */
+  /* --- LIGHT MODE (Default) - RGB Values --- */
   
-  /* Primary: Deep Teal (Used for headers, strong lines) */
-  --primary-teal: 14 91 106; /* Approximate teal-800 */
+  /* Base */
+  --bg-base: 250 250 250; /* Warm Linen (#FAFAFA) */
+  --text-base: 45 55 72;  /* Charcoal (#2D3748) */
+  --text-muted: 107 114 128; /* Gray 500 */
+
+  /* Surfaces (Card Backgrounds) */
+  --bg-surface-1: 255 255 255; /* White (Primary Card BG) */
+  --bg-surface-2: 241 245 249; /* Slate 100 (Secondary BG/Input fill) */
   
-  /* Accent 1: Serene Sage/Mint (Used for soft backgrounds) */
-  --accent-sage: 217 235 232; /* Soft light green/blue */ 
+  /* Brand Colors (Teal) */
+  --brand-primary: 14 91 106;      /* Deep Teal (#0E5B6A - Teal 800 equivalent) */
+  --brand-primary-light: 106 179 175; /* Soft Teal for Gradients/Hover BG */
+  --brand-primary-darker: 12 75 88; /* Darker Teal for hover */
   
-  /* Accent 2: Warm Gold (Used for CTAs, success messages) */
-  --cta-gold: 245 158 11; /* amber-500 */
+  /* Accent Colors (Amber/Gold) */
+  --brand-accent: 245 158 11;     /* Warm Gold (#F59E0B - Amber 500 equivalent) */
+  --brand-accent-darker: 217 119 6; /* Darker Gold for hover */
+
+  /* Status */
+  --status-success: 22 163 74; /* Green 600 */
+  --status-warning: 234 88 12; /* Orange 600 */
 }
 
 /* --- DARK MODE DEFINITION --- */
 .dark {
-  /* FIX 3: Updated dark mode background to #1e2939 (good visibility with light text) */
-  --background: #1e2939; 
-  --foreground: #f0f0f0; /* Light Gray Text (Visible & beautiful on the dark background) */
+  /* Base */
+  --bg-base: 30 41 57;      /* Slate 800 */
+  --text-base: 240 240 240; /* Near White */
+  --text-muted: 156 163 175; /* Gray 400 */
+  
+  /* Surfaces (Card Backgrounds) */
+  --bg-surface-1: 44 59 74;  /* Slightly lighter slate (Card BG) */
+  --bg-surface-2: 64 78 94;  /* Darker accent surface */
+  
+  /* Brand Colors (Teal - Must be lighter for contrast) */
+  --brand-primary: 90 200 180;      /* Lighter Teal (#5AC8B4 - Teal 400 equivalent) */
+  --brand-primary-light: 65 170 150; /* Slightly darker light for dark mode contrast */
+  --brand-primary-darker: 14 91 106; /* Deep Teal for hover in dark mode */
+  
+  /* Accent Colors (Amber/Gold - Must be lighter) */
+  --brand-accent: 251 191 36;     /* Lighter Gold (#FBEC24 - Amber 400 equivalent) */
+  --brand-accent-darker: 245 158 11; /* Darker Gold for hover */
+
+  /* Status */
+  --status-success: 52 211 163; /* Green 400 */
+  --status-warning: 251 191 36; /* Amber 400 */
   
   /* Ensure the dark class sets the root background for dark mode */
-  background: var(--background);
+  background: rgb(var(--bg-base));
 }
-
 
 --- END FILE: src\app\globals.css ---
 
@@ -318,8 +378,8 @@ const BlissfulHero = () => (
       </p>
       <Link 
         href="/dashboard" // Changed to point to dashboard for login/status check
-        // Changed to Warm Gold accent color
-        className="bg-amber-500 text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-amber-600 transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
+        // Refactored to use custom accent colors
+        className="bg-brand-accent text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
       >
         Start 7 Days Free
       </Link>
@@ -337,9 +397,9 @@ export default function HomePage() {
       <div className="container mx-auto px-6 lg:px-12 py-20"> 
         {/* Core Values Section */}
         <section className="py-8 text-center">
-          {/* Changed color to Deep Teal */}
-          <h2 className="text-4xl font-bold font-serif text-teal-800 mb-4">Our Practice Pillars</h2>
-          <p className="text-lg text-gray-500 max-w-4xl mx-auto mb-16">
+          {/* Refactored text color */}
+          <h2 className="text-4xl font-bold font-serif text-brand-primary mb-4">Our Practice Pillars</h2>
+          <p className="text-lg text-surface-muted max-w-4xl mx-auto mb-16">
             AnandaYog is built on principles of authenticity, community, and accessible guidance for all levels of practitioners.
           </p>
 
@@ -363,17 +423,17 @@ export default function HomePage() {
         </section>
         
         {/* Featured Courses Call to Action */}
-        {/* Changed background/border colors to Sage and Teal */}
-        <section className="mt-20 text-center bg-gray-100 p-12 rounded-2xl shadow-2xl border-t-4 border-teal-500">
-            {/* Changed color to Deep Teal */}
-            <h2 className="text-4xl font-serif font-bold text-teal-800 mb-4">Ready for Inner Change?</h2>
-            <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
+        {/* Refactored background/border colors to Surface 2 and Primary */}
+        <section className="mt-20 text-center bg-surface-2 p-12 rounded-2xl shadow-2xl border-t-4 border-brand-primary">
+            {/* Refactored text color */}
+            <h2 className="text-4xl font-serif font-bold text-brand-primary mb-4">Ready for Inner Change?</h2>
+            <p className="text-lg text-text-base mb-8 max-w-3xl mx-auto">
                 Explore our full catalog of guided meditations, Hatha, and Vinyasa courses designed by master teachers.
             </p>
             <Link 
                 href="/classes"
-                // Changed CTA to Warm Gold accent color
-                className="bg-amber-500 text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-amber-600 transition duration-300 shadow-lg"
+                // Refactored CTA to use custom accent colors
+                className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg"
             >
                 View All Courses
             </Link>
@@ -386,13 +446,14 @@ export default function HomePage() {
 
 // Helper Component (Updated Styling)
 const ValueCard = ({ icon, title, description }) => (
-    <div className="p-8 bg-white rounded-xl shadow-lg border border-gray-50 hover:shadow-xl transform hover:scale-[1.02] transition duration-300">
-        {/* Changed background color to Sage */}
-        <div className="text-4xl mb-4 p-3 bg-teal-100 rounded-lg inline-block">{icon}</div>
-        {/* Changed text color to Deep Teal */}
-        <h3 className="text-2xl font-semibold text-teal-800 mb-3 font-serif">{title}</h3>
-        {/* FIX: Ensuring text-gray-700 for better visibility than gray-600 */}
-        <p className="text-gray-700">{description}</p>
+    // Refactored background to Surface 1
+    <div className="p-8 bg-surface-1 rounded-xl shadow-lg border border-gray-50 hover:shadow-xl transform hover:scale-[1.02] transition duration-300">
+        {/* Refactored background color */}
+        <div className="text-4xl mb-4 p-3 bg-surface-2 rounded-lg inline-block">{icon}</div>
+        {/* Refactored text color */}
+        <h3 className="text-2xl font-semibold text-brand-primary mb-3 font-serif">{title}</h3>
+        {/* Refactored text color */}
+        <p className="text-text-base">{description}</p>
     </div>
 );
 
@@ -406,12 +467,12 @@ export default function AboutPage() {
     return (
       <div className="container mx-auto p-8 sm:p-12">
         
-        {/* Hero Section - Changed background and text colors */}
-        <div className="bg-teal-50 p-10 rounded-xl shadow-inner mb-12 text-center">
-            <h1 className="text-5xl font-serif font-extrabold text-teal-800 mb-4">
+        {/* Hero Section - Refactored background and text colors */}
+        <div className="bg-surface-2 p-10 rounded-xl shadow-inner mb-12 text-center">
+            <h1 className="text-5xl font-serif font-extrabold text-brand-primary mb-4">
                 Our Roots, Our Vision
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-text-muted max-w-3xl mx-auto">
                 Dedicated to spreading the wisdom of yoga and meditation in a supportive and modern environment.
             </p>
         </div>
@@ -419,11 +480,11 @@ export default function AboutPage() {
         {/* Mission Section */}
         <section className="grid md:grid-cols-2 gap-12 items-center py-10">
             <div>
-                <h2 className="text-3xl font-bold text-teal-700 mb-4">The AnandaYog Mission</h2>
-                <p className="text-gray-700 mb-4 leading-relaxed">
+                <h2 className="text-3xl font-bold text-brand-primary mb-4">The AnandaYog Mission</h2>
+                <p className="text-text-base mb-4 leading-relaxed">
                     Founded on the belief that inner tranquility is accessible to everyone, AnandaYog was created to be a digital sanctuary. We move beyond trendy fitness routines to offer practices that truly connect you with your deepest self.
                 </p>
-                <p className="text-gray-700 leading-relaxed italic">
+                <p className="text-text-base leading-relaxed italic">
                     &quot;Ananda&quot; means bliss, and &quot;Yog&quot; means union. Our goal is to help you achieve the union of mind and body, leading to lasting joy.
                 </p>
             </div>
@@ -441,7 +502,7 @@ export default function AboutPage() {
 
         {/* Teacher Profiles Section - UPDATED */}
         <section className="py-16 text-center">
-            <h2 className="text-3xl font-bold text-teal-800 dark:text-teal-400 mb-8">Meet Our Lead Teacher</h2>
+            <h2 className="text-3xl font-bold text-brand-primary mb-8">Meet Our Lead Teacher</h2>
             <div className="flex justify-center">
                 <TeacherCard 
                     name="Souparna Paul" 
@@ -457,18 +518,19 @@ export default function AboutPage() {
 
 // TeacherCard Component - Modified to remove experience text and only display the quote
 const TeacherCard = ({ name, specialty, quote }) => (
-    <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100 max-w-sm">
-        {/* Changed background color and icon color */}
-        <div className="w-24 h-24 mx-auto bg-teal-100 rounded-full mb-4 flex items-center justify-center text-3xl text-teal-600">
+    // Refactored background to Surface 1
+    <div className="bg-surface-1 p-6 rounded-lg shadow-xl border border-gray-100 max-w-sm">
+        {/* Refactored background color and icon color */}
+        <div className="w-24 h-24 mx-auto bg-surface-2 rounded-full mb-4 flex items-center justify-center text-3xl text-brand-primary">
             🧘‍♂️
         </div>
-        <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
-        {/* Changed text color */}
-        <p className="text-teal-600 italic mb-3">{specialty}</p>
+        <h3 className="text-xl font-semibold text-text-base">{name}</h3>
+        {/* Refactored text color */}
+        <p className="text-brand-primary italic mb-3">{specialty}</p>
 
         {/* Quote Display - Now the final descriptive element */}
         {quote && (
-            <p className="text-sm text-gray-800 italic border-t border-b border-gray-100 py-3">
+            <p className="text-sm text-text-base italic border-t border-b border-gray-100 py-3">
                 &quot;{quote}&quot;
             </p>
         )}
@@ -710,9 +772,9 @@ export default function ClassesPage() {
 
     return (
         <div className="container mx-auto p-8">
-            <h1 className="text-4xl font-serif font-bold text-teal-800 mb-8">Our Course Catalog</h1>
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-8">Our Course Catalog</h1>
             
-            <p className="text-lg text-gray-600 mb-10">
+            <p className="text-lg text-text-muted mb-10">
                 {isSubscribed 
                     ? "Welcome! You have full access to all courses listed below."
                     : "Access limited foundational content. Subscribe now for the full catalog."
@@ -769,32 +831,31 @@ const CourseCard = ({ title, description, isPremium, isSubscribed, currentUser, 
     else if (!currentUser) {
         buttonText = "Login to Enroll";
         buttonAction = login;
-        buttonClass = "bg-teal-600 hover:bg-teal-700";
+        buttonClass = "bg-brand-primary hover:bg-brand-primary-darker";
     } else if (isPremium && !isSubscribed) {
         buttonText = "Upgrade to Unlock";
         buttonAction = () => window.location.href = '/pricing';
-        buttonClass = "bg-amber-500 hover:bg-amber-600";
+        buttonClass = "bg-brand-accent hover:bg-brand-accent-darker";
     } else if (isPremium && isSubscribed) {
         buttonText = "Access Course";
         buttonAction = () => alert(`Accessing ${title}!`); // Placeholder action
-        buttonClass = "bg-green-600 hover:bg-green-700";
+        buttonClass = "bg-status-success hover:bg-green-700";
     } else { // Free course or Subscribed
         buttonText = "Start Course";
         buttonAction = () => alert(`Starting ${title}!`); // Placeholder action
-        buttonClass = "bg-teal-600 hover:bg-teal-700";
+        buttonClass = "bg-brand-primary hover:bg-brand-primary-darker";
     }
     
     // FIX: Update badge text color for better contrast
-    const badgeColor = isPremium ? 'text-amber-600' : 'text-teal-600';
+    const badgeColor = isPremium ? 'text-brand-accent' : 'text-brand-primary';
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 flex flex-col justify-between">
+        // Refactored background to Surface 1
+        <div className="bg-surface-1 p-6 rounded-lg shadow-lg border border-gray-100 flex flex-col justify-between">
             <div>
-                <h2 className="text-xl font-semibold text-teal-600 mb-2">{title}</h2>
-                {/* FIX: Replaced low-contrast gray-400 with a brand color */}
+                <h2 className="text-xl font-semibold text-brand-primary mb-2">{title}</h2>
                 <p className={`text-sm font-medium mb-3 ${badgeColor}`}>{isPremium ? 'PREMIUM ACCESS' : 'FREE FOUNDATION'}</p>
-                {/* FIX: Ensured description text is dark enough */}
-                <p className="text-gray-700 mb-4">{description}</p>
+                <p className="text-text-base mb-4">{description}</p>
             </div>
             <button 
                 onClick={buttonAction}
@@ -856,18 +917,19 @@ export default function ContactPage() {
       <div className="container mx-auto p-8 max-w-4xl">
         
         <div className="text-center mb-12">
-            <h1 className="text-5xl font-serif font-extrabold text-teal-800 mb-4">
+            <h1 className="text-5xl font-serif font-extrabold text-brand-primary mb-4">
                 Connect With Us
             </h1>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-text-muted">
                 We are here to answer your questions and guide your practice.
             </p>
         </div>
 
-        <div className="bg-white p-10 rounded-2xl shadow-2xl border border-gray-100">
+        {/* Refactored background to Surface 1 */}
+        <div className="bg-surface-1 p-10 rounded-2xl shadow-2xl border border-gray-100">
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label htmlFor="name" className="block text-sm font-semibold text-text-base mb-1">
                         Full Name
                     </label>
                     <input
@@ -875,12 +937,12 @@ export default function ContactPage() {
                         id="name"
                         name="name"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     />
                 </div>
                 
                 <div>
-                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label htmlFor="email" className="block text-sm font-semibold text-text-base mb-1">
                         Email Address
                     </label>
                     <input
@@ -888,12 +950,12 @@ export default function ContactPage() {
                         id="email"
                         name="email"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     />
                 </div>
 
                 <div>
-                    <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label htmlFor="message" className="block text-sm font-semibold text-text-base mb-1">
                         Your Message
                     </label>
                     <textarea
@@ -901,20 +963,21 @@ export default function ContactPage() {
                         name="message"
                         rows="5"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     ></textarea>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-amber-600 text-white font-bold py-3 rounded-lg hover:bg-amber-700 transition duration-300 shadow-md disabled:opacity-50"
+                    // Refactored button to use accent colors
+                    className="w-full bg-brand-accent text-white font-bold py-3 rounded-lg hover:bg-brand-accent-darker transition duration-300 shadow-md disabled:opacity-50"
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
                 
                 {status && (
-                    <p className={`mt-4 text-center text-sm font-medium ${status.includes('Thank you') ? 'text-green-600' : 'text-red-500'}`}>
+                    <p className={`mt-4 text-center text-sm font-medium ${status.includes('Thank you') ? 'text-status-success' : 'text-red-500'}`}>
                         {status}
                     </p>
                 )}
@@ -943,7 +1006,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <div className="animate-pulse text-xl text-teal-600">
+        <div className="animate-pulse text-xl text-brand-primary">
              Checking user status...
         </div>
       </div>
@@ -954,13 +1017,14 @@ export default function DashboardPage() {
   if (!currentUser) {
     return (
         // FIX (Gap & Background): Ensures the background is fully covered and the content is centered.
-        // Removed explicit bg-gray-50/dark:bg-gray-900 to rely on global theme background CSS variable.
+        // Refactored background to Surface 1 and border to Primary
         <div className="flex items-center justify-center h-full min-h-[calc(100vh-5rem)] p-4 transition-colors duration-300">
-            <div className="w-full max-w-md p-8 sm:p-10 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-t-4 border-teal-500 transform transition duration-500 hover:shadow-3xl">
-                <h1 className="text-4xl font-serif font-bold text-teal-800 dark:text-teal-300 mb-4">
+            <div className="w-full max-w-md p-8 sm:p-10 text-center bg-surface-1 rounded-2xl shadow-2xl border-t-4 border-brand-primary transform transition duration-500 hover:shadow-3xl">
+                {/* Refactored text color */}
+                <h1 className="text-4xl font-serif font-bold text-brand-primary mb-4">
                     Access Your Sanctuary
                 </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">
+                <p className="text-lg text-text-muted mb-10">
                     Sign in with Google to manage your account and begin your practice.
                 </p>
                 {/* Use AuthStatus here to present the login UI */}
@@ -976,56 +1040,56 @@ export default function DashboardPage() {
   const expirationDate = userData?.subscriptionExpires ? 
     new Date(userData.subscriptionExpires).toLocaleDateString() : 'N/A';
 
+  // Use standard Tailwind colors for status indicators for clear differentiation
   const accessColor = isSubscribed ? 'text-green-600' : 'text-amber-600'; 
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
   return (
     <div className="container mx-auto p-8 max-w-6xl">
-      <h1 className="text-4xl font-serif font-bold text-teal-800 mb-2">
+      <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">
         Welcome Back, {currentUser?.displayName?.split(' ')[0] || 'Yogi'}!
       </h1>
-      <p className="text-lg text-gray-600 mb-8">
+      <p className="text-lg text-text-muted mb-8">
         Manage your path to Ananda (Bliss).
       </p>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Column 1: Status & Logout */}
         <div className="lg:col-span-1 space-y-8">
-            {/* Subscription Status Card - VISIBILITY FIXED */}
-            <div className={`bg-white p-6 rounded-lg shadow-2xl border-l-4 ${accessBorderColor} `}>
-                <h2 className="text-2xl font-semibold mb-3 text-gray-800">Membership Status</h2>
-                <p className="text-md text-gray-700">
+            {/* Subscription Status Card - Refactored background to Surface 1 */}
+            <div className={`bg-surface-1 p-6 rounded-lg shadow-2xl border-l-4 ${accessBorderColor} `}>
+                <h2 className="text-2xl font-semibold mb-3 text-text-base">Membership Status</h2>
+                <p className="text-md text-text-base">
                   Plan: 
                   <span className={`font-bold ml-2 ${accessColor}`}>
                     {currentPlan}
                   </span>
                 </p>
                 {isSubscribed && (
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-text-muted mt-2">
                         Expires: {expirationDate}
                     </p>
                 )}
                 {!isSubscribed && (
-                    <p className="text-sm text-amber-600 font-medium mt-3">
+                    <p className="text-sm text-status-warning font-medium mt-3">
                         Upgrade now to unlock all premium courses.
                     </p>
                 )}
             </div>
             
-            {/* Usage/Progress Placeholder */}
-            <div className="p-6 bg-gray-100 rounded-lg shadow-inner">
-                <h3 className="text-xl font-serif font-bold text-teal-700 mb-4">Your Progress</h3>
-                <ul className="space-y-2 text-gray-600">
+            {/* Usage/Progress Placeholder - Refactored background to Surface 2 */}
+            <div className="p-6 bg-surface-2 rounded-lg shadow-inner">
+                <h3 className="text-xl font-serif font-bold text-brand-primary mb-4">Your Progress</h3>
+                <ul className="space-y-2 text-text-muted">
                     <li className="flex justify-between items-center text-sm">
                         <span>Beginner&apos;s Mind</span> 
-                        <span className="text-teal-600 font-medium">75% Complete</span>
+                        <span className="text-brand-primary font-medium">75% Complete</span>
                     </li>
                     <li className="flex justify-between items-center text-sm">
                         <span>Hatha Flow</span> 
-                        <span className="text-teal-600 font-medium">Recently Visited</span>
+                        <span className="text-brand-primary font-medium">Recently Visited</span>
                     </li>
-                    {/* FIX: Changed text-gray-400 to text-gray-500 for slight improvement */}
-                    <li className="text-xs text-gray-500 pt-2">
+                    <li className="text-xs text-text-muted pt-2">
                         *Note: Full usage tracking implementation requires backend persistence (database updates on lesson completion).
                     </li>
                 </ul>
@@ -1048,7 +1112,7 @@ export default function DashboardPage() {
             {/* Payment Options (Show only if NOT subscribed) */}
             {!isSubscribed && (
                 <div className="space-y-6">
-                    <h2 className="text-3xl font-serif font-bold text-teal-800 mb-4">Select Your Subscription</h2>
+                    <h2 className="text-3xl font-serif font-bold text-brand-primary mb-4">Select Your Subscription</h2>
                     <div className="grid md:grid-cols-2 gap-6">
                         <PaymentInitiator 
                             planName="Yogi Monthly" 
@@ -1066,9 +1130,9 @@ export default function DashboardPage() {
             )}
 
 
-            {/* Protected Content Section */}
-            <div className="p-8 bg-white rounded-lg shadow-xl border-t-4 border-teal-500">
-                <h2 className="text-2xl font-serif font-bold mb-5 text-teal-700">Your Course Library</h2>
+            {/* Protected Content Section - Refactored background and border */}
+            <div className="p-8 bg-surface-1 rounded-lg shadow-xl border-t-4 border-brand-primary">
+                <h2 className="text-2xl font-serif font-bold mb-5 text-brand-primary">Your Course Library</h2>
                 
                 {isSubscribed ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1078,14 +1142,14 @@ export default function DashboardPage() {
                         <CourseLink title="Guided Sleep Audio Archive" href="/courses/sleep-audio" />
                     </div>
                 ) : (
-                    <div className="text-center p-8 bg-gray-50 border-2 border-dashed border-amber-300 rounded-lg">
-                        <p className="text-xl text-amber-600 font-medium mb-4">
+                    <div className="text-center p-8 bg-surface-2 border-2 border-dashed border-brand-accent rounded-lg">
+                        <p className="text-xl text-brand-accent font-medium mb-4">
                             Upgrade Required: Full library access is currently locked.
                         </p>
-                        <p className="text-gray-500">
+                        <p className="text-text-muted">
                             View the 5 free introductory videos in the Classes section.
                         </p>
-                        <Link href="/pricing" className="mt-4 inline-block text-teal-600 hover:underline">
+                        <Link href="/pricing" className="mt-4 inline-block text-brand-primary hover:underline">
                             View Subscription Plans →
                         </Link>
                     </div>
@@ -1098,13 +1162,13 @@ export default function DashboardPage() {
 }
 
 const CourseLink = ({ title, href }) => (
+    // Refactored background to Surface 2 and hover background to Primary Light
     <Link 
         href={href} 
-        className="block p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-teal-50 transition duration-200 border-l-4 border-teal-500"
+        className="block p-4 bg-surface-2 rounded-lg shadow-sm hover:bg-brand-primary-light transition duration-200 border-l-4 border-brand-primary"
     >
-        <p className="font-semibold text-gray-800">{title}</p>
-        {/* FIX: Changed low-contrast text-gray-500 to text-gray-600 */}
-        <p className="text-sm text-gray-600">Start Lesson 1 →</p>
+        <p className="font-semibold text-text-base">{title}</p>
+        <p className="text-sm text-text-muted">Start Lesson 1 →</p>
     </Link>
 );
 
@@ -1120,13 +1184,13 @@ import Link from 'next/link';
 export default function PolicyPage() {
     return (
         <div className="container mx-auto p-8 max-w-4xl">
-            <h1 className="text-4xl font-serif font-bold text-teal-800 dark:text-teal-400 mb-6">Privacy Policy</h1>
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-6">Privacy Policy</h1>
             <p className="text-sm italic text-red-600 dark:text-red-400 mb-6">
                 NOTE: This is a legal template for demonstration purposes. Please consult with a legal professional before deploying this policy in a live environment.
             </p>
 
-            <section className="space-y-4 text-gray-700 dark:text-gray-300">
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">1. Information We Collect</h2>
+            <section className="space-y-4 text-text-base">
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">1. Information We Collect</h2>
                 <p>
                     We collect personal information that you voluntarily provide to us when you register on the Services, express an interest in obtaining information about us or our products and Services, when you participate in activities on the Services, or otherwise when you contact us.
                 </p>
@@ -1136,7 +1200,7 @@ export default function PolicyPage() {
                     <li>**Usage Data:** Subscription status, expiration date, completed lessons, and theme preference.</li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">2. How We Use Your Information</h2>
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">2. How We Use Your Information</h2>
                 <p>
                     We use the information we collect or receive for the following purposes:
                 </p>
@@ -1148,14 +1212,14 @@ export default function PolicyPage() {
                     <li>To respond to your inquiries (via the Contact Form API endpoint).</li>
                 </ul>
 
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">3. Data Security</h2>
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">3. Data Security</h2>
                 <p>
                     We have implemented appropriate security measures designed to protect the security of any personal information we process. However, despite our safeguards and efforts to secure your information, no electronic transmission over the Internet or information storage technology can be guaranteed to be 100% secure.
                 </p>
                 
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">4. Contact Us</h2>
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">4. Contact Us</h2>
                 <p>
-                    If you have questions or comments about this policy, you may contact us via our <Link href="/contact" className="text-teal-600 hover:underline">Contact Page</Link>.
+                    If you have questions or comments about this policy, you may contact us via our <Link href="/contact" className="text-brand-primary hover:underline">Contact Page</Link>.
                 </p>
             </section>
         </div>
@@ -1173,60 +1237,60 @@ import Link from 'next/link';
 export default function PricingPage() {
   return (
     <div className="container mx-auto p-8 text-center">
-      <h1 className="text-4xl font-serif font-bold text-teal-800 mb-10">
+      <h1 className="text-4xl font-serif font-bold text-brand-primary mb-10">
         Choose Your Path to Peace
       </h1>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-        {/* Tier 1: Free */}
-        <div className="bg-white p-8 rounded-xl shadow-2xl border-2 border-gray-100 transform hover:scale-105 transition duration-300">
-          <h2 className="text-2xl font-bold text-gray-700 mb-2">Explorer</h2>
-          <p className="text-4xl font-extrabold text-green-600 mb-6">Free</p>
-          <ul className="text-left space-y-3 text-gray-600 mb-8">
-            <li>✓ Access to 5 Foundational Videos</li>
-            <li>✓ Weekly Newsletter</li>
-            <li className="text-gray-400">✗ Unlimited Course Access</li>
+        {/* Tier 1: Free (Refactored to Surface 1) */}
+        <div className="bg-surface-1 p-8 rounded-xl shadow-2xl border-2 border-gray-200 transform hover:scale-105 transition duration-300">
+          <h2 className="text-2xl font-bold text-text-base mb-2">Explorer</h2>
+          <p className="text-4xl font-extrabold text-status-success mb-6">Free</p>
+          <ul className="text-left space-y-3 text-text-muted mb-8">
+            <li className="text-text-base">✓ Access to 5 Foundational Videos</li>
+            <li className="text-text-base">✓ Weekly Newsletter</li>
+            <li className="text-text-muted">✗ Unlimited Course Access</li>
           </ul>
           <Link 
             href="/classes" 
-            className="w-full inline-block bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-400 transition"
+            className="w-full inline-block bg-surface-2 text-text-base py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
           >
             Start Learning
           </Link>
         </div>
 
-        {/* Tier 2: Monthly Subscription (Primary Teal/Gold CTA) */}
-        <div className="bg-teal-50 p-8 rounded-xl shadow-2xl border-2 border-teal-600 transform hover:scale-105 transition duration-300">
-          <p className="text-sm font-semibold text-white bg-teal-600 inline-block px-3 py-1 rounded-full mb-4">Recommended</p>
-          <h2 className="text-2xl font-bold text-teal-800 mb-2">Yogi Monthly</h2>
-          <p className="text-4xl font-extrabold text-teal-600 mb-6">₹500/mo</p>
-          <ul className="text-left space-y-3 text-gray-700 mb-8">
+        {/* Tier 2: Monthly Subscription (Primary Accent Card) */}
+        <div className="bg-surface-1 p-8 rounded-xl shadow-2xl border-2 border-brand-accent transform hover:scale-105 transition duration-300">
+          <p className="text-sm font-semibold text-white bg-brand-accent inline-block px-3 py-1 rounded-full mb-4">Recommended</p>
+          <h2 className="text-2xl font-bold text-brand-primary mb-2">Yogi Monthly</h2>
+          <p className="text-4xl font-extrabold text-brand-accent mb-6">₹500/mo</p>
+          <ul className="text-left space-y-3 text-text-base mb-8">
             <li>✓ All Free Tier benefits</li>
             <li>✓ Unlimited Course Access</li>
             <li>✓ Live Q&A Sessions (Weekly)</li>
           </ul>
           <Link 
             href="/dashboard" 
-            className="w-full inline-block bg-amber-500 text-white py-3 rounded-lg font-semibold hover:bg-amber-600 transition shadow-lg"
+            className="w-full inline-block bg-brand-accent text-white py-3 rounded-lg font-semibold hover:bg-brand-accent-darker transition shadow-lg"
           >
             Subscribe Now
           </Link>
         </div>
 
-        {/* Tier 3: Annual Subscription */}
-        <div className="bg-white p-8 rounded-xl shadow-2xl border-2 border-gray-100 transform hover:scale-105 transition duration-300">
-          <h2 className="text-2xl font-bold text-gray-700 mb-2">Yogi Annual</h2>
-          <p className="text-4xl font-extrabold text-teal-700 mb-1">₹4,800/yr</p>
+        {/* Tier 3: Annual Subscription (Primary Brand Card) */}
+        <div className="bg-surface-1 p-8 rounded-xl shadow-2xl border-2 border-brand-primary transform hover:scale-105 transition duration-300">
+          <h2 className="text-2xl font-bold text-brand-primary mb-2">Yogi Annual</h2>
+          <p className="text-4xl font-extrabold text-brand-primary mb-1">₹4,800/yr</p>
           {/* Added savings text */}
-          <p className="text-sm text-green-600 mb-6 font-medium">(Save ₹1,200 - 2 Months Free!)</p> 
-          <ul className="text-left space-y-3 text-gray-600 mb-8">
+          <p className="text-sm text-status-success mb-6 font-medium">(Save ₹1,200 - 2 Months Free!)</p> 
+          <ul className="text-left space-y-3 text-text-base mb-8">
             <li>✓ All Monthly benefits</li>
             <li>✓ 2 Months Free (Included)</li>
             <li>✓ Private Member Community</li>
           </ul>
           <Link 
             href="/dashboard" 
-            className="w-full inline-block bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition"
+            className="w-full inline-block bg-brand-primary text-white py-3 rounded-lg font-semibold hover:bg-brand-primary-darker transition"
           >
             Go Annual
           </Link>
@@ -1248,33 +1312,33 @@ import Link from 'next/link';
 export default function TermsPage() {
     return (
         <div className="container mx-auto p-8 max-w-4xl">
-            <h1 className="text-4xl font-serif font-bold text-teal-800 dark:text-teal-400 mb-6">Terms of Service</h1>
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-6">Terms of Service</h1>
             <p className="text-sm italic text-red-600 dark:text-red-400 mb-6">
                 NOTE: This is a legal template for demonstration purposes. Please consult with a legal professional before deploying these terms in a live environment.
             </p>
 
-            <section className="space-y-4 text-gray-700 dark:text-gray-300">
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">1. Agreement to Terms</h2>
+            <section className="space-y-4 text-text-base">
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">1. Agreement to Terms</h2>
                 <p>
                     By accessing or using our website and services (AnandaYog), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you disagree with any part of the terms, then you may not access the Service.
                 </p>
 
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">2. Subscription and Payments</h2>
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">2. Subscription and Payments</h2>
                 <p>
                     Some parts of the Service are billed on a subscription basis (&quot;Subscription&quot;). You will be billed in advance on a recurring, periodic basis (such as monthly or annually). Payment processing is handled by Razorpay. Failure to pay may result in the termination of your subscription access.
                 </p>
 
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">3. Content and Intellectual Property</h2>
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">3. Content and Intellectual Property</h2>
                 <p>
                     All content provided on AnandaYog, including course videos, text, graphics, and logos, are the property of AnandaYog and are protected by copyright laws. You may not reproduce, redistribute, or create derivative works from the content without explicit written permission.
                 </p>
 
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">4. Limitation of Liability</h2>
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">4. Limitation of Liability</h2>
                 <p>
                     The Service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis. AnandaYog makes no representations or warranties of any kind, express or implied, as to the operation of their services, or the information, content or materials included therein. You expressly agree that your use of the Service is at your sole risk.
                 </p>
                 
-                <h2 className="text-2xl font-semibold text-teal-700 dark:text-teal-400 mt-6">5. Changes to Terms</h2>
+                <h2 className="text-2xl font-semibold text-brand-primary mt-6">5. Changes to Terms</h2>
                 <p>
                     We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide at least 30 days notice before any new terms take effect.
                 </p>
@@ -1336,15 +1400,15 @@ export default function AuthStatus() {
 
   if (loading) {
     // If the global auth context is still loading, show a simple message
-    return <div className="p-4 text-gray-500">Checking session...</div>;
+    return <div className="p-4 text-text-muted">Checking session...</div>;
   }
 
   return (
     <div className="p-0">
       {currentUser ? (
         <div className="space-y-4">
-          <p className="text-sm text-green-600 dark:text-green-400">
-            Logged in as: <span className="font-semibold">{currentUser.email}</span>
+          <p className="text-sm text-status-success">
+            Logged in as: <span className="font-semibold text-text-base">{currentUser.email}</span>
           </p>
           <button 
             onClick={handleLogout}
@@ -1354,10 +1418,10 @@ export default function AuthStatus() {
           </button>
         </div>
       ) : (
-        // Redesigned Login Button
+        // Redesigned Login Button using custom primary colors
         <button 
           onClick={handleLogin}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-xl flex items-center justify-center disabled:opacity-70"
+          className="w-full bg-brand-primary hover:bg-brand-primary-darker text-white font-bold py-3 rounded-lg transition duration-200 shadow-xl flex items-center justify-center disabled:opacity-70"
           disabled={localLoading}
         >
             {localLoading ? (
@@ -1383,6 +1447,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
+    // Used deep gray background but maintained teal border (brand color)
     <footer className="bg-gray-900 text-white mt-8 border-t-4 border-teal-600">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
         <p>&copy; {new Date().getFullYear()} AnandaYog Meditation Centre. All rights reserved.</p>
@@ -1429,7 +1494,8 @@ const ThemeToggle = () => {
   return (
     <button
         onClick={toggleTheme}
-        className="p-2 rounded-full text-teal-700 hover:bg-teal-50 dark:text-amber-300 dark:hover:bg-gray-700 transition"
+        // Refactored to use custom primary colors
+        className="p-2 rounded-full text-brand-primary hover:bg-surface-2 transition"
         aria-label="Toggle Dark Mode"
     >
         {theme === 'light' ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
@@ -1445,10 +1511,11 @@ export default function Header() {
   const isSubscribed = userData?.isSubscribed;
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50 border-b border-gray-100 dark:border-gray-700">
+    // Refactored background to Surface 1
+    <header className="bg-surface-1 shadow-lg sticky top-0 z-50 border-b border-gray-100 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20"> 
-        {/* Logo/Title */}
-        <Link href="/" className="text-3xl font-serif font-extrabold text-teal-800 hover:text-teal-600 transition tracking-tight dark:text-teal-400">
+        {/* Logo/Title - Refactored text color */}
+        <Link href="/" className="text-3xl font-serif font-extrabold text-brand-primary hover:text-brand-primary-darker transition tracking-tight">
           AnandaYog
         </Link>
 
@@ -1474,8 +1541,9 @@ export default function Header() {
                 href="/dashboard" 
                 className={`text-sm sm:text-base text-white py-2 px-3 sm:px-5 rounded-full font-semibold transition duration-300 shadow-md whitespace-nowrap
                 ${isSubscribed 
-                    ? 'bg-green-600 hover:bg-green-700 dark:bg-green-500' 
-                    : 'bg-teal-600 hover:bg-teal-700 dark:bg-teal-700'
+                    // Use status success colors if subscribed, primary if logged in but not subscribed
+                    ? 'bg-status-success hover:bg-green-700' 
+                    : 'bg-brand-primary hover:bg-brand-primary-darker'
                 }`}
               >
                 {/* FIX: Shortened text for mobile screens */}
@@ -1484,8 +1552,8 @@ export default function Header() {
             ) : (
               <button 
                 onClick={login}
-                // FIX: Added sm:text-base for mobile scaling
-                className="text-sm sm:text-base text-teal-700 border-2 border-teal-700 py-2 px-3 sm:px-5 rounded-full hover:bg-teal-50 transition duration-300 font-medium shadow-sm dark:text-teal-400 dark:border-teal-400 dark:hover:bg-gray-700 whitespace-nowrap"
+                // Refactored button to use primary brand color for border and hover
+                className="text-sm sm:text-base text-brand-primary border-2 border-brand-primary py-2 px-3 sm:px-5 rounded-full hover:bg-surface-2 transition duration-300 font-medium shadow-sm whitespace-nowrap"
               >
                 Login / Join
               </button>
@@ -1496,7 +1564,7 @@ export default function Header() {
           {/* FIX: Ensure the button has space and is not clipped */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden text-teal-700 p-2 dark:text-teal-400 flex-shrink-0"
+            className="md:hidden text-brand-primary p-2 flex-shrink-0"
             aria-label="Toggle navigation"
           >
             {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
@@ -1504,9 +1572,9 @@ export default function Header() {
         </div>
       </div>
       
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Menu Drawer - Refactored background to Surface 1 */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute w-full bg-white dark:bg-gray-800 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
+        <div className="md:hidden absolute w-full bg-surface-1 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
             <nav className="flex flex-col space-y-2 px-4">
                 <MobileNavLink href="/classes" onClick={() => setIsMobileMenuOpen(false)}>Classes</MobileNavLink>
                 <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</MobileNavLink>
@@ -1520,13 +1588,15 @@ export default function Header() {
 }
 
 const NavLink = ({ href, children }) => (
-    <Link href={href} className="text-gray-600 hover:text-teal-600 font-medium text-lg transition duration-200 dark:text-gray-300 dark:hover:text-teal-400">
+    // Refactored hover color to primary brand
+    <Link href={href} className="text-text-muted hover:text-brand-primary font-medium text-lg transition duration-200">
         {children}
     </Link>
 );
 
 const MobileNavLink = ({ href, children, onClick }) => (
-    <Link href={href} onClick={onClick} className="block px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700">
+    // Refactored background hover color to Surface 2
+    <Link href={href} onClick={onClick} className="block px-3 py-2 text-text-base hover:bg-surface-2 rounded-md text-base font-medium">
         {children}
     </Link>
 );
@@ -1556,6 +1626,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
   const [status, setStatus] = useState('');
   
   if (userData?.isSubscribed && userData.subscriptionPlan === planName) {
+      // Success card (using standard green for universal recognition)
       return (
         <div className="p-6 bg-green-50 border border-green-200 rounded-lg shadow-md">
             <h3 className="text-xl font-bold text-green-700 mb-2">{planName} Active!</h3>
@@ -1566,6 +1637,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
   
   // If user is subscribed but trying to buy the other plan (e.g., currently monthly, seeing annual)
   if (userData?.isSubscribed && userData.subscriptionPlan !== planName) {
+      // Warning card (using standard yellow/orange)
       return (
         <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg shadow-md">
             <h3 className="text-xl font-bold text-yellow-700 mb-2">Upgrade/Change Plan</h3>
@@ -1645,7 +1717,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
         email: currentUser.email,
       },
       theme: {
-        // Updated theme color to Deep Teal
+        // Updated theme color to Deep Teal (for Razorpay popup)
         color: "#0E5B6A" 
       }
     };
@@ -1655,16 +1727,18 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
     setStatus('Waiting for payment...');
   };
 
-  const buttonColor = isAnnual ? 'bg-teal-600 hover:bg-teal-700' : 'bg-amber-500 hover:bg-amber-600';
-  const borderColor = isAnnual ? 'border-teal-300' : 'border-amber-300';
+  // Use custom variables for buttons and borders
+  const buttonColor = isAnnual ? 'bg-brand-primary hover:bg-brand-primary-darker' : 'bg-brand-accent hover:bg-brand-accent-darker';
+  const borderColor = isAnnual ? 'border-brand-primary' : 'border-brand-accent';
 
 
   return (
-    <div className={`p-6 bg-white border-2 ${borderColor} rounded-lg shadow-xl flex flex-col justify-between`}>
+    // Refactored background to Surface 1 and border to Primary/Accent
+    <div className={`p-6 bg-surface-1 border-2 ${borderColor} rounded-lg shadow-xl flex flex-col justify-between`}>
       <div>
-        <h3 className="text-xl font-bold text-gray-800 mb-1">{planName}</h3>
-        <p className="text-4xl font-extrabold text-teal-600 mb-3">₹{amount}</p>
-        <p className="mb-4 text-gray-700 text-sm">{description}</p>
+        <h3 className="text-xl font-bold text-text-base mb-1">{planName}</h3>
+        <p className="text-4xl font-extrabold text-brand-primary mb-3">₹{amount}</p>
+        <p className="mb-4 text-text-muted text-sm">{description}</p>
       </div>
       
       <button 
@@ -1675,7 +1749,7 @@ export default function PaymentInitiator({ planName, amount, description, isAnnu
         {status.includes('Waiting') ? 'Payment Window Open...' : `Purchase Plan (₹${amount})`}
       </button>
 
-      {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-green-600 font-medium' : 'text-gray-600'}`}>{status}</p>}
+      {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-status-success font-medium' : 'text-text-muted'}`}>{status}</p>}
     </div>
   );
 }
@@ -1915,6 +1989,6 @@ export const db = getFirestore(app);
 
 --- END FILE: src\lib\firebase.js ---
 
-----------------------------------------------------
+-------------------------------------------------
 
-How can I make different text colors and different card colors? Different theming for. Each and every element of the website. For both. Light mode and dark mode.
+The Anandiyog center that is written. On the heroes section is not visible. So how can I make it visible? I'll share an image with you showing how it looks. Tell me how can it be fixed?
