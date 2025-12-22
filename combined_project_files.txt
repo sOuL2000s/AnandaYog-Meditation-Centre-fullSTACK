@@ -1,6 +1,4 @@
 
-
-
 --- START FILE: .gitignore ---
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -180,57 +178,82 @@ export default config;
 
 /* --- Custom Visual Enhancement: Fonts and Colors --- */
 
-/* Import Google Fonts (or specify fallback) */
+/* Assume fonts Playfair Display (Serif) & Inter (Sans) are linked */
 @layer base {
-  /* This assumes you'd link the font in the layout head, but uses system fallback for guaranteed rendering */
   .font-serif {
     font-family: 'Playfair Display', Georgia, serif; 
   }
   .font-sans {
     font-family: 'Inter', system-ui, sans-serif;
   }
-}
 
-:root {
-  --background: #fdfdfd; /* Light Cream */
-  --foreground: #1a1a1a;
-  --primary-indigo: 67 56 202; /* indigo-700 */
-  --primary-purple: 147 51 234; /* purple-600 */
-  --accent-green: 16 185 129; /* emerald-500 */
-}
+  /* FIX: Moved body styling into @layer base for cleaner CSS/Tailwind integration */
+  body {
+    /* FIX: Ensure body uses the CSS variable, allowing it to switch */
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', system-ui, sans-serif; 
+    -webkit-font-smoothing: antialiased;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0d0d0d;
-    --foreground: #e0e0e0;
+  /* FIX: Moved custom class application into @layer components or utilities */
+  .bg-serene-gradient {
+    /* Transition the gradient from a deep teal to a soft sage/mint */
+    background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
   }
 }
 
-body {
+@layer utilities {
+    /* FIX: Placed the utility class application here */
+    .bg-serene-gradient {
+        @apply dark:opacity-80; 
+    }
+}
+
+
+:root {
+  /* --- LIGHT MODE (Default) --- */
+  --background: #fafafa; /* Warm Linen */
+  --foreground: #2d3748; /* Charcoal Text */
+  
+  /* Primary: Deep Teal (Used for headers, strong lines) */
+  --primary-teal: 14 91 106; /* Approximate teal-800 */
+  
+  /* Accent 1: Serene Sage/Mint (Used for soft backgrounds) */
+  --accent-sage: 217 235 232; /* Soft light green/blue */ 
+  
+  /* Accent 2: Warm Gold (Used for CTAs, success messages) */
+  --cta-gold: 245 158 11; /* amber-500 */
+}
+
+/* --- DARK MODE DEFINITION --- */
+.dark {
+  --background: #1a1a1a; /* Near Black */
+  --foreground: #f0f0f0; /* Light Gray Text */
+  
   background: var(--background);
-  color: var(--foreground);
-  /* Apply default font */
-  @apply font-sans; 
-}
-
-/* Custom class for the serene background used on the homepage */
-.bg-serene-gradient {
-  background-image: linear-gradient(135deg, rgba(78, 56, 189, 0.9) 0%, rgba(135, 78, 201, 0.8) 100%);
 }
 
 
-
+/* Fallback if system preference is dark but no class is explicitly set yet */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1a1a1a;
+    --foreground: #f0f0f0;
+  }
+}
 
 --- END FILE: src\app\globals.css ---
 
 --- START FILE: src\app\layout.js ---
 
-// src/app/layout.js (Added font links for visual appeal)
+// src/app/layout.js 
 
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ThemeInitializer from '@/components/ThemeInitializer'; 
 
 export const metadata = {
   title: 'AnandaYog Meditation Centre: Inner Peace & Authentic Practice',
@@ -239,16 +262,16 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    // FIX: Removed 'light' class assumption from HTML tag to avoid hydration issues, let ThemeInitializer handle it
+    <html lang="en"> 
       {/* 
         NOTE: For best visual results, link Google Fonts (Playfair Display & Inter) 
         in the <head> of the document or update the CSS. 
-        Assuming system fonts for this pasteable code.
       */}
       <body className="flex flex-col min-h-screen antialiased">
         <AuthProvider>
+          <ThemeInitializer /> 
           <Header />
-          {/* Increased padding on main for better visual spacing */}
           <main className="grow pt-4 pb-16"> 
             {children}
           </main>
@@ -258,7 +281,6 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
 
 --- END FILE: src\app\layout.js ---
 
@@ -271,32 +293,33 @@ import Link from 'next/link';
 // for the best visual effect.
 
 const BlissfulHero = () => (
-  <section className="relative h-[600px] flex items-center justify-center overflow-hidden shadow-2xl">
+  // FIX: Changed h-[600px] to the canonical h-150 and hover:translate-y-[-2px] to hover:-translate-y-0.5
+  <section className="relative h-150 flex items-center justify-center overflow-hidden shadow-2xl">
     {/* Background Image & Overlay */}
     <div className="absolute inset-0">
-      {/* Visual background placeholder. Replace with Image component or actual image URL */}
       <div 
         className="absolute inset-0 bg-cover bg-center transition duration-1000 ease-in-out hover:scale-[1.01]" 
         style={{ backgroundImage: "url('/placeholder-serene.jpg')" }}
       ></div>
-      {/* Deep, rich gradient overlay for the serene/spiritual feel */}
       <div className="absolute inset-0 bg-serene-gradient z-10 opacity-90"></div>
     </div>
 
     {/* Content */}
     <div className="relative z-20 text-center text-white p-6 max-w-5xl">
-      <p className="text-xl font-light tracking-[0.3em] uppercase mb-4 opacity-90 text-indigo-200">
+      <p className="text-sm sm:text-lg font-light tracking-[0.3em] uppercase mb-4 opacity-90 text-teal-200">
         THE ANANDAYOG CENTRE
       </p>
-      <h1 className="text-6xl md:text-7xl font-extrabold font-serif leading-tight mb-6 drop-shadow-lg">
+      {/* Responsive font size adjustment */}
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold font-serif leading-tight mb-6 drop-shadow-lg">
         Find Silence. Find Yourself.
       </h1>
-      <p className="text-xl md:text-2xl font-light mb-12 opacity-95 max-w-3xl mx-auto">
+      <p className="text-lg md:text-2xl font-light mb-12 opacity-95 max-w-3xl mx-auto">
         Guided meditation and authentic yoga practices to quiet the mind and foster lasting peace.
       </p>
       <Link 
-        href="/pricing" 
-        className="bg-emerald-500 text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-emerald-600 transition duration-300 shadow-2xl border-2 border-white/50 transform hover:translate-y-[-2px]"
+        href="/dashboard" // Changed to point to dashboard for login/status check
+        // Changed to Warm Gold accent color
+        className="bg-amber-500 text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-amber-600 transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
       >
         Start 7 Days Free
       </Link>
@@ -310,10 +333,12 @@ export default function HomePage() {
     <>
       <BlissfulHero />
 
-      <div className="container mx-auto px-6 lg:px-12 py-16">
+      {/* Increased padding for more breathing room (UX Improvement) */}
+      <div className="container mx-auto px-6 lg:px-12 py-20"> 
         {/* Core Values Section */}
         <section className="py-8 text-center">
-          <h2 className="text-4xl font-bold font-serif text-indigo-700 mb-4">Our Practice Pillars</h2>
+          {/* Changed color to Deep Teal */}
+          <h2 className="text-4xl font-bold font-serif text-teal-800 mb-4">Our Practice Pillars</h2>
           <p className="text-lg text-gray-500 max-w-4xl mx-auto mb-16">
             AnandaYog is built on principles of authenticity, community, and accessible guidance for all levels of practitioners.
           </p>
@@ -338,14 +363,17 @@ export default function HomePage() {
         </section>
         
         {/* Featured Courses Call to Action */}
-        <section className="mt-20 text-center bg-purple-50 p-12 rounded-2xl shadow-2xl border-t-4 border-purple-400">
-            <h2 className="text-4xl font-serif font-bold text-purple-700 mb-4">Ready for Inner Change?</h2>
+        {/* Changed background/border colors to Sage and Teal */}
+        <section className="mt-20 text-center bg-gray-100 p-12 rounded-2xl shadow-2xl border-t-4 border-teal-500">
+            {/* Changed color to Deep Teal */}
+            <h2 className="text-4xl font-serif font-bold text-teal-800 mb-4">Ready for Inner Change?</h2>
             <p className="text-lg text-gray-700 mb-8 max-w-3xl mx-auto">
                 Explore our full catalog of guided meditations, Hatha, and Vinyasa courses designed by master teachers.
             </p>
             <Link 
                 href="/classes"
-                className="bg-purple-600 text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-purple-700 transition duration-300 shadow-lg"
+                // Changed CTA to Warm Gold accent color
+                className="bg-amber-500 text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-amber-600 transition duration-300 shadow-lg"
             >
                 View All Courses
             </Link>
@@ -359,12 +387,14 @@ export default function HomePage() {
 // Helper Component (Updated Styling)
 const ValueCard = ({ icon, title, description }) => (
     <div className="p-8 bg-white rounded-xl shadow-lg border border-gray-50 hover:shadow-xl transform hover:scale-[1.02] transition duration-300">
-        <div className="text-4xl mb-4 p-3 bg-indigo-100 rounded-lg inline-block">{icon}</div>
-        <h3 className="text-2xl font-semibold text-indigo-800 mb-3 font-serif">{title}</h3>
-        <p className="text-gray-600">{description}</p>
+        {/* Changed background color to Sage */}
+        <div className="text-4xl mb-4 p-3 bg-teal-100 rounded-lg inline-block">{icon}</div>
+        {/* Changed text color to Deep Teal */}
+        <h3 className="text-2xl font-semibold text-teal-800 mb-3 font-serif">{title}</h3>
+        {/* FIX: Ensuring text-gray-700 for better visibility than gray-600 */}
+        <p className="text-gray-700">{description}</p>
     </div>
 );
-
 
 --- END FILE: src\app\page.js ---
 
@@ -372,13 +402,15 @@ const ValueCard = ({ icon, title, description }) => (
 
 // src/app/about/page.js
 
+import Image from 'next/image';
+
 export default function AboutPage() {
     return (
       <div className="container mx-auto p-8 sm:p-12">
         
-        {/* Hero Section */}
-        <div className="bg-indigo-50 p-10 rounded-xl shadow-inner mb-12 text-center">
-            <h1 className="text-5xl font-serif font-extrabold text-indigo-800 mb-4">
+        {/* Hero Section - Changed background and text colors */}
+        <div className="bg-teal-50 p-10 rounded-xl shadow-inner mb-12 text-center">
+            <h1 className="text-5xl font-serif font-extrabold text-teal-800 mb-4">
                 Our Roots, Our Vision
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -389,7 +421,7 @@ export default function AboutPage() {
         {/* Mission Section */}
         <section className="grid md:grid-cols-2 gap-12 items-center py-10">
             <div>
-                <h2 className="text-3xl font-bold text-purple-700 mb-4">The AnandaYog Mission</h2>
+                <h2 className="text-3xl font-bold text-teal-700 mb-4">The AnandaYog Mission</h2>
                 <p className="text-gray-700 mb-4 leading-relaxed">
                     Founded on the belief that inner tranquility is accessible to everyone, AnandaYog was created to be a digital sanctuary. We move beyond trendy fitness routines to offer practices that truly connect you with your deepest self.
                 </p>
@@ -397,19 +429,23 @@ export default function AboutPage() {
                     &quot;Ananda&quot; means bliss, and &quot;Yog&quot; means union. Our goal is to help you achieve the union of mind and body, leading to lasting joy.
                 </p>
             </div>
-            {/* Image Placeholder */}
-            <div className="h-64 bg-gray-200 rounded-lg shadow-md flex items-center justify-center text-gray-500">
-                [Placeholder: Image of a peaceful studio or a founding teacher]
+            {/* Image Placeholder REPLACED with Next.js Image Component */}
+            <div className="rounded-lg shadow-md overflow-hidden relative h-64 md:h-96">
+                <Image
+                    src="/studio.jpg" // Replace with your image filename
+                    alt="A peaceful yoga and meditation studio interior"
+                    fill // Fills the parent container (h-64/h-96)
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover"
+                />
             </div>
         </section>
 
-        {/* Teacher Profiles Section */}
+        {/* Teacher Profiles Section - Changed header color */}
         <section className="py-16 text-center">
-            <h2 className="text-3xl font-bold text-indigo-800 mb-8">Meet Our Lead Teachers</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-                <TeacherCard name="Rishi Sharma" specialty="Vipassana & Pranayama" />
-                <TeacherCard name="Maya Singh" specialty="Hatha & Restorative Yoga" />
-                <TeacherCard name="Devi Patel" specialty="Mantra & Kundalini" />
+            <h2 className="text-3xl font-bold text-teal-800 mb-8">Meet Our Lead Teacher</h2>
+            <div className="flex justify-center">
+                <TeacherCard name="Rishi Sharma" specialty="Vipassana, Pranayama, & Hatha" />
             </div>
         </section>
 
@@ -418,17 +454,18 @@ export default function AboutPage() {
 }
 
 const TeacherCard = ({ name, specialty }) => (
-    <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100">
-        {/* Placeholder for Teacher Image */}
-        <div className="w-24 h-24 mx-auto bg-purple-100 rounded-full mb-4 flex items-center justify-center text-3xl text-purple-600">
-            👤
+    <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100 max-w-sm">
+        {/* Changed background color and icon color */}
+        <div className="w-24 h-24 mx-auto bg-teal-100 rounded-full mb-4 flex items-center justify-center text-3xl text-teal-600">
+            🧘
         </div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
-        <p className="text-indigo-600 italic">{specialty}</p>
-        <p className="text-sm text-gray-500 mt-3">Certified with 10+ years experience.</p>
+        {/* Changed text color */}
+        <p className="text-teal-600 italic">{specialty}</p>
+        {/* FIX: Changed text-gray-500 to text-gray-700 for better visibility */}
+        <p className="text-sm text-gray-700 mt-3">Certified with 10+ years experience guiding practitioners worldwide.</p>
     </div>
 );
-
 
 --- END FILE: src\app\about\page.js ---
 
@@ -440,18 +477,19 @@ const TeacherCard = ({ name, specialty }) => (
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import AuthStatus from '@/components/AuthStatus'; 
+// Note: This file is kept only for completeness in the file list, 
+// but functionally it is now unused/redundant as /dashboard handles the logic.
 
 export default function AccountPage() {
     const { currentUser, loading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        // If the user is logged in, immediately redirect them to their dashboard
-        if (!loading && currentUser) {
+        // Always redirect to dashboard, which now contains the login/logout logic.
+        if (!loading) {
             router.replace('/dashboard');
         }
-    }, [currentUser, loading, router]);
+    }, [loading, router]);
 
     if (loading) {
         return (
@@ -461,32 +499,13 @@ export default function AccountPage() {
         );
     }
     
-    if (currentUser) {
-        // This is only shown for a split second before the redirect in useEffect fires
-        return (
-            <div className="flex justify-center items-center h-96">
-                <p className="text-xl text-indigo-600">Redirecting to Dashboard...</p>
-            </div>
-        );
-    }
-
-    // If not logged in, show the login interface
+    // Fallback if redirection is slow
     return (
-        <div className="container mx-auto p-8 sm:p-12 flex justify-center">
-            <div className="w-full max-w-md">
-                <h1 className="text-3xl font-serif font-bold text-center text-indigo-800 mb-6">
-                    Log In or Create Account
-                </h1>
-                <p className="text-center text-gray-600 mb-8">
-                    Access your courses, payment history, and profile settings.
-                </p>
-                {/* AuthStatus already contains the Google Login button logic */}
-                <AuthStatus />
-            </div>
+        <div className="flex justify-center items-center h-96">
+            <p className="text-xl text-teal-600">Redirecting to Dashboard...</p>
         </div>
     );
 }
-
 
 --- END FILE: src\app\account\page.js ---
 
@@ -549,13 +568,27 @@ const razorpay = new Razorpay({
 
 export async function POST(request) {
   try {
-    const { amount, currency = 'INR', receiptId } = await request.json();
+    // Expect amount, currency, and receiptId (which is userId)
+    const { amount, currency = 'INR', receiptId, planName } = await request.json();
+
+    if (!amount || amount < 1) {
+        return NextResponse.json({ error: 'Invalid amount.' }, { status: 400 });
+    }
+
+    // --- FIX for Razorpay receipt length limit (max 40 chars) ---
+    // Use the user ID (receiptId) and a short, time-based suffix for uniqueness.
+    // Firebase UID is usually ~28 chars, leaving plenty of room.
+    const timeSuffix = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+    const shortReceipt = `user_${receiptId.substring(0, 20)}_${timeSuffix}`;
+    // This ensures the receipt is always well under 40 characters.
+    // -------------------------------------------------------------
 
     const options = {
       amount: amount * 100, // Convert to paisa
       currency: currency,
-      receipt: receiptId,
+      receipt: shortReceipt, // Use the shortened receipt
       payment_capture: 1, 
+      notes: { planName } // Add plan name to notes
     };
 
     const order = await razorpay.orders.create(options);
@@ -565,12 +598,17 @@ export async function POST(request) {
       id: order.id,
       currency: order.currency,
       amount: order.amount,
-      key: process.env.RAZORPAY_KEY_ID 
+      key: process.env.RAZORPAY_KEY_ID,
+      planName 
     }, { status: 200 });
 
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    
+    // Ensure we return a structured error response
+    const status = error.statusCode || 500;
+    const errorMessage = error.error?.description || error.message || 'Internal Server Error';
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }
 
@@ -580,7 +618,6 @@ export async function POST(request) {
 
 // src/app/api/verify-payment/route.js
 // CRITICAL: Securely verifies the Razorpay payment signature
-// This prevents users from faking successful payments in the frontend.
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
@@ -601,7 +638,8 @@ export async function POST(request) {
       paymentId, 
       signature, 
       userId, 
-      amount // Included for verification against the order amount
+      amount,
+      planName // New field
     } = await request.json();
 
     // 1. Construct the signature string
@@ -616,16 +654,21 @@ export async function POST(request) {
 
     // --- Verification Successful ---
     
-    // 3. Optional: Fetch the payment details from Razorpay to confirm amount
-    // const payment = await razorpay.payments.fetch(paymentId);
-    // if (payment.amount !== 50000) { /* Check amount */ }
+    // 3. Optional: Add logic to calculate expiration date based on planName (Monthly/Annual)
+    let expirationDate = new Date();
+    if (planName === 'Yogi Monthly') {
+        expirationDate.setMonth(expirationDate.getMonth() + 1);
+    } else if (planName === 'Yogi Annual') {
+        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+    }
 
     // 4. Update the user's Firestore record (Heavy Lifting Done Here!)
     const userRef = doc(db, "users", userId);
     await setDoc(userRef, {
       lastSubscriptionDate: new Date().toISOString(),
+      subscriptionExpires: expirationDate.toISOString(),
       isSubscribed: true,
-      subscriptionPlan: 'Yogi Monthly',
+      subscriptionPlan: planName, // Store the specific plan
       razorpayDetails: { orderId, paymentId, signature, amount },
     }, { merge: true });
 
@@ -641,47 +684,119 @@ export async function POST(request) {
   }
 }
 
-
-
 --- END FILE: src\app\api\verify-payment\route.js ---
 
 --- START FILE: src\app\classes\page.js ---
 
 // src/app/classes/page.js
+"use client";
+
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
 
 export default function ClassesPage() {
-  return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-4xl font-serif font-bold text-gray-900 mb-8">Our Course Catalog</h1>
-      
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Example Course 1 */}
-        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
-          <h2 className="text-xl font-semibold text-indigo-600 mb-2">Beginner&apos;s Mind (7 Days)</h2>
-          <p className="text-gray-600 mb-4">An introductory course covering breathwork and foundational sitting techniques.</p>
-          <button 
-            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
-          >
-            Enroll Now (Login Required)
-          </button>
+    // Extracted 'loading' correctly from useAuth()
+    const { currentUser, userData, loading, login } = useAuth(); 
+    const isSubscribed = userData?.isSubscribed;
+
+    return (
+        <div className="container mx-auto p-8">
+            <h1 className="text-4xl font-serif font-bold text-teal-800 mb-8">Our Course Catalog</h1>
+            
+            <p className="text-lg text-gray-600 mb-10">
+                {isSubscribed 
+                    ? "Welcome! You have full access to all courses listed below."
+                    : "Access limited foundational content. Subscribe now for the full catalog."
+                }
+            </p>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Example Course 1 */}
+                <CourseCard 
+                    title="Beginner's Mind (7 Days)" 
+                    description="An introductory course covering breathwork and foundational sitting techniques."
+                    isPremium={false}
+                    isSubscribed={isSubscribed}
+                    currentUser={currentUser}
+                    login={login}
+                    loading={loading} // <-- FIX 1: Pass loading state
+                />
+                
+                {/* Example Course 2 (Premium) */}
+                <CourseCard 
+                    title="Vipassana Deep Dive" 
+                    description="Advanced silent meditation techniques for experienced practitioners."
+                    isPremium={true}
+                    isSubscribed={isSubscribed}
+                    currentUser={currentUser}
+                    login={login}
+                    loading={loading} // <-- FIX 1: Pass loading state
+                />
+                
+                {/* Example Course 3 (Premium) */}
+                <CourseCard 
+                    title="Hatha Flow for Flexibility" 
+                    description="Weekly guided sessions focusing on core strength and deep relaxation."
+                    isPremium={true}
+                    isSubscribed={isSubscribed}
+                    currentUser={currentUser}
+                    login={login}
+                    loading={loading} // <-- FIX 1: Pass loading state
+                />
+            </div>
         </div>
-        
-        {/* Example Course 2 */}
-        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
-          <h2 className="text-xl font-semibold text-indigo-600 mb-2">Vipassana Deep Dive</h2>
-          <p className="text-gray-600 mb-4">Advanced silent meditation techniques for experienced practitioners.</p>
-          <button 
-            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
-          >
-            Enroll Now (Login Required)
-          </button>
-        </div>
-        
-        {/* Placeholder for more content */}
-      </div>
-    </div>
-  );
+    );
 }
+
+// FIX 2: Accept 'loading' as a prop
+const CourseCard = ({ title, description, isPremium, isSubscribed, currentUser, login, loading }) => {
+    let buttonText, buttonAction, buttonClass;
+
+    if (loading) {
+        buttonText = "Checking Access...";
+        buttonClass = "bg-gray-400";
+        buttonAction = () => {};
+    }
+    else if (!currentUser) {
+        buttonText = "Login to Enroll";
+        buttonAction = login;
+        buttonClass = "bg-teal-600 hover:bg-teal-700";
+    } else if (isPremium && !isSubscribed) {
+        buttonText = "Upgrade to Unlock";
+        buttonAction = () => window.location.href = '/pricing';
+        buttonClass = "bg-amber-500 hover:bg-amber-600";
+    } else if (isPremium && isSubscribed) {
+        buttonText = "Access Course";
+        buttonAction = () => alert(`Accessing ${title}!`); // Placeholder action
+        buttonClass = "bg-green-600 hover:bg-green-700";
+    } else { // Free course or Subscribed
+        buttonText = "Start Course";
+        buttonAction = () => alert(`Starting ${title}!`); // Placeholder action
+        buttonClass = "bg-teal-600 hover:bg-teal-700";
+    }
+    
+    // FIX: Update badge text color for better contrast
+    const badgeColor = isPremium ? 'text-amber-600' : 'text-teal-600';
+
+    return (
+        <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 flex flex-col justify-between">
+            <div>
+                <h2 className="text-xl font-semibold text-teal-600 mb-2">{title}</h2>
+                {/* FIX: Replaced low-contrast gray-400 with a brand color */}
+                <p className={`text-sm font-medium mb-3 ${badgeColor}`}>{isPremium ? 'PREMIUM ACCESS' : 'FREE FOUNDATION'}</p>
+                {/* FIX: Ensured description text is dark enough */}
+                <p className="text-gray-700 mb-4">{description}</p>
+            </div>
+            <button 
+                onClick={buttonAction}
+                className={`w-full text-white py-2 rounded-lg transition ${buttonClass}`}
+                disabled={loading} // `loading` is now available
+            >
+                {buttonText}
+            </button>
+        </div>
+    );
+};
 
 --- END FILE: src\app\classes\page.js ---
 
@@ -732,7 +847,7 @@ export default function ContactPage() {
       <div className="container mx-auto p-8 max-w-4xl">
         
         <div className="text-center mb-12">
-            <h1 className="text-5xl font-serif font-extrabold text-indigo-800 mb-4">
+            <h1 className="text-5xl font-serif font-extrabold text-teal-800 mb-4">
                 Connect With Us
             </h1>
             <p className="text-xl text-gray-600">
@@ -751,7 +866,7 @@ export default function ContactPage() {
                         id="name"
                         name="name"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
                     />
                 </div>
                 
@@ -764,7 +879,7 @@ export default function ContactPage() {
                         id="email"
                         name="email"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
                     />
                 </div>
 
@@ -777,13 +892,13 @@ export default function ContactPage() {
                         name="message"
                         rows="5"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 transition duration-150"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition duration-150"
                     ></textarea>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition duration-300 shadow-md disabled:opacity-50"
+                    className="w-full bg-amber-600 text-white font-bold py-3 rounded-lg hover:bg-amber-700 transition duration-300 shadow-md disabled:opacity-50"
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
@@ -801,87 +916,172 @@ export default function ContactPage() {
     );
 }
 
-
-
 --- END FILE: src\app\contact\page.js ---
 
 --- START FILE: src\app\dashboard\page.js ---
 
 // src/app/dashboard/page.js
-"use client"; // CRITICAL: Mark this component as client-side
+"use client"; 
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link'; // <--- FIX: Import Link
+import Link from 'next/link';
 import PaymentInitiator from '@/components/PaymentInitiator'; 
+import AuthStatus from '@/components/AuthStatus'; 
 import { useAuth } from '@/context/AuthContext'; 
 
 export default function DashboardPage() {
-  const { currentUser, userData, loading } = useAuth();
-  const router = useRouter();
+  const { currentUser, userData, loading, logout } = useAuth();
 
-  useEffect(() => {
-    if (!loading && !currentUser) {
-      router.replace('/'); 
-    }
-  }, [currentUser, loading, router]);
-  
-  if (loading || !currentUser) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <p className="text-xl text-gray-500">Accessing secure content...</p>
+        <div className="animate-pulse text-xl text-teal-600">
+             Checking user status...
+        </div>
       </div>
+    );
+  }
+
+  // Handle NOT LOGGED IN state: Show the login UI directly
+  if (!currentUser) {
+    return (
+        <div className="container mx-auto p-8 sm:p-12 flex justify-center">
+            <div className="w-full max-w-md">
+                <h1 className="text-3xl font-serif font-bold text-center text-teal-800 mb-6">
+                    Log In to Access Your Dashboard
+                </h1>
+                <p className="text-center text-gray-600 mb-8">
+                    Please sign in using your Google account to manage your subscription.
+                </p>
+                {/* Use AuthStatus here to present the login UI */}
+                <AuthStatus />
+            </div>
+        </div>
     );
   }
 
   // Determine access level
   const isSubscribed = userData?.isSubscribed;
-  const accessColor = isSubscribed ? 'text-emerald-600' : 'text-red-500';
+  const currentPlan = userData?.subscriptionPlan || 'Explorer (Free Tier)';
+  const expirationDate = userData?.subscriptionExpires ? 
+    new Date(userData.subscriptionExpires).toLocaleDateString() : 'N/A';
+
+  const accessColor = isSubscribed ? 'text-green-600' : 'text-amber-600'; 
+  const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
   return (
-    <div className="container mx-auto p-8 max-w-5xl">
-      <h1 className="text-4xl font-serif font-bold text-indigo-800 mb-2">
+    <div className="container mx-auto p-8 max-w-6xl">
+      <h1 className="text-4xl font-serif font-bold text-teal-800 mb-2">
         Welcome Back, {currentUser?.displayName?.split(' ')[0] || 'Yogi'}!
       </h1>
       <p className="text-lg text-gray-600 mb-8">
-        Manage your subscription and access your private course library.
+        Manage your path to Ananda (Bliss).
       </p>
 
-      {/* Subscription Status Card */}
-      <div className="bg-white p-6 rounded-lg shadow-2xl border-l-4 border-indigo-500 mb-10">
-        <h2 className="text-2xl font-semibold mb-3">Membership Status</h2>
-        <p className="text-lg">
-          Current Plan: 
-          <span className={`font-bold ml-2 ${accessColor}`}>
-            {isSubscribed ? 'Yogi Monthly (Active)' : 'Explorer (Free Tier)'}
-          </span>
-        </p>
-      </div>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Column 1: Status & Logout */}
+        <div className="lg:col-span-1 space-y-8">
+            {/* Subscription Status Card - VISIBILITY FIXED */}
+            <div className={`bg-white p-6 rounded-lg shadow-2xl border-l-4 ${accessBorderColor} `}>
+                <h2 className="text-2xl font-semibold mb-3 text-gray-800">Membership Status</h2>
+                <p className="text-md text-gray-700">
+                  Plan: 
+                  <span className={`font-bold ml-2 ${accessColor}`}>
+                    {currentPlan}
+                  </span>
+                </p>
+                {isSubscribed && (
+                    <p className="text-sm text-gray-500 mt-2">
+                        Expires: {expirationDate}
+                    </p>
+                )}
+                {!isSubscribed && (
+                    <p className="text-sm text-amber-600 font-medium mt-3">
+                        Upgrade now to unlock all premium courses.
+                    </p>
+                )}
+            </div>
+            
+            {/* Usage/Progress Placeholder */}
+            <div className="p-6 bg-gray-100 rounded-lg shadow-inner">
+                <h3 className="text-xl font-serif font-bold text-teal-700 mb-4">Your Progress</h3>
+                <ul className="space-y-2 text-gray-600">
+                    <li className="flex justify-between items-center text-sm">
+                        <span>Beginner&apos;s Mind</span> 
+                        <span className="text-teal-600 font-medium">75% Complete</span>
+                    </li>
+                    <li className="flex justify-between items-center text-sm">
+                        <span>Hatha Flow</span> 
+                        <span className="text-teal-600 font-medium">Recently Visited</span>
+                    </li>
+                    {/* FIX: Changed text-gray-400 to text-gray-500 for slight improvement */}
+                    <li className="text-xs text-gray-500 pt-2">
+                        *Note: Full usage tracking implementation requires backend persistence (database updates on lesson completion).
+                    </li>
+                </ul>
+            </div>
 
-      <PaymentInitiator />
-      
-      {/* Protected Content Section */}
-      <div className="mt-12 p-8 bg-gray-50 rounded-lg shadow-inner">
-        <h2 className="text-2xl font-serif font-bold mb-5 text-indigo-700">Your Course Library</h2>
-        
-        {isSubscribed ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana" />
-                <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha-flow" />
-                <CourseLink title="Pranayama Fundamentals" href="/courses/pranayama" />
-                <CourseLink title="Guided Sleep Audio Archive" href="/courses/sleep-audio" />
+            {/* Logout Section */}
+            <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+                <button
+                    onClick={logout}
+                    className="w-full bg-red-600 text-white font-bold py-2 rounded-lg hover:bg-red-700 transition"
+                >
+                    Logout
+                </button>
             </div>
-        ) : (
-            <div className="text-center p-8 bg-white border-2 border-dashed border-red-200 rounded-lg">
-                <p className="text-xl text-red-600 font-medium mb-4">
-                    Access Denied: Please subscribe to unlock all premium courses.
-                </p>
-                <p className="text-gray-500">
-                    You currently have access only to the 5 free introductory videos.
-                </p>
+        </div>
+
+        {/* Column 2 & 3: Payment & Protected Content */}
+        <div className="lg:col-span-2 space-y-8">
+            
+            {/* Payment Options (Show only if NOT subscribed) */}
+            {!isSubscribed && (
+                <div className="space-y-6">
+                    <h2 className="text-3xl font-serif font-bold text-teal-800 mb-4">Select Your Subscription</h2>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <PaymentInitiator 
+                            planName="Yogi Monthly" 
+                            amount={500} 
+                            description="Unlimited access, billed monthly." 
+                        />
+                        <PaymentInitiator 
+                            planName="Yogi Annual" 
+                            amount={4800} 
+                            description="Unlimited access, billed yearly (2 months free)." 
+                            isAnnual={true}
+                        />
+                    </div>
+                </div>
+            )}
+
+
+            {/* Protected Content Section */}
+            <div className="p-8 bg-white rounded-lg shadow-xl border-t-4 border-teal-500">
+                <h2 className="text-2xl font-serif font-bold mb-5 text-teal-700">Your Course Library</h2>
+                
+                {isSubscribed ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana" />
+                        <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha-flow" />
+                        <CourseLink title="Pranayama Fundamentals" href="/courses/pranayama" />
+                        <CourseLink title="Guided Sleep Audio Archive" href="/courses/sleep-audio" />
+                    </div>
+                ) : (
+                    <div className="text-center p-8 bg-gray-50 border-2 border-dashed border-amber-300 rounded-lg">
+                        <p className="text-xl text-amber-600 font-medium mb-4">
+                            Upgrade Required: Full library access is currently locked.
+                        </p>
+                        <p className="text-gray-500">
+                            View the 5 free introductory videos in the Classes section.
+                        </p>
+                        <Link href="/pricing" className="mt-4 inline-block text-teal-600 hover:underline">
+                            View Subscription Plans →
+                        </Link>
+                    </div>
+                )}
             </div>
-        )}
-      </div>
+        </div>
+      </div> {/* End Grid */}
     </div>
   );
 }
@@ -889,14 +1089,28 @@ export default function DashboardPage() {
 const CourseLink = ({ title, href }) => (
     <Link 
         href={href} 
-        className="block p-4 bg-white rounded-lg shadow-md hover:bg-indigo-500/5 transition duration-200 border-l-4 border-emerald-500"
+        className="block p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-teal-50 transition duration-200 border-l-4 border-teal-500"
     >
         <p className="font-semibold text-gray-800">{title}</p>
-        <p className="text-sm text-gray-500">Start Lesson 1 →</p>
+        {/* FIX: Changed low-contrast text-gray-500 to text-gray-600 */}
+        <p className="text-sm text-gray-600">Start Lesson 1 →</p>
     </Link>
 );
 
 --- END FILE: src\app\dashboard\page.js ---
+
+--- START FILE: src\app\policy\page.js ---
+
+export default function PolicyPage() {
+    return (
+        <div className="container mx-auto p-8 max-w-4xl">
+            <h1 className="text-4xl font-serif font-bold text-teal-800 mb-6">Privacy Policy</h1>
+            <p className="text-gray-700">Detailed privacy policy content will go here.</p>
+        </div>
+    );
+}
+
+--- END FILE: src\app\policy\page.js ---
 
 --- START FILE: src\app\pricing\page.js ---
 
@@ -907,7 +1121,7 @@ import Link from 'next/link';
 export default function PricingPage() {
   return (
     <div className="container mx-auto p-8 text-center">
-      <h1 className="text-4xl font-serif font-bold text-indigo-800 mb-10">
+      <h1 className="text-4xl font-serif font-bold text-teal-800 mb-10">
         Choose Your Path to Peace
       </h1>
 
@@ -919,21 +1133,21 @@ export default function PricingPage() {
           <ul className="text-left space-y-3 text-gray-600 mb-8">
             <li>✓ Access to 5 Foundational Videos</li>
             <li>✓ Weekly Newsletter</li>
-            <li>✗ Unlimited Course Access</li>
+            <li className="text-gray-400">✗ Unlimited Course Access</li>
           </ul>
           <Link 
             href="/classes" 
-            className="w-full inline-block bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold"
+            className="w-full inline-block bg-gray-300 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-400 transition"
           >
             Start Learning
           </Link>
         </div>
 
-        {/* Tier 2: Monthly Subscription */}
-        <div className="bg-indigo-50 p-8 rounded-xl shadow-2xl border-2 border-indigo-600 transform hover:scale-105 transition duration-300">
-          <p className="text-sm font-semibold text-white bg-indigo-600 inline-block px-3 py-1 rounded-full mb-4">Recommended</p>
-          <h2 className="text-2xl font-bold text-indigo-800 mb-2">Yogi Monthly</h2>
-          <p className="text-4xl font-extrabold text-indigo-600 mb-6">₹500/mo</p>
+        {/* Tier 2: Monthly Subscription (Primary Teal/Gold CTA) */}
+        <div className="bg-teal-50 p-8 rounded-xl shadow-2xl border-2 border-teal-600 transform hover:scale-105 transition duration-300">
+          <p className="text-sm font-semibold text-white bg-teal-600 inline-block px-3 py-1 rounded-full mb-4">Recommended</p>
+          <h2 className="text-2xl font-bold text-teal-800 mb-2">Yogi Monthly</h2>
+          <p className="text-4xl font-extrabold text-teal-600 mb-6">₹500/mo</p>
           <ul className="text-left space-y-3 text-gray-700 mb-8">
             <li>✓ All Free Tier benefits</li>
             <li>✓ Unlimited Course Access</li>
@@ -941,7 +1155,7 @@ export default function PricingPage() {
           </ul>
           <Link 
             href="/dashboard" 
-            className="w-full inline-block bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            className="w-full inline-block bg-amber-500 text-white py-3 rounded-lg font-semibold hover:bg-amber-600 transition shadow-lg"
           >
             Subscribe Now
           </Link>
@@ -950,15 +1164,17 @@ export default function PricingPage() {
         {/* Tier 3: Annual Subscription */}
         <div className="bg-white p-8 rounded-xl shadow-2xl border-2 border-gray-100 transform hover:scale-105 transition duration-300">
           <h2 className="text-2xl font-bold text-gray-700 mb-2">Yogi Annual</h2>
-          <p className="text-4xl font-extrabold text-purple-600 mb-6">₹4,800/yr</p>
+          <p className="text-4xl font-extrabold text-teal-700 mb-1">₹4,800/yr</p>
+          {/* Added savings text */}
+          <p className="text-sm text-green-600 mb-6 font-medium">(Save ₹1,200 - 2 Months Free!)</p> 
           <ul className="text-left space-y-3 text-gray-600 mb-8">
             <li>✓ All Monthly benefits</li>
-            <li>✓ 2 Months Free (Save ₹1200)</li>
+            <li>✓ 2 Months Free (Included)</li>
             <li>✓ Private Member Community</li>
           </ul>
           <Link 
             href="/dashboard" 
-            className="w-full inline-block bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
+            className="w-full inline-block bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition"
           >
             Go Annual
           </Link>
@@ -968,8 +1184,20 @@ export default function PricingPage() {
   );
 }
 
-
 --- END FILE: src\app\pricing\page.js ---
+
+--- START FILE: src\app\terms\page.js ---
+
+export default function TermsPage() {
+    return (
+        <div className="container mx-auto p-8 max-w-4xl">
+            <h1 className="text-4xl font-serif font-bold text-teal-800 mb-6">Terms of Service</h1>
+            <p className="text-gray-700">Detailed terms and conditions will go here.</p>
+        </div>
+    );
+}
+
+--- END FILE: src\app\terms\page.js ---
 
 --- START FILE: src\components\AuthStatus.js ---
 
@@ -1035,7 +1263,7 @@ export default function AuthStatus() {
       ) : (
         <button 
           onClick={handleLogin}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-200"
+          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded transition duration-200"
         >
           Login with Google
         </button>
@@ -1049,15 +1277,16 @@ export default function AuthStatus() {
 --- START FILE: src\components\Footer.js ---
 
 // src/components/Footer.js
+import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white mt-8">
+    <footer className="bg-gray-900 text-white mt-8 border-t-4 border-teal-600">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
         <p>&copy; {new Date().getFullYear()} AnandaYog Meditation Centre. All rights reserved.</p>
         <div className="mt-4 space-x-4">
-          <a href="#" className="hover:text-indigo-400 transition">Privacy Policy</a>
-          <a href="#" className="hover:text-indigo-400 transition">Terms of Service</a>
+          <Link href="/policy" className="hover:text-teal-400 transition">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-teal-400 transition">Terms of Service</Link>
         </div>
       </div>
     </footer>
@@ -1072,22 +1301,56 @@ export default function Footer() {
 "use client";
 
 import Link from 'next/link';
+import { useState } from 'react'; 
 import { useAuth } from '../context/AuthContext';
 
+// Icons for mobile menu
+const MenuIcon = ({ className = "w-6 h-6" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
+);
+const CloseIcon = ({ className = "w-6 h-6" }) => (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+);
+
+// Moon/Sun Icons
+const SunIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+);
+
+const MoonIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+);
+
+// FIX: Moved ThemeToggle outside the Header component function
+const ThemeToggle = () => {
+  const { theme, toggleTheme } = useAuth();
+  return (
+    <button
+        onClick={toggleTheme}
+        className="p-2 rounded-full text-teal-700 hover:bg-teal-50 dark:text-amber-300 dark:hover:bg-gray-700 transition"
+        aria-label="Toggle Dark Mode"
+    >
+        {theme === 'light' ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
+    </button>
+  );
+};
+
+
 export default function Header() {
-  const { currentUser, login, loading, userData } = useAuth();
-  
+  const { currentUser, login, loading, userData } = useAuth(); 
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
+
   const isSubscribed = userData?.isSubscribed;
 
   return (
-    <header className="bg-white shadow-xl sticky top-0 z-20 border-b border-gray-100">
+    <header className="bg-white dark:bg-gray-800 shadow-xl sticky top-0 z-50 border-b border-gray-100 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20"> 
         {/* Logo/Title */}
-        <Link href="/" className="text-3xl font-serif font-extrabold text-indigo-800 hover:text-purple-600 transition tracking-tight">
+        <Link href="/" className="text-3xl font-serif font-extrabold text-teal-800 hover:text-teal-600 transition tracking-tight dark:text-teal-400">
           AnandaYog
         </Link>
 
-        {/* Navigation Links */}
+        {/* Desktop Navigation Links */}
         <nav className="hidden md:flex space-x-8">
           <NavLink href="/classes">Classes</NavLink>
           <NavLink href="/about">Our Story</NavLink>
@@ -1095,45 +1358,78 @@ export default function Header() {
           <NavLink href="/contact">Contact</NavLink>
         </nav>
 
-        {/* Auth Status / Action Button */}
+        {/* Auth Status / Action Button (Desktop & Mobile) */}
         <div className="flex items-center space-x-4">
+          
+          {/* Theme Toggle */}
+          <ThemeToggle /> 
+          
           {!loading && (
             currentUser ? (
-              // If logged in, button shows subscription status
+              // If logged in, button directs to Dashboard
               <Link 
                 href="/dashboard" 
-                className={`text-white py-2 px-5 rounded-full font-semibold transition duration-300 shadow-md ${isSubscribed ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                className={`text-white py-2 px-5 rounded-full font-semibold transition duration-300 shadow-md 
+                ${isSubscribed 
+                    ? 'bg-green-600 hover:bg-green-700 dark:bg-green-500' 
+                    : 'bg-teal-600 hover:bg-teal-700 dark:bg-teal-700'
+                }`}
               >
                 {isSubscribed ? 'Subscription Active' : 'My Dashboard'}
               </Link>
             ) : (
               <button 
                 onClick={login}
-                className="text-indigo-700 border-2 border-indigo-700 py-2 px-5 rounded-full hover:bg-indigo-50 transition duration-300 font-medium shadow-sm"
+                className="text-teal-700 border-2 border-teal-700 py-2 px-5 rounded-full hover:bg-teal-50 transition duration-300 font-medium shadow-sm dark:text-teal-400 dark:border-teal-400 dark:hover:bg-gray-700"
               >
                 Login / Join
               </button>
             )
           )}
+          
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-teal-700 p-2 dark:text-teal-400"
+            aria-label="Toggle navigation"
+          >
+            {isMobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
         </div>
       </div>
+      
+      {/* Mobile Menu Drawer */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute w-full bg-white dark:bg-gray-800 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
+            <nav className="flex flex-col space-y-2 px-4">
+                <MobileNavLink href="/classes" onClick={() => setIsMobileMenuOpen(false)}>Classes</MobileNavLink>
+                <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</MobileNavLink>
+                <MobileNavLink href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>Pricing</MobileNavLink>
+                <MobileNavLink href="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</MobileNavLink>
+            </nav>
+        </div>
+      )}
     </header>
   );
 }
 
 const NavLink = ({ href, children }) => (
-    <Link href={href} className="text-gray-600 hover:text-indigo-600 font-medium text-lg transition duration-200">
+    <Link href={href} className="text-gray-600 hover:text-teal-600 font-medium text-lg transition duration-200 dark:text-gray-300 dark:hover:text-teal-400">
         {children}
     </Link>
 );
 
-
+const MobileNavLink = ({ href, children, onClick }) => (
+    <Link href={href} onClick={onClick} className="block px-3 py-2 text-gray-700 hover:bg-teal-50 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700">
+        {children}
+    </Link>
+);
 
 --- END FILE: src\components\Header.js ---
 
 --- START FILE: src\components\PaymentInitiator.js ---
 
-// src/components/PaymentInitiator.js (UPDATED for secure verification)
+// src/components/PaymentInitiator.js (UPDATED for dynamic plans)
 "use client";
 
 import { useState } from 'react';
@@ -1149,22 +1445,36 @@ const loadRazorpayScript = (src) => {
   });
 };
 
-export default function PaymentInitiator() {
+export default function PaymentInitiator({ planName, amount, description, isAnnual = false }) {
   const { currentUser, userData } = useAuth();
   const [status, setStatus] = useState('');
   
-  if (userData?.isSubscribed) {
+  if (userData?.isSubscribed && userData.subscriptionPlan === planName) {
       return (
         <div className="p-6 bg-green-50 border border-green-200 rounded-lg shadow-md">
-            <h3 className="text-xl font-bold text-green-700 mb-2">Subscription Active!</h3>
-            <p className="text-gray-600">You have unlimited access to all courses. Enjoy your bliss.</p>
+            <h3 className="text-xl font-bold text-green-700 mb-2">{planName} Active!</h3>
+            <p className="text-gray-600">Your current plan is active. Enjoy your unlimited access.</p>
+        </div>
+      );
+  }
+  
+  // If user is subscribed but trying to buy the other plan (e.g., currently monthly, seeing annual)
+  if (userData?.isSubscribed && userData.subscriptionPlan !== planName) {
+      return (
+        <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold text-yellow-700 mb-2">Upgrade/Change Plan</h3>
+            <p className="text-gray-600">You must cancel your current {userData.subscriptionPlan} subscription to switch to the {planName} plan.</p>
         </div>
       );
   }
 
-
   const handleCheckout = async () => {
-    setStatus('Preparing checkout...');
+    if (!currentUser) {
+        setStatus('Error: User not logged in.');
+        return;
+    }
+
+    setStatus(`Preparing checkout for ${planName}...`);
     
     // 1. Load Razorpay script
     const loaded = await loadRazorpayScript('https://checkout.razorpay.com/v1/checkout.js');
@@ -1174,13 +1484,13 @@ export default function PaymentInitiator() {
     }
 
     // 2. Request a secure Order ID from our Node.js API Route
-    const paymentAmountINR = 500;
     const orderDataResponse = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        amount: paymentAmountINR, 
-        receiptId: currentUser.uid 
+        amount: amount, 
+        receiptId: currentUser.uid,
+        planName: planName
       }),
     });
     
@@ -1197,7 +1507,7 @@ export default function PaymentInitiator() {
       amount: orderData.amount,
       currency: orderData.currency,
       name: "AnandaYog Subscription",
-      description: "Yogi Monthly Unlimited Access (₹500)",
+      description: `${planName} Access (${orderData.amount / 100} ${orderData.currency})`,
       order_id: orderData.id,
       
       handler: async function (response) {
@@ -1212,7 +1522,8 @@ export default function PaymentInitiator() {
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
                 userId: currentUser.uid,
-                amount: paymentAmountINR // send amount for double check
+                amount: amount,
+                planName: planName // Send the plan name to the server
             }),
         });
         
@@ -1228,7 +1539,8 @@ export default function PaymentInitiator() {
         email: currentUser.email,
       },
       theme: {
-        color: "#4f46e5"
+        // Updated theme color to Deep Teal
+        color: "#0E5B6A" 
       }
     };
     
@@ -1237,25 +1549,30 @@ export default function PaymentInitiator() {
     setStatus('Waiting for payment...');
   };
 
+  const buttonColor = isAnnual ? 'bg-teal-600 hover:bg-teal-700' : 'bg-amber-500 hover:bg-amber-600';
+  const borderColor = isAnnual ? 'border-teal-300' : 'border-amber-300';
+
+
   return (
-    <div className="p-6 bg-indigo-50 border border-indigo-200 rounded-lg shadow-xl">
-      <h3 className="text-2xl font-bold text-indigo-700 mb-4">Unlock Unlimited Bliss</h3>
-      <p className="mb-4 text-gray-700">Get unlimited access to all courses, live sessions, and the community archive for only ₹500/month.</p>
+    <div className={`p-6 bg-white border-2 ${borderColor} rounded-lg shadow-xl flex flex-col justify-between`}>
+      <div>
+        <h3 className="text-xl font-bold text-gray-800 mb-1">{planName}</h3>
+        <p className="text-4xl font-extrabold text-teal-600 mb-3">₹{amount}</p>
+        <p className="mb-4 text-gray-700 text-sm">{description}</p>
+      </div>
       
       <button 
         onClick={handleCheckout}
         disabled={status.includes('Preparing') || status.includes('Verifying') || status.includes('Waiting')}
-        className="bg-purple-600 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-purple-700 transition duration-300 disabled:opacity-50 shadow-md"
+        className={`text-white py-3 px-8 rounded-full text-lg font-semibold transition duration-300 disabled:opacity-50 shadow-md ${buttonColor}`}
       >
-        {status.includes('Waiting') ? 'Payment Window Open...' : 'Subscribe Now (₹500/mo)'}
+        {status.includes('Waiting') ? 'Payment Window Open...' : `Purchase Plan (₹${amount})`}
       </button>
 
       {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-green-600 font-medium' : 'text-gray-600'}`}>{status}</p>}
     </div>
   );
 }
-
-
 
 --- END FILE: src\components\PaymentInitiator.js ---
 
@@ -1295,28 +1612,100 @@ export default function ProtectedRoute({ children }) {
 
 --- END FILE: src\components\ProtectedRoute.js ---
 
+--- START FILE: src\components\ThemeInitializer.js ---
+
+// src/components/ThemeInitializer.js
+"use client";
+
+import { useAuth } from '@/context/AuthContext';
+import { useEffect } from 'react';
+
+export default function ThemeInitializer() {
+    const { theme, loading } = useAuth();
+
+    useEffect(() => {
+        // Only run when theme data is available (i.e., not loading)
+        if (!loading && theme) {
+            const root = window.document.documentElement;
+            
+            // 1. Remove both theme classes
+            root.classList.remove('light', 'dark');
+            
+            // 2. Apply the current theme class
+            root.classList.add(theme);
+
+            // Debugging confirmation (optional)
+            console.log(`ThemeInitializer: Applying theme class "${theme}"`);
+        }
+    }, [theme, loading]);
+
+    return null; 
+}
+
+--- END FILE: src\components\ThemeInitializer.js ---
+
 --- START FILE: src\context\AuthContext.js ---
 
-// src/context/AuthContext.js (UPDATED to include Firestore subscription check)
+// src/context/AuthContext.js (Cleanest and most robust version)
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db } from '../lib/firebase'; // Import db
+import { auth, db } from '../lib/firebase'; 
 import { onAuthStateChanged, signOut, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore'; // Import Firestore functions
+import { doc, onSnapshot, setDoc } from 'firebase/firestore'; 
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+// Function to safely get the initial theme from storage/system preference
+const getInitialTheme = () => {
+    if (typeof window !== 'undefined') {
+        const localTheme = localStorage.getItem('theme');
+        if (localTheme) return localTheme;
+        
+        // Check system preference only if no local preference exists
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+    }
+    return 'light'; // Default
+};
+
+
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [userData, setUserData] = useState(null); // New state for Firestore data
+  const [userData, setUserData] = useState(null); 
   const [loading, setLoading] = useState(true);
+  
+  // Initialize theme using the function for unauthenticated state
+  const [theme, setTheme] = useState(getInitialTheme); 
 
   const googleProvider = new GoogleAuthProvider();
   const login = () => signInWithPopup(auth, googleProvider);
   const logout = () => signOut(auth);
+
+  // Function to toggle and persist the theme
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme); // Apply instantly to local state
+
+    if (currentUser) {
+      // 1. Logged in: Save to Firestore (creates doc if it doesn't exist)
+      try {
+        const userRef = doc(db, "users", currentUser.uid);
+        await setDoc(userRef, { theme: newTheme }, { merge: true });
+        console.log("Theme saved to Firestore.");
+        localStorage.removeItem('theme'); // Clear local pref once Firestore owns it
+      } catch (e) {
+        console.error("Error saving theme to Firestore:", e);
+      }
+    } else {
+      // 2. Not logged in: Save to Local Storage
+      localStorage.setItem('theme', newTheme);
+      console.log("Theme saved to Local Storage.");
+    }
+  };
 
   useEffect(() => {
     let unsubscribeAuth;
@@ -1327,23 +1716,46 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
 
       if (user) {
-        // Start listening to the user's document in Firestore
+        // --- LOGGED IN ---
         const userRef = doc(db, "users", user.uid);
         
-        // Listen for real-time updates to the user's profile/subscription data
         unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
-                setUserData(docSnap.data());
+                const data = docSnap.data();
+                setUserData(data);
+                
+                // Priority 1: Use theme from Firestore
+                if (data.theme) {
+                    setTheme(data.theme);
+                } else {
+                    // Priority 2: Use theme from local storage if existing user document lacks theme
+                    const localTheme = localStorage.getItem('theme');
+                    if (localTheme) {
+                        setTheme(localTheme);
+                        // Persist local preference to Firestore
+                        setDoc(userRef, { theme: localTheme }, { merge: true });
+                    }
+                }
             } else {
-                // User document doesn't exist yet, initialize minimum data
+                // --- NEW USER / FIRST LOGIN ---
                 setUserData({ isSubscribed: false });
+                const localTheme = localStorage.getItem('theme');
+                
+                if (localTheme) {
+                    setTheme(localTheme);
+                    // Create document and set initial theme preference
+                    setDoc(userRef, { theme: localTheme, isSubscribed: false }, { merge: true });
+                }
             }
         }, (error) => {
             console.error("Error listening to Firestore:", error);
             setUserData({ isSubscribed: false });
         });
       } else {
+          // --- LOGGED OUT ---
           setUserData(null);
+          // Set theme based on local storage / system preference
+          setTheme(getInitialTheme());
       }
     });
 
@@ -1352,24 +1764,25 @@ export const AuthProvider = ({ children }) => {
         if (unsubscribeAuth) unsubscribeAuth();
         if (unsubscribeFirestore) unsubscribeFirestore();
     };
-  }, []);
+  }, []); 
+
 
   const value = {
     currentUser,
-    userData, // Expose user data (including subscription status)
+    userData, 
     loading,
     login,
     logout,
+    theme,           
+    toggleTheme,     
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {/* We wait for both auth check and initial user data load (or lack thereof) */}
       {!loading && children} 
     </AuthContext.Provider>
   );
 };
-
 
 --- END FILE: src\context\AuthContext.js ---
 
@@ -1397,214 +1810,6 @@ export const db = getFirestore(app);
 
 --- END FILE: src\lib\firebase.js ---
 
-----------------------------------------------------------------------------
+-----------------------------------------------------------------------
 
-AI: This is a fantastic foundation! You have a modern Next.js 16 application with solid features, including secure Firebase authentication and a robust, correctly implemented Razorpay payment flow with server-side signature verification (which is critical for security).
-
-Here is a comprehensive set of advice on how to improve the website, focusing specifically on your requests for a new color palette, aesthetic improvements, structural changes, and responsiveness.
-
----
-
-## 1. The New Serene & Blissful Color Palette
-
-The current palette (heavy indigo, standard purple, sharp emerald green) lacks the soft, expansive feeling appropriate for a meditation center. We need colors that evoke deep nature, soft light, and tranquility.
-
-### The Proposed Palette: Deep Teal, Sage Green, and Warm Gold
-
-| Role | Color Name | Tailwind Class Base | Hex (Example) | Feeling |
-| :--- | :--- | :--- | :--- | :--- |
-| **Primary (Depth/Spiritual)** | **Deep Teal** | `teal-800` | `#0E5B6A` | Grounded, trust, deep stillness. |
-| **Secondary (Serenity/Body)** | **Soft Sage** | `emerald-200` or `lime-100` | `#D9EBE8` | Calm, growth, nature. |
-| **Accent/CTA (Energy/Action)** | **Warm Gold** | `amber-500` | `#F59E0B` | Wisdom, light, gentle movement. |
-| **Background** | **Warm Linen** | `gray-50` | `#FAFAFA` | Soft, inviting, less sterile than pure white. |
-| **Text** | **Charcoal** | `gray-800` | `#2D3748` | Readable, soft contrast. |
-
-### Required Changes to `src\app\globals.css`
-
-You need to update your CSS variables to reflect this new, softer palette.
-
-```css
-/* src/app/globals.css - UPDATED */
-
-@import "tailwindcss";
-
-/* --- Custom Visual Enhancement: Fonts and Colors --- */
-
-/* Assume fonts Playfair Display (Serif) & Inter (Sans) are linked */
-@layer base {
-  .font-serif {
-    font-family: 'Playfair Display', Georgia, serif; 
-  }
-  .font-sans {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-}
-
-:root {
-  /* New Serene Palette */
-  --background: #fafafa; /* Warm Linen */
-  --foreground: #2d3748; /* Charcoal Text */
-  
-  /* Primary: Deep Teal (Used for headers, strong lines) */
-  --primary-teal: 14 91 106; /* HSL 190, 60%, 20% equivalent */
-  
-  /* Accent 1: Serene Green (Used for background cards, secondary links) */
-  --accent-sage: 212 235 232; /* Soft light green/blue */ 
-  
-  /* Accent 2: Warm Gold (Used for CTAs, success messages) */
-  --cta-gold: 245 158 11; /* amber-500 */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #121212;
-    --foreground: #f0f0f0;
-    /* Adjust dark mode colors if necessary, e.g., using lighter teals */
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  @apply font-sans; 
-}
-
-/* Custom class for the serene background used on the homepage */
-.bg-serene-gradient {
-  /* Transition the gradient from a deep teal to a soft sage */
-  background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
-}
-```
-
----
-
-## 2. Structural & Code Improvements
-
-While your setup is robust, a few strategic changes will enhance UX, maintainability, and security.
-
-### A. Refine the Dashboard/Account Flow
-
-The current flow sends users from `/account` to `/dashboard` immediately after login check. This causes a momentary screen blink (FOUC).
-
-**Suggested Change:**
-1.  **Remove `src\app\account\page.js`** entirely.
-2.  **Rename the "Login / Join" button** in `Header.js` to direct straight to `/dashboard`.
-    *   If the user is logged out, the dashboard page will handle the redirect/auth component display internally.
-3.  **Update `src\app\dashboard\page.js`** to check for `!currentUser` and, if none, render the `AuthStatus` component directly, prompting login.
-
-**Impact on `dashboard/page.js`:**
-
-```javascript
-// src/app/dashboard/page.js (Conceptual update)
-
-// ... imports ...
-import AuthStatus from '@/components/AuthStatus'; 
-
-export default function DashboardPage() {
-    // ... auth checks ...
-
-    if (loading) { /* ... loading state ... */ }
-
-    // If not logged in, show login component instead of redirecting
-    if (!currentUser) {
-        return (
-            <div className="container mx-auto p-8 sm:p-12 flex justify-center">
-                <div className="w-full max-w-md">
-                    <h1 className="text-3xl font-serif font-bold text-center text-indigo-800 mb-6">
-                        Log In to Access Your Dashboard
-                    </h1>
-                    <AuthStatus /> 
-                </div>
-            </div>
-        );
-    }
-    
-    // ... rest of dashboard content for logged-in users ...
-}
-```
-**(Note: This requires careful implementation to avoid the `useEffect` redirect racing the render, but keeping the logic contained in one place improves clarity.)*
-
-### B. Enhance Error Handling
-
-In API routes, especially the critical payment verification route, return more specific error messages to the client when appropriate.
-
-**File:** `src\app\api\verify-payment\route.js`
-*   The error handling is good, but ensure that any failed payment or verification attempt logs detailed information on the server (which you are doing with `console.error`) but returns a generic user-friendly message to the client.
-
-### C. Improve Component Reusability
-
-Your components are well-isolated, but ensure you replace all old color classes (e.g., `text-indigo-800`, `bg-emerald-600`) in `Header.js`, `page.js`, and `Pricing.js` with classes based on the new palette (e.g., `text-primary-teal`, `bg-cta-gold`).
-
----
-
-## 3. Aesthetic and UX Improvements (Making it Awesome)
-
-To elevate the site from functional to awesome, focus on polishing the user experience and visual hierarchy.
-
-### A. Visual Content (Placeholder Resolution)
-
-This is the single biggest factor for a meditation site:
-1.  **Hero Image:** Replace the placeholder background image on `/` with a high-resolution, professional image of a serene landscape, soft sunrise, or minimalist meditation space. Use soft focus and warm light.
-2.  **Teacher Profiles (`/about`):** Replace the generic 👤 with actual, calming profile photos of the teachers. Authenticity is key here.
-
-### B. Typography and Hierarchy
-
-1.  **Consistent Headings:** Ensure `font-serif` (Playfair Display) is used consistently for all major page titles and section headers (`h1`, `h2`), and `font-sans` (Inter) for body copy. This contrast adds sophistication.
-2.  **Vertical Rhythm:** Increase spacing between sections, particularly on the homepage (`page.js`), to give the content "room to breathe," enhancing the sense of calm. (e.g., use `py-20` instead of `py-16`).
-
-### C. Micro-Interactions
-
-Your existing components have nice transitions (`transform hover:translate-y-[-2px]`), but integrate this throughout:
-
-1.  **Card Hovers (`page.js`, `pricing\page.js`):** The existing `transform hover:scale-105` is excellent. Apply subtle `shadow-xl` changes on hover for cards.
-2.  **Link Underlines:** For text links in the footer or body, use a subtle hover effect that underlines or changes color to the `Warm Gold`.
-3.  **Loading States:** Use a more engaging loader (a simple spinning circle or pulse effect) in `AuthContext` or `dashboard/page.js` instead of just text like "Accessing secure content..."
-
-### D. CTA Clarity
-
-On the `/pricing` page, ensure the annual plan clearly calculates the saving (e.g., "Save 1200 INR (2 Months Free!)" positioned right next to the annual price).
-
----
-
-## 4. Responsiveness for Mobile Phones
-
-Tailwind CSS is fundamentally mobile-first, but achieving perfect responsiveness requires intentional breakpoints and handling complex layouts.
-
-### A. Implement a Mobile Navigation Menu (`src\components\Header.js`)
-
-Currently, the navigation links disappear below the `md` breakpoint.
-
-**Action Required:**
-1.  Add a **Hamburger Menu Icon** (`<button>`) visible only on mobile screens (`md:hidden`).
-2.  Implement a client-side state (`[isMenuOpen, setIsMenuOpen]`) to toggle a **side drawer or full-screen overlay** containing the navigation links.
-
-### B. Review Grid Collapse Strategy
-
-You use `md:grid-cols-3` in several places (e.g., `/page.js`, `/about/page.js`, `/pricing/page.js`).
-
-**Action Required:**
-1.  **Pricing Page:** Ensure the three columns stack nicely on mobile screens. The current stacking is fine, but check that padding doesn't push them too wide.
-2.  **Cards:** On smaller phones, make sure cards are not excessively padded. Use smaller padding utilities on mobile (`p-4` vs `p-8`).
-
-### C. Font Sizing Scaling
-
-Large headlines on the desktop (`text-7xl` in the Hero) will look too big on mobile.
-
-**Action Required:**
-Use responsive font sizing in the Hero (`src\app\page.js`):
-
-```javascript
-// Before:
-<h1 className="text-6xl md:text-7xl font-extrabold font-serif leading-tight mb-6 drop-shadow-lg">
-
-// Suggested (making it smaller on base size):
-<h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold font-serif leading-tight mb-6 drop-shadow-lg">
-```
-
-### D. Horizontal Overflow Prevention
-
-Check every component on a mobile emulator (like Chrome DevTools) to ensure no element (especially images or complex card layouts) forces horizontal scrolling. Use `max-w-full` on potential problematic elements.
-
-By implementing these structural, aesthetic, and responsiveness improvements, you will transform your robust technical foundation into a truly beautiful, serene, and professional meditation platform.
-
-do as told above.
+The dark mode and light mode toggle is not working properly. The theme switching is not working. So can you please fix that? And the current theme is set as dark. Why is that? I want the default theme to be light mode. And when changed, it'll be dark mode again. That way the whole thing will work. And find out any errors that are happening which are related to Firebase. And tell me what changes do I need to do database-wise in Firebase. I want all the backend operations to be fixed so that I can make this website ready for production. And this website is already in production, so I want it to be made for production. So that it can meet the expectations of the users and the market as well. So that's it. After making all the changes required, you send me the modified codes in full only. Not all the codes, please.

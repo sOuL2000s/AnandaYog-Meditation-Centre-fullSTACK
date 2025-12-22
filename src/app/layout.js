@@ -1,9 +1,10 @@
-// src/app/layout.js (Added font links for visual appeal)
+// src/app/layout.js 
 
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ThemeInitializer from '@/components/ThemeInitializer'; 
 
 export const metadata = {
   title: 'AnandaYog Meditation Centre: Inner Peace & Authentic Practice',
@@ -12,17 +13,19 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    // FIX 1: Explicitly set 'light' class to ensure Light Mode CSS variables 
+    // are applied on the server side, eliminating the dark mode flash/default.
+    <html lang="en" className="light"> 
       {/* 
         NOTE: For best visual results, link Google Fonts (Playfair Display & Inter) 
         in the <head> of the document or update the CSS. 
-        Assuming system fonts for this pasteable code.
       */}
       <body className="flex flex-col min-h-screen antialiased">
         <AuthProvider>
+          <ThemeInitializer /> 
           <Header />
-          {/* Increased padding on main for better visual spacing */}
-          <main className="grow pt-4 pb-16"> 
+          {/* FIX 2: Removed pt-4 to eliminate the gap between the header and the main content. */}
+          <main className="grow pb-16"> 
             {children}
           </main>
           <Footer />

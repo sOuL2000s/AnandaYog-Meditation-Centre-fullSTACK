@@ -1,4 +1,4 @@
-// src/components/PaymentInitiator.js (UPDATED for secure verification and color)
+// src/components/PaymentInitiator.js (UPDATED for dynamic plans)
 "use client";
 
 import { useState } from 'react';
@@ -14,22 +14,36 @@ const loadRazorpayScript = (src) => {
   });
 };
 
-export default function PaymentInitiator() {
+export default function PaymentInitiator({ planName, amount, description, isAnnual = false }) {
   const { currentUser, userData } = useAuth();
   const [status, setStatus] = useState('');
   
-  if (userData?.isSubscribed) {
+  if (userData?.isSubscribed && userData.subscriptionPlan === planName) {
       return (
         <div className="p-6 bg-green-50 border border-green-200 rounded-lg shadow-md">
-            <h3 className="text-xl font-bold text-green-700 mb-2">Subscription Active!</h3>
-            <p className="text-gray-600">You have unlimited access to all courses. Enjoy your bliss.</p>
+            <h3 className="text-xl font-bold text-green-700 mb-2">{planName} Active!</h3>
+            <p className="text-gray-600">Your current plan is active. Enjoy your unlimited access.</p>
+        </div>
+      );
+  }
+  
+  // If user is subscribed but trying to buy the other plan (e.g., currently monthly, seeing annual)
+  if (userData?.isSubscribed && userData.subscriptionPlan !== planName) {
+      return (
+        <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold text-yellow-700 mb-2">Upgrade/Change Plan</h3>
+            <p className="text-gray-600">You must cancel your current {userData.subscriptionPlan} subscription to switch to the {planName} plan.</p>
         </div>
       );
   }
 
-
   const handleCheckout = async () => {
-    setStatus('Preparing checkout...');
+    if (!currentUser) {
+        setStatus('Error: User not logged in.');
+        return;
+    }
+
+    setStatus(`Preparing checkout for ${planName}...`);
     
     // 1. Load Razorpay script
     const loaded = await loadRazorpayScript('https://checkout.razorpay.com/v1/checkout.js');
@@ -39,13 +53,13 @@ export default function PaymentInitiator() {
     }
 
     // 2. Request a secure Order ID from our Node.js API Route
-    const paymentAmountINR = 500;
     const orderDataResponse = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        amount: paymentAmountINR, 
-        receiptId: currentUser.uid 
+        amount: amount, 
+        receiptId: currentUser.uid,
+        planName: planName
       }),
     });
     
@@ -62,7 +76,7 @@ export default function PaymentInitiator() {
       amount: orderData.amount,
       currency: orderData.currency,
       name: "AnandaYog Subscription",
-      description: "Yogi Monthly Unlimited Access (₹500)",
+      description: `${planName} Access (${orderData.amount / 100} ${orderData.currency})`,
       order_id: orderData.id,
       
       handler: async function (response) {
@@ -77,7 +91,8 @@ export default function PaymentInitiator() {
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
                 userId: currentUser.uid,
-                amount: paymentAmountINR // send amount for double check
+                amount: amount,
+                planName: planName // Send the plan name to the server
             }),
         });
         
@@ -103,19 +118,24 @@ export default function PaymentInitiator() {
     setStatus('Waiting for payment...');
   };
 
+  const buttonColor = isAnnual ? 'bg-teal-600 hover:bg-teal-700' : 'bg-amber-500 hover:bg-amber-600';
+  const borderColor = isAnnual ? 'border-teal-300' : 'border-amber-300';
+
+
   return (
-    // Changed colors to Sage/Teal
-    <div className="p-6 bg-teal-50 border border-teal-200 rounded-lg shadow-xl">
-      <h3 className="text-2xl font-bold text-teal-700 mb-4">Unlock Unlimited Bliss</h3>
-      <p className="mb-4 text-gray-700">Get unlimited access to all courses, live sessions, and the community archive for only ₹500/month.</p>
+    <div className={`p-6 bg-white border-2 ${borderColor} rounded-lg shadow-xl flex flex-col justify-between`}>
+      <div>
+        <h3 className="text-xl font-bold text-gray-800 mb-1">{planName}</h3>
+        <p className="text-4xl font-extrabold text-teal-600 mb-3">₹{amount}</p>
+        <p className="mb-4 text-gray-700 text-sm">{description}</p>
+      </div>
       
       <button 
         onClick={handleCheckout}
         disabled={status.includes('Preparing') || status.includes('Verifying') || status.includes('Waiting')}
-        // Changed CTA to Warm Gold accent color
-        className="bg-amber-500 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-amber-600 transition duration-300 disabled:opacity-50 shadow-md"
+        className={`text-white py-3 px-8 rounded-full text-lg font-semibold transition duration-300 disabled:opacity-50 shadow-md ${buttonColor}`}
       >
-        {status.includes('Waiting') ? 'Payment Window Open...' : 'Subscribe Now (₹500/mo)'}
+        {status.includes('Waiting') ? 'Payment Window Open...' : `Purchase Plan (₹${amount})`}
       </button>
 
       {status && <p className={`mt-4 text-sm ${status.includes('Activated') ? 'text-green-600 font-medium' : 'text-gray-600'}`}>{status}</p>}

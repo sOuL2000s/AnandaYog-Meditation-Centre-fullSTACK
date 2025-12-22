@@ -41,11 +41,9 @@ export default function AboutPage() {
 
         {/* Teacher Profiles Section - Changed header color */}
         <section className="py-16 text-center">
-            <h2 className="text-3xl font-bold text-teal-800 mb-8">Meet Our Lead Teachers</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-                <TeacherCard name="Rishi Sharma" specialty="Vipassana & Pranayama" />
-                <TeacherCard name="Maya Singh" specialty="Hatha & Restorative Yoga" />
-                <TeacherCard name="Devi Patel" specialty="Mantra & Kundalini" />
+            <h2 className="text-3xl font-bold text-teal-800 mb-8">Meet Our Lead Teacher</h2>
+            <div className="flex justify-center">
+                <TeacherCard name="Rishi Sharma" specialty="Vipassana, Pranayama, & Hatha" />
             </div>
         </section>
 
@@ -54,14 +52,15 @@ export default function AboutPage() {
 }
 
 const TeacherCard = ({ name, specialty }) => (
-    <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100">
+    <div className="bg-white p-6 rounded-lg shadow-xl border border-gray-100 max-w-sm">
         {/* Changed background color and icon color */}
         <div className="w-24 h-24 mx-auto bg-teal-100 rounded-full mb-4 flex items-center justify-center text-3xl text-teal-600">
-            👤
+            🧘
         </div>
         <h3 className="text-xl font-semibold text-gray-900">{name}</h3>
         {/* Changed text color */}
         <p className="text-teal-600 italic">{specialty}</p>
-        <p className="text-sm text-gray-500 mt-3">Certified with 10+ years experience.</p>
+        {/* FIX: Changed text-gray-500 to text-gray-700 for better visibility */}
+        <p className="text-sm text-gray-700 mt-3">Certified with 10+ years experience guiding practitioners worldwide.</p>
     </div>
 );

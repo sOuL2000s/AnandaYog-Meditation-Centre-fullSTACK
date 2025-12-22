@@ -5,7 +5,8 @@ import Link from 'next/link';
 // for the best visual effect.
 
 const BlissfulHero = () => (
-  <section className="relative h-[600px] flex items-center justify-center overflow-hidden shadow-2xl">
+  // FIX: Changed h-[600px] to the canonical h-150 and hover:translate-y-[-2px] to hover:-translate-y-0.5
+  <section className="relative h-150 flex items-center justify-center overflow-hidden shadow-2xl">
     {/* Background Image & Overlay */}
     <div className="absolute inset-0">
       <div 
@@ -28,9 +29,9 @@ const BlissfulHero = () => (
         Guided meditation and authentic yoga practices to quiet the mind and foster lasting peace.
       </p>
       <Link 
-        href="/pricing" 
+        href="/dashboard" // Changed to point to dashboard for login/status check
         // Changed to Warm Gold accent color
-        className="bg-amber-500 text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-amber-600 transition duration-300 shadow-2xl border-2 border-white/50 transform hover:translate-y-[-2px]"
+        className="bg-amber-500 text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-amber-600 transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
       >
         Start 7 Days Free
       </Link>
@@ -102,6 +103,7 @@ const ValueCard = ({ icon, title, description }) => (
         <div className="text-4xl mb-4 p-3 bg-teal-100 rounded-lg inline-block">{icon}</div>
         {/* Changed text color to Deep Teal */}
         <h3 className="text-2xl font-semibold text-teal-800 mb-3 font-serif">{title}</h3>
-        <p className="text-gray-600">{description}</p>
+        {/* FIX: Ensuring text-gray-700 for better visibility than gray-600 */}
+        <p className="text-gray-700">{description}</p>
     </div>
 );

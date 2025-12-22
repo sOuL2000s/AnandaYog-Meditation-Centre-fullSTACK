@@ -1,6 +1,5 @@
 // src/app/api/verify-payment/route.js
 // CRITICAL: Securely verifies the Razorpay payment signature
-// This prevents users from faking successful payments in the frontend.
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
@@ -21,7 +20,8 @@ export async function POST(request) {
       paymentId, 
       signature, 
       userId, 
-      amount // Included for verification against the order amount
+      amount,
+      planName // New field
     } = await request.json();
 
     // 1. Construct the signature string
@@ -36,16 +36,21 @@ export async function POST(request) {
 
     // --- Verification Successful ---
     
-    // 3. Optional: Fetch the payment details from Razorpay to confirm amount
-    // const payment = await razorpay.payments.fetch(paymentId);
-    // if (payment.amount !== 50000) { /* Check amount */ }
+    // 3. Optional: Add logic to calculate expiration date based on planName (Monthly/Annual)
+    let expirationDate = new Date();
+    if (planName === 'Yogi Monthly') {
+        expirationDate.setMonth(expirationDate.getMonth() + 1);
+    } else if (planName === 'Yogi Annual') {
+        expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+    }
 
     // 4. Update the user's Firestore record (Heavy Lifting Done Here!)
     const userRef = doc(db, "users", userId);
     await setDoc(userRef, {
       lastSubscriptionDate: new Date().toISOString(),
+      subscriptionExpires: expirationDate.toISOString(),
       isSubscribed: true,
-      subscriptionPlan: 'Yogi Monthly',
+      subscriptionPlan: planName, // Store the specific plan
       razorpayDetails: { orderId, paymentId, signature, amount },
     }, { merge: true });
 
@@ -60,4 +65,3 @@ export async function POST(request) {
     return NextResponse.json({ status: 'error', message: 'Internal server error during verification.' }, { status: 500 });
   }
 }
-

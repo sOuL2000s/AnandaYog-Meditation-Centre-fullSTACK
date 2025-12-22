@@ -15,10 +15,38 @@
   .font-sans {
     font-family: 'Inter', system-ui, sans-serif;
   }
+
+  /* FIX 1: Ensure body uses the CSS variable, allowing it to switch */
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: 'Inter', system-ui, sans-serif; 
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  /* FIX 2 (CRITICAL): Force the root element background to follow the theme class 
+     to prevent system dark mode from overriding the initial background. */
+  .light {
+    background-color: var(--background);
+  }
+
+  /* FIX: Moved custom class application into @layer components or utilities */
+  .bg-serene-gradient {
+    /* Transition the gradient from a deep teal to a soft sage/mint */
+    background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
+  }
 }
 
+@layer utilities {
+    /* FIX: Placed the utility class application here */
+    .bg-serene-gradient {
+        @apply dark:opacity-80; 
+    }
+}
+
+
 :root {
-  /* New Serene Palette */
+  /* --- LIGHT MODE (Default) --- */
   --background: #fafafa; /* Warm Linen */
   --foreground: #2d3748; /* Charcoal Text */
   
@@ -32,21 +60,11 @@
   --cta-gold: 245 158 11; /* amber-500 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #121212;
-    --foreground: #f0f0f0;
-  }
-}
-
-body {
+/* --- DARK MODE DEFINITION --- */
+.dark {
+  --background: #1a1a1a; /* Near Black */
+  --foreground: #f0f0f0; /* Light Gray Text */
+  
+  /* Ensure the dark class sets the root background for dark mode */
   background: var(--background);
-  color: var(--foreground);
-  @apply font-sans; 
-}
-
-/* Custom class for the serene background used on the homepage */
-.bg-serene-gradient {
-  /* Transition the gradient from a deep teal to a soft sage/mint */
-  background-image: linear-gradient(135deg, rgba(14, 91, 106, 0.9) 0%, rgba(106, 179, 175, 0.8) 100%);
 }
