@@ -22,9 +22,9 @@ export default function DashboardPage() {
   // Handle NOT LOGGED IN state: Show the beautiful login UI directly
   if (!currentUser) {
     return (
-        // FIX: Changed background to use the main theme colors for dynamic switching.
-        // Light mode uses a simple gray-50 or white. Dark mode uses gray-900.
-        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] p-4 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        // FIX (Gap & Background): Ensures the background is fully covered and the content is centered.
+        // Removed explicit bg-gray-50/dark:bg-gray-900 to rely on global theme background CSS variable.
+        <div className="flex items-center justify-center h-full min-h-[calc(100vh-5rem)] p-4 transition-colors duration-300">
             <div className="w-full max-w-md p-8 sm:p-10 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border-t-4 border-teal-500 transform transition duration-500 hover:shadow-3xl">
                 <h1 className="text-4xl font-serif font-bold text-teal-800 dark:text-teal-300 mb-4">
                     Access Your Sanctuary

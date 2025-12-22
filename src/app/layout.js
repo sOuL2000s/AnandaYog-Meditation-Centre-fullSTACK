@@ -24,8 +24,8 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <ThemeInitializer /> 
           <Header />
-          {/* FIX 2: Removed pt-4 to eliminate the gap between the header and the main content. */}
-          <main className="grow pb-16"> 
+          {/* FIX 2 (Gap Fix): Removed pb-16 padding to eliminate the gap between the content and the footer. */}
+          <main className="grow"> 
             {children}
           </main>
           <Footer />

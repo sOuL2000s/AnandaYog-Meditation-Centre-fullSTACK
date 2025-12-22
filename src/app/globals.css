@@ -62,8 +62,9 @@
 
 /* --- DARK MODE DEFINITION --- */
 .dark {
-  --background: #1a1a1a; /* Near Black */
-  --foreground: #f0f0f0; /* Light Gray Text */
+  /* FIX 3: Updated dark mode background to #1e2939 (good visibility with light text) */
+  --background: #1e2939; 
+  --foreground: #f0f0f0; /* Light Gray Text (Visible & beautiful on the dark background) */
   
   /* Ensure the dark class sets the root background for dark mode */
   background: var(--background);
