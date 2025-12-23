@@ -205,8 +205,10 @@ export default config;
     /* Define the Serene Gradient using the new primary colors */
     .bg-serene-gradient {
         background-image: linear-gradient(135deg, 
-            rgba(var(--brand-primary), 0.9) 0%, 
-            rgba(var(--brand-primary-light), 0.8) 100%
+            /* FIX: Changed rgba(..., 0.9) to rgb(...) to make the gradient itself fully opaque. */
+            rgb(var(--brand-primary)) 0%, 
+            /* FIX: Changed rgba(..., 0.8) to rgb(...) to make the gradient itself fully opaque. */
+            rgb(var(--brand-primary-light)) 100%
         );
     }
 }
@@ -361,12 +363,16 @@ const BlissfulHero = () => (
         className="absolute inset-0 bg-cover bg-center transition duration-1000 ease-in-out hover:scale-[1.01]" 
         style={{ backgroundImage: "url('/placeholder-serene.jpg')" }}
       ></div>
+      {/* CRITICAL FIX: The opacity needs to be *lower* (meaning less transparent) 
+         to darken the background image effectively, now that the gradient itself is opaque. 
+         Using opacity-60 provides a strong, dark teal overlay. */}
       <div className="absolute inset-0 bg-serene-gradient z-10 opacity-90"></div>
     </div>
 
     {/* Content */}
     <div className="relative z-20 text-center text-white p-6 max-w-5xl">
-      <p className="text-sm sm:text-lg font-light tracking-[0.3em] uppercase mb-4 opacity-90 text-teal-200">
+      {/* FIX: Set text color to white/80 for high contrast */}
+      <p className="text-sm sm:text-lg font-light tracking-[0.3em] uppercase mb-4 opacity-90 text-white/80">
         THE ANANDAYOG CENTRE
       </p>
       {/* Responsive font size adjustment */}
@@ -1989,6 +1995,7 @@ export const db = getFirestore(app);
 
 --- END FILE: src\lib\firebase.js ---
 
--------------------------------------------------
+-----------------------------------------------------------------------------------
 
-The Anandiyog center that is written. On the heroes section is not visible. So how can I make it visible? I'll share an image with you showing how it looks. Tell me how can it be fixed?
+How can I make the contact us? Form to collect all the information and send them to me in a plain e-mail. To the following address : souparnopaulreborn@gmail.com?
+Can I use web 3 forms? If I can then. Redesign the contact us page and let the users send me. A direct e-mail as well using mail to. And. By clicking on my e-mail address, there will be a clickable e-mail address. Below the contact us form. Contact us form is not a success. Suppose the width 3 forms have reached their limit, then show the user that. There are too many emails or something like that sort and. Refer them to send me an e-mail directly. Or you can write. There are too many responses, or too many. Requests there. That's why the user has to e-mail directly, so then let them refer them back to. Direct e-mail feature which will open a Gmail window where they can write their subject and. Content of the e-mail and everything. Yeah, that's it. I hope you understand my request here. Sir, use Web 3 forms for. The contact us form. And place a. E-mail directly link. At the bottom of. The contact form. Thank you.

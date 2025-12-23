@@ -3,9 +3,10 @@
 
 import { NextResponse } from 'next/server';
 
-// NOTE: In a real production environment, you would use a service like 
-// SendGrid, Resend, or Nodemailer (via SMTP) here to send the email.
-// For this fully complete placeholder, we simulate a successful server action.
+// NOTE: The frontend (src/app/contact/page.js) has been updated to use the 
+// third-party service Web3Forms directly for submission. 
+// This API route is now retained only as a placeholder/backup, 
+// but is no longer actively called by the contact form.
 
 export async function POST(request) {
   try {
@@ -35,4 +36,3 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
-
