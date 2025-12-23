@@ -6,6 +6,14 @@ import PaymentInitiator from '@/components/PaymentInitiator';
 import AuthStatus from '@/components/AuthStatus'; 
 import { useAuth } from '@/context/AuthContext'; 
 
+// Define hardcoded course list for dashboard progress display (must match IDs in src/app/courses/[id]/page.js)
+const TRACKED_COURSES = [
+    { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7 },
+    { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15 },
+    { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10 },
+];
+
+
 export default function DashboardPage() {
   const { currentUser, userData, loading, logout } = useAuth();
 
@@ -50,6 +58,24 @@ export default function DashboardPage() {
   const accessColor = isSubscribed ? 'text-green-600' : 'text-amber-600'; 
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
+  // Calculate progress for display
+  const getUserProgress = (courseId) => {
+    const courseData = TRACKED_COURSES.find(c => c.id === courseId);
+    if (!userData?.progress || !courseData) return '0%';
+
+    const lessonProgress = userData.progress[courseId];
+    if (!lessonProgress) return '0%';
+
+    // Calculate completed lessons by counting entries that have 'completed: true'
+    const completedLessons = Object.values(lessonProgress).filter(
+        (lesson) => lesson.completed === true
+    ).length;
+
+    const percentage = Math.round((completedLessons / courseData.totalLessons) * 100);
+    return isNaN(percentage) ? '0%' : `${percentage}%`;
+  };
+
+
   return (
     <div className="container mx-auto p-8 max-w-6xl">
       <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">
@@ -83,22 +109,38 @@ export default function DashboardPage() {
                 )}
             </div>
             
-            {/* Usage/Progress Placeholder - Refactored background to Surface 2 */}
+            {/* Usage/Progress Placeholder - NOW DYNAMICALLY TRACKED */}
             <div className="p-6 bg-surface-2 rounded-lg shadow-inner">
-                <h3 className="text-xl font-serif font-bold text-brand-primary mb-4">Your Progress</h3>
-                <ul className="space-y-2 text-text-muted">
-                    <li className="flex justify-between items-center text-sm">
-                        <span>Beginner&apos;s Mind</span> 
-                        <span className="text-brand-primary font-medium">75% Complete</span>
-                    </li>
-                    <li className="flex justify-between items-center text-sm">
-                        <span>Hatha Flow</span> 
-                        <span className="text-brand-primary font-medium">Recently Visited</span>
-                    </li>
-                    <li className="text-xs text-text-muted pt-2">
-                        *Note: Full usage tracking implementation requires backend persistence (database updates on lesson completion).
-                    </li>
+                <h3 className="text-xl font-serif font-bold text-brand-primary mb-4">Your Course Progress</h3>
+                <ul className="space-y-3 text-text-base">
+                    {TRACKED_COURSES.map(course => {
+                        // Determine if the course is accessible (Free or Subscribed)
+                        const isAccessible = course.id === 'beginners_mind' || isSubscribed;
+                        const progress = getUserProgress(course.id);
+                        const progressValue = parseInt(progress.replace('%', ''), 10);
+
+                        return (
+                            <li key={course.id}>
+                                <div className="flex justify-between items-center text-sm mb-1">
+                                    <span>{course.name}</span> 
+                                    <span className={`font-medium ${isAccessible ? 'text-brand-primary' : 'text-text-muted'}`}>
+                                        {isAccessible ? progress : 'LOCKED'}
+                                    </span>
+                                </div>
+                                {/* Progress Bar */}
+                                <div className="w-full bg-gray-300 rounded-full h-2">
+                                    <div 
+                                        className={`h-2 rounded-full transition-all duration-700 ${isAccessible ? 'bg-brand-accent' : 'bg-gray-400'}`}
+                                        style={{ width: `${progressValue}%` }}
+                                    ></div>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
+                <li className="text-xs text-text-muted pt-4">
+                    Progress tracked in real-time upon lesson completion.
+                </li>
             </div>
 
             {/* Logout Section */}
@@ -142,10 +184,11 @@ export default function DashboardPage() {
                 
                 {isSubscribed ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana" />
-                        <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha-flow" />
-                        <CourseLink title="Pranayama Fundamentals" href="/courses/pranayama" />
-                        <CourseLink title="Guided Sleep Audio Archive" href="/courses/sleep-audio" />
+                        {/* Links now use the actual course IDs */}
+                        <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana_deep_dive" />
+                        <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha_flow" />
+                        <CourseLink title="Beginner's Mind (7 Days)" href="/courses/beginners_mind" />
+                        <CourseLink title="Bhagavad Gita Reader" href="/gita" />
                     </div>
                 ) : (
                     <div className="text-center p-8 bg-surface-2 border-2 border-dashed border-brand-accent rounded-lg">
@@ -153,10 +196,10 @@ export default function DashboardPage() {
                             Upgrade Required: Full library access is currently locked.
                         </p>
                         <p className="text-text-muted">
-                            View the 5 free introductory videos in the Classes section.
+                            Start with the 7 free introductory lessons: 
                         </p>
-                        <Link href="/pricing" className="mt-4 inline-block text-brand-primary hover:underline">
-                            View Subscription Plans →
+                        <Link href="/courses/beginners_mind" className="mt-4 inline-block text-brand-primary hover:underline font-semibold">
+                            Beginner&apos;s Mind (Free) →
                         </Link>
                     </div>
                 )}

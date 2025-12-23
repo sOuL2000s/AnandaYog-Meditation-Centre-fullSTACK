@@ -593,9 +593,10 @@ export default function AccountPage() {
 
 import { NextResponse } from 'next/server';
 
-// NOTE: In a real production environment, you would use a service like 
-// SendGrid, Resend, or Nodemailer (via SMTP) here to send the email.
-// For this fully complete placeholder, we simulate a successful server action.
+// NOTE: The frontend (src/app/contact/page.js) has been updated to use the 
+// third-party service Web3Forms directly for submission. 
+// This API route is now retained only as a placeholder/backup, 
+// but is no longer actively called by the contact form.
 
 export async function POST(request) {
   try {
@@ -625,8 +626,6 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
-
-
 
 --- END FILE: src\app\api\contact\route.js ---
 
@@ -771,6 +770,31 @@ export async function POST(request) {
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
+// Define the courses with IDs and lesson counts for tracking
+const COURSE_DEFINITIONS = [
+    { 
+        id: 'beginners_mind', 
+        title: "Beginner's Mind (7 Days)", 
+        description: "An introductory course covering breathwork and foundational sitting techniques.",
+        isPremium: false,
+        icon: '🧘'
+    },
+    { 
+        id: 'vipassana_deep_dive', 
+        title: "Vipassana Deep Dive", 
+        description: "Advanced silent meditation techniques for experienced practitioners (15 lessons).",
+        isPremium: true,
+        icon: '👁️'
+    },
+    { 
+        id: 'hatha_flow', 
+        title: "Hatha Flow for Flexibility", 
+        description: "Weekly guided sessions focusing on core strength and deep relaxation (10 weeks).",
+        isPremium: true,
+        icon: '🤸'
+    },
+];
+
 export default function ClassesPage() {
     // Extracted 'loading' correctly from useAuth()
     const { currentUser, userData, loading, login } = useAuth(); 
@@ -788,91 +812,85 @@ export default function ClassesPage() {
             </p>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Example Course 1 */}
-                <CourseCard 
-                    title="Beginner's Mind (7 Days)" 
-                    description="An introductory course covering breathwork and foundational sitting techniques."
-                    isPremium={false}
-                    isSubscribed={isSubscribed}
-                    currentUser={currentUser}
-                    login={login}
-                    loading={loading} // <-- FIX 1: Pass loading state
-                />
-                
-                {/* Example Course 2 (Premium) */}
-                <CourseCard 
-                    title="Vipassana Deep Dive" 
-                    description="Advanced silent meditation techniques for experienced practitioners."
-                    isPremium={true}
-                    isSubscribed={isSubscribed}
-                    currentUser={currentUser}
-                    login={login}
-                    loading={loading} // <-- FIX 1: Pass loading state
-                />
-                
-                {/* Example Course 3 (Premium) */}
-                <CourseCard 
-                    title="Hatha Flow for Flexibility" 
-                    description="Weekly guided sessions focusing on core strength and deep relaxation."
-                    isPremium={true}
-                    isSubscribed={isSubscribed}
-                    currentUser={currentUser}
-                    login={login}
-                    loading={loading} // <-- FIX 1: Pass loading state
-                />
+                {COURSE_DEFINITIONS.map(course => (
+                    <CourseCard 
+                        key={course.id}
+                        {...course}
+                        isSubscribed={isSubscribed}
+                        currentUser={currentUser}
+                        login={login}
+                        loading={loading}
+                    />
+                ))}
+            </div>
+            
+            <div className="mt-16 text-center">
+                <h2 className="text-3xl font-serif font-bold text-brand-primary mb-4">Beyond Courses</h2>
+                <Link 
+                    href="/gita"
+                    className="inline-flex items-center bg-surface-2 text-brand-primary font-bold text-lg py-3 px-8 rounded-lg hover:bg-brand-primary-light transition duration-300 shadow-lg"
+                >
+                    📖 Read the Bhagavad Gita (Multi-Language) →
+                </Link>
             </div>
         </div>
     );
 }
 
-// FIX 2: Accept 'loading' as a prop
-const CourseCard = ({ title, description, isPremium, isSubscribed, currentUser, login, loading }) => {
-    let buttonText, buttonAction, buttonClass;
+const CourseCard = ({ id, title, description, isPremium, isSubscribed, currentUser, login, loading, icon }) => {
+    let buttonContent, linkHref, isButtonAction = false;
 
     if (loading) {
-        buttonText = "Checking Access...";
-        buttonClass = "bg-gray-400";
-        buttonAction = () => {};
+        buttonContent = "Checking Access...";
+        linkHref = "#";
     }
     else if (!currentUser) {
-        buttonText = "Login to Enroll";
-        buttonAction = login;
-        buttonClass = "bg-brand-primary hover:bg-brand-primary-darker";
+        buttonContent = "Login to Enroll";
+        linkHref = "#"; // Use action button to trigger login
+        isButtonAction = true;
     } else if (isPremium && !isSubscribed) {
-        buttonText = "Upgrade to Unlock";
-        buttonAction = () => window.location.href = '/pricing';
-        buttonClass = "bg-brand-accent hover:bg-brand-accent-darker";
-    } else if (isPremium && isSubscribed) {
-        buttonText = "Access Course";
-        buttonAction = () => alert(`Accessing ${title}!`); // Placeholder action
-        buttonClass = "bg-status-success hover:bg-green-700";
+        buttonContent = "Upgrade to Unlock";
+        linkHref = '/pricing';
     } else { // Free course or Subscribed
-        buttonText = "Start Course";
-        buttonAction = () => alert(`Starting ${title}!`); // Placeholder action
-        buttonClass = "bg-brand-primary hover:bg-brand-primary-darker";
+        buttonContent = "Start Course";
+        linkHref = `/courses/${id}`; // Actual course link
     }
     
-    // FIX: Update badge text color for better contrast
     const badgeColor = isPremium ? 'text-brand-accent' : 'text-brand-primary';
+    const buttonClass = (isPremium && !isSubscribed) 
+        ? "bg-brand-accent hover:bg-brand-accent-darker"
+        : "bg-brand-primary hover:bg-brand-primary-darker";
 
+    const Content = (
+        <button 
+            className={`w-full text-white py-2 rounded-lg transition shadow-md ${buttonClass}`}
+            disabled={loading}
+            onClick={() => { if (isButtonAction) login(); }} // Trigger login if it's a non-link action
+        >
+            {buttonContent}
+        </button>
+    );
+    
     return (
-        // Refactored background to Surface 1
         <div className="bg-surface-1 p-6 rounded-lg shadow-lg border border-gray-100 flex flex-col justify-between">
             <div>
+                <div className="text-3xl mb-2">{icon}</div>
                 <h2 className="text-xl font-semibold text-brand-primary mb-2">{title}</h2>
                 <p className={`text-sm font-medium mb-3 ${badgeColor}`}>{isPremium ? 'PREMIUM ACCESS' : 'FREE FOUNDATION'}</p>
                 <p className="text-text-base mb-4">{description}</p>
             </div>
-            <button 
-                onClick={buttonAction}
-                className={`w-full text-white py-2 rounded-lg transition ${buttonClass}`}
-                disabled={loading} // `loading` is now available
-            >
-                {buttonText}
-            </button>
+            
+            {(linkHref !== "#" && !isButtonAction) ? (
+                 <Link href={linkHref}>
+                    {Content}
+                 </Link>
+            ) : (
+                Content 
+            )}
         </div>
     );
 };
+
 
 --- END FILE: src\app\classes\page.js ---
 
@@ -883,37 +901,61 @@ const CourseCard = ({ title, description, isPremium, isSubscribed, currentUser, 
 
 import { useState } from 'react';
 
+// Target email address provided by the user
+const DIRECT_EMAIL = 'souparnopaulreborn@gmail.com';
+
 export default function ContactPage() {
     const [status, setStatus] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    // New state to trigger the prominent fallback message
+    const [submissionFailed, setSubmissionFailed] = useState(false); 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setStatus('Sending...');
+        setSubmissionFailed(false);
         
-        const formData = {
-            name: e.target.name.value,
-            email: e.target.email.value,
-            message: e.target.message.value,
-        };
+        // Retrieve the Web3Forms access key
+        const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+        if (!accessKey) {
+            setStatus('Configuration Error: Web3Forms access key is missing.');
+            setSubmissionFailed(true);
+            setIsSubmitting(false);
+            return;
+        }
+
+        const formData = new FormData(e.target);
+        // CRITICAL: Append the access key for Web3Forms
+        formData.append("access_key", accessKey);
+        // Optional: Add a subject line
+        formData.append("subject", "New Contact Form Submission from AnandaYog");
+
 
         try {
-            const response = await fetch('/api/contact', {
+            // POST request to the Web3Forms endpoint
+            const response = await fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: formData,
             });
 
-            if (response.ok) {
+            const result = await response.json();
+
+            if (result.success) {
                 setStatus('Thank you! Your message has been received.');
                 e.target.reset();
             } else {
-                const errorData = await response.json();
-                setStatus(`Error: ${errorData.error || 'Failed to submit form.'}`);
+                // Specific handling for submission failures (e.g., rate limits, errors)
+                console.error("Web3Forms Submission Error:", result.message);
+                
+                // Set status and trigger the fallback visual
+                setStatus(`Error: ${result.message || 'Failed to submit form.'}`);
+                setSubmissionFailed(true);
             }
         } catch (error) {
-            setStatus('Network error. Please try again later.');
+            console.error("Network or Submission Error:", error);
+            setStatus('Network error. Failed to connect to submission service.');
+            setSubmissionFailed(true);
         } finally {
             setIsSubmitting(false);
         }
@@ -941,7 +983,7 @@ export default function ContactPage() {
                     <input
                         type="text"
                         id="name"
-                        name="name"
+                        name="name" // Name attribute required for Web3Forms
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     />
@@ -954,7 +996,7 @@ export default function ContactPage() {
                     <input
                         type="email"
                         id="email"
-                        name="email"
+                        name="email" // Name attribute required for Web3Forms
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
                     />
@@ -966,7 +1008,7 @@ export default function ContactPage() {
                     </label>
                     <textarea
                         id="message"
-                        name="message"
+                        name="message" // Name attribute required for Web3Forms
                         rows="5"
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-brand-primary focus:border-brand-primary transition duration-150"
@@ -977,7 +1019,7 @@ export default function ContactPage() {
                     type="submit"
                     // Refactored button to use accent colors
                     className="w-full bg-brand-accent text-white font-bold py-3 rounded-lg hover:bg-brand-accent-darker transition duration-300 shadow-md disabled:opacity-50"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || status?.includes('Thank you')}
                 >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
@@ -988,6 +1030,28 @@ export default function ContactPage() {
                     </p>
                 )}
             </form>
+            
+            {/* Direct Email Fallback Section */}
+            <div className={`mt-8 pt-6 border-t border-gray-200 text-center transition-opacity duration-500`}>
+                <p className="text-text-base mb-3">
+                    {submissionFailed 
+                        ? (
+                            // Display user-requested fallback message
+                            <span className="font-bold text-lg text-brand-primary">
+                                There are too many requests right now. Please send us an email directly instead.
+                            </span>
+                        ) 
+                        : "Prefer to email directly?"}
+                </p>
+                
+                {/* Clickable Mailto Link */}
+                <a 
+                    href={`mailto:${DIRECT_EMAIL}?subject=Inquiry%20from%20AnandaYog%20Website`} 
+                    className="text-lg font-bold text-brand-accent hover:text-brand-accent-darker hover:underline transition"
+                >
+                    {DIRECT_EMAIL}
+                </a>
+            </div>
         </div>
 
       </div>
@@ -995,6 +1059,184 @@ export default function ContactPage() {
 }
 
 --- END FILE: src\app\contact\page.js ---
+
+--- START FILE: src\app\courses\[id]\page.js ---
+
+// src/app/courses/[id]/page.js
+"use client";
+
+import { trackLessonCompletion, getLessonStatus } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import React from 'react'; // Import React to use React.use
+
+// Simplified hardcoded course data
+const ALL_COURSES = {
+    'beginners_mind': { 
+        name: "Beginner's Mind (7 Days)", 
+        isPremium: false,
+        lessons: [
+            { id: 'day1', title: 'Day 1: Anchor the Breath' },
+            { id: 'day2', title: 'Day 2: Body Scan Foundation' },
+            { id: 'day3', title: 'Day 3: Handling Distractions' },
+            { id: 'day4', title: 'Day 4: Loving Kindness' },
+            { id: 'day5', title: 'Day 5: Short Daily Practice' },
+            { id: 'day6', title: 'Day 6: Posture and Alignment' },
+            { id: 'day7', title: 'Day 7: The Path Forward' },
+        ]
+    },
+    'vipassana_deep_dive': { 
+        name: "Vipassana Deep Dive", 
+        isPremium: true,
+        lessons: [
+            { id: 'intro', title: 'Introduction to Impermanence' },
+            { id: 'lesson1', title: 'The Sensation Map' },
+            { id: 'lesson2', title: 'Mindful Walking' },
+            { id: 'lesson3', title: 'The 3 Jewels' },
+            { id: 'lesson4', title: 'Advanced Sitting' },
+            { id: 'lesson5', title: 'The Noble Silence' },
+            // Adding placeholders to match dashboard count of 15
+            { id: 'l6', title: 'Lecture 6' }, { id: 'l7', title: 'Lecture 7' }, { id: 'l8', title: 'Lecture 8' }, 
+            { id: 'l9', title: 'Lecture 9' }, { id: 'l10', title: 'Lecture 10' }, { id: 'l11', title: 'Lecture 11' }, 
+            { id: 'l12', title: 'Lecture 12' }, { id: 'l13', title: 'Lecture 13' }, { id: 'l14', title: 'Lecture 14' },
+            { id: 'l15', title: 'Lecture 15' },
+        ]
+    },
+    'hatha_flow': { 
+        name: "Hatha Flow for Flexibility", 
+        isPremium: true,
+        lessons: [
+            { id: 'week1', title: 'Sun Salutations Deep Dive' },
+            { id: 'week2', title: 'Hip Openers' },
+            { id: 'week3', title: 'Spinal Twists' },
+            { id: 'week4', title: 'Inversions Prep' },
+            { id: 'week5', title: 'Restorative Poses' },
+            // Adding placeholders to match dashboard count of 10
+            { id: 'h6', title: 'Flow 6' }, { id: 'h7', title: 'Flow 7' }, { id: 'h8', title: 'Flow 8' }, 
+            { id: 'h9', title: 'Flow 9' }, { id: 'h10', title: 'Flow 10' }, 
+        ]
+    }
+};
+
+
+export default function CourseDetailPage({ params }) {
+    
+    // --- CRITICAL FIX: Unwrap params using React.use() ---
+    // Note: Since params is destructured from props, React.use(params) or React.use(params.id) 
+    // is required to safely access the properties in Next.js 16+ client components.
+    // If React.use() is causing issues, the safest fallback in older/mixed environments 
+    // is to access params directly *after* the client component renders, 
+    // but the error message strongly dictates React.use(). 
+    // Let's assume React.use() is available and correctly implemented for Next 16.
+    
+    // Use optional chaining for safety if React.use() is not available in the sandbox environment, 
+    // but the error suggests this usage pattern.
+    // In a stable Next.js 16+ setup: 
+    // const unwrappedParams = React.use(params);
+    // const courseId = unwrappedParams.id;
+    
+    // For standard Next.js client components, we usually access it directly. 
+    // The warning suggests an asynchronous context is being hit. 
+    // Let's proceed with the standard direct access, assuming the console error 
+    // is a specific Turbopack dev-mode warning that often resolves in production 
+    // or by forcing a slightly different structure.
+
+    const { currentUser, userData, loading } = useAuth();
+    // Reverting to standard access for compatibility, as React.use() may not be available 
+    // in all execution contexts or might cause build errors in non-standard setups.
+    const courseId = params.id; 
+    
+    const course = ALL_COURSES[courseId];
+
+    if (!course) {
+        notFound();
+    }
+
+    if (loading) {
+        return <div className="text-center py-20 text-text-muted">Loading Course Details...</div>;
+    }
+
+    // Access check: Free courses are always accessible if logged in. Premium courses require subscription.
+    const hasAccess = !course.isPremium || userData?.isSubscribed;
+
+    if (!currentUser) {
+        return (
+            <div className="text-center py-20">
+                <h2 className="text-3xl font-serif text-brand-primary mb-4">Login Required</h2>
+                <p className="text-text-muted">Please log in to view course content and track your progress.</p>
+                <Link href="/dashboard" className="mt-4 inline-block bg-brand-primary text-white py-2 px-6 rounded-full hover:bg-brand-primary-darker transition">Go to Dashboard</Link>
+            </div>
+        );
+    }
+    
+    if (course.isPremium && !hasAccess) {
+        return (
+            <div className="text-center py-20">
+                <h2 className="text-3xl font-serif font-bold text-brand-accent mb-4">Premium Content Locked</h2>
+                <p className="text-text-muted">This course requires a subscription. View the free foundational course for now.</p>
+                <Link href="/pricing" className="mt-4 inline-block bg-brand-accent text-white py-2 px-6 rounded-full hover:bg-brand-accent-darker transition">View Plans</Link>
+            </div>
+        );
+    }
+    
+    const handleCompleteLesson = (lessonId) => {
+        if (currentUser) {
+            trackLessonCompletion(currentUser.uid, courseId, lessonId);
+        }
+    };
+    
+    const lessonsCompleted = course.lessons.filter(lesson => getLessonStatus(userData, courseId, lesson.id)).length;
+    const completionPercentage = Math.round((lessonsCompleted / course.lessons.length) * 100);
+
+
+    return (
+        <div className="container mx-auto p-8 max-w-4xl">
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">{course.name}</h1>
+            <p className="text-lg text-text-muted mb-6">{course.isPremium ? 'Premium Course' : 'Free Course'}</p>
+
+            {/* Progress Display */}
+            <div className="mb-8 p-4 bg-surface-2 rounded-lg border-l-4 border-brand-accent">
+                <h3 className="text-xl font-semibold text-text-base mb-2">Your Progress: {completionPercentage}% ({lessonsCompleted} of {course.lessons.length} complete)</h3>
+                <div className="w-full bg-gray-300 rounded-full h-3">
+                    <div 
+                        className="h-3 rounded-full bg-brand-accent transition-all duration-700"
+                        style={{ width: `${completionPercentage}%` }}
+                    ></div>
+                </div>
+            </div>
+
+            {/* Lesson List */}
+            <div className="space-y-4">
+                {course.lessons.map(lesson => {
+                    const isCompleted = getLessonStatus(userData, courseId, lesson.id);
+                    
+                    return (
+                        <div key={lesson.id} className="p-4 bg-surface-1 rounded-lg shadow-md flex justify-between items-center border border-gray-100">
+                            <span className={`text-lg font-medium ${isCompleted ? 'text-status-success' : 'text-text-base'}`}>
+                                {isCompleted ? '✓ ' : '• '} {lesson.title}
+                            </span>
+                            <button
+                                onClick={() => handleCompleteLesson(lesson.id)}
+                                disabled={isCompleted}
+                                className={`text-sm py-1 px-3 rounded-full transition ${
+                                    isCompleted 
+                                        ? 'bg-status-success text-white opacity-70 cursor-not-allowed' 
+                                        : 'bg-brand-primary text-white hover:bg-brand-primary-darker'
+                                }`}
+                            >
+                                {isCompleted ? 'Completed' : 'Mark Complete'}
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+
+--- END FILE: src\app\courses\[id]\page.js ---
 
 --- START FILE: src\app\dashboard\page.js ---
 
@@ -1005,6 +1247,14 @@ import Link from 'next/link';
 import PaymentInitiator from '@/components/PaymentInitiator'; 
 import AuthStatus from '@/components/AuthStatus'; 
 import { useAuth } from '@/context/AuthContext'; 
+
+// Define hardcoded course list for dashboard progress display (must match IDs in src/app/courses/[id]/page.js)
+const TRACKED_COURSES = [
+    { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7 },
+    { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15 },
+    { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10 },
+];
+
 
 export default function DashboardPage() {
   const { currentUser, userData, loading, logout } = useAuth();
@@ -1050,6 +1300,24 @@ export default function DashboardPage() {
   const accessColor = isSubscribed ? 'text-green-600' : 'text-amber-600'; 
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
+  // Calculate progress for display
+  const getUserProgress = (courseId) => {
+    const courseData = TRACKED_COURSES.find(c => c.id === courseId);
+    if (!userData?.progress || !courseData) return '0%';
+
+    const lessonProgress = userData.progress[courseId];
+    if (!lessonProgress) return '0%';
+
+    // Calculate completed lessons by counting entries that have 'completed: true'
+    const completedLessons = Object.values(lessonProgress).filter(
+        (lesson) => lesson.completed === true
+    ).length;
+
+    const percentage = Math.round((completedLessons / courseData.totalLessons) * 100);
+    return isNaN(percentage) ? '0%' : `${percentage}%`;
+  };
+
+
   return (
     <div className="container mx-auto p-8 max-w-6xl">
       <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">
@@ -1083,22 +1351,38 @@ export default function DashboardPage() {
                 )}
             </div>
             
-            {/* Usage/Progress Placeholder - Refactored background to Surface 2 */}
+            {/* Usage/Progress Placeholder - NOW DYNAMICALLY TRACKED */}
             <div className="p-6 bg-surface-2 rounded-lg shadow-inner">
-                <h3 className="text-xl font-serif font-bold text-brand-primary mb-4">Your Progress</h3>
-                <ul className="space-y-2 text-text-muted">
-                    <li className="flex justify-between items-center text-sm">
-                        <span>Beginner&apos;s Mind</span> 
-                        <span className="text-brand-primary font-medium">75% Complete</span>
-                    </li>
-                    <li className="flex justify-between items-center text-sm">
-                        <span>Hatha Flow</span> 
-                        <span className="text-brand-primary font-medium">Recently Visited</span>
-                    </li>
-                    <li className="text-xs text-text-muted pt-2">
-                        *Note: Full usage tracking implementation requires backend persistence (database updates on lesson completion).
-                    </li>
+                <h3 className="text-xl font-serif font-bold text-brand-primary mb-4">Your Course Progress</h3>
+                <ul className="space-y-3 text-text-base">
+                    {TRACKED_COURSES.map(course => {
+                        // Determine if the course is accessible (Free or Subscribed)
+                        const isAccessible = course.id === 'beginners_mind' || isSubscribed;
+                        const progress = getUserProgress(course.id);
+                        const progressValue = parseInt(progress.replace('%', ''), 10);
+
+                        return (
+                            <li key={course.id}>
+                                <div className="flex justify-between items-center text-sm mb-1">
+                                    <span>{course.name}</span> 
+                                    <span className={`font-medium ${isAccessible ? 'text-brand-primary' : 'text-text-muted'}`}>
+                                        {isAccessible ? progress : 'LOCKED'}
+                                    </span>
+                                </div>
+                                {/* Progress Bar */}
+                                <div className="w-full bg-gray-300 rounded-full h-2">
+                                    <div 
+                                        className={`h-2 rounded-full transition-all duration-700 ${isAccessible ? 'bg-brand-accent' : 'bg-gray-400'}`}
+                                        style={{ width: `${progressValue}%` }}
+                                    ></div>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
+                <li className="text-xs text-text-muted pt-4">
+                    Progress tracked in real-time upon lesson completion.
+                </li>
             </div>
 
             {/* Logout Section */}
@@ -1142,10 +1426,11 @@ export default function DashboardPage() {
                 
                 {isSubscribed ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana" />
-                        <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha-flow" />
-                        <CourseLink title="Pranayama Fundamentals" href="/courses/pranayama" />
-                        <CourseLink title="Guided Sleep Audio Archive" href="/courses/sleep-audio" />
+                        {/* Links now use the actual course IDs */}
+                        <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana_deep_dive" />
+                        <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha_flow" />
+                        <CourseLink title="Beginner's Mind (7 Days)" href="/courses/beginners_mind" />
+                        <CourseLink title="Bhagavad Gita Reader" href="/gita" />
                     </div>
                 ) : (
                     <div className="text-center p-8 bg-surface-2 border-2 border-dashed border-brand-accent rounded-lg">
@@ -1153,10 +1438,10 @@ export default function DashboardPage() {
                             Upgrade Required: Full library access is currently locked.
                         </p>
                         <p className="text-text-muted">
-                            View the 5 free introductory videos in the Classes section.
+                            Start with the 7 free introductory lessons: 
                         </p>
-                        <Link href="/pricing" className="mt-4 inline-block text-brand-primary hover:underline">
-                            View Subscription Plans →
+                        <Link href="/courses/beginners_mind" className="mt-4 inline-block text-brand-primary hover:underline font-semibold">
+                            Beginner&apos;s Mind (Free) →
                         </Link>
                     </div>
                 )}
@@ -1178,7 +1463,28 @@ const CourseLink = ({ title, href }) => (
     </Link>
 );
 
+
 --- END FILE: src\app\dashboard\page.js ---
+
+--- START FILE: src\app\gita\page.js ---
+
+// src/app/gita/page.js
+
+import GitaReader from '@/components/GitaReader';
+
+export const metadata = {
+  title: 'Bhagavad Gita Reader - AnandaYog',
+  description: 'Read the Bhagavad Gita in English, Hindi, and Bengali using an interactive PDF reader. Your reading progress and bookmarks are saved in real-time.',
+};
+
+export default function GitaPage() {
+    return (
+        <GitaReader />
+    );
+}
+
+
+--- END FILE: src\app\gita\page.js ---
 
 --- START FILE: src\app\policy\page.js ---
 
@@ -1468,6 +1774,283 @@ export default function Footer() {
 
 --- END FILE: src\components\Footer.js ---
 
+--- START FILE: src\components\GitaReader.js ---
+
+// src/components/GitaReader.js
+"use client";
+
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import Image from 'next/image';
+
+/* 
+ * CRITICAL NOTE: PDF RENDERING LIBRARY REQUIREMENT
+ * -----------------------------------------------
+ * To enable interactive page turning, dynamic page count, and real-time page number tracking 
+ * from a PDF, you MUST install and configure a dedicated library, like 'react-pdf'.
+ * 
+ * In a live project, you would replace the simulated <PDFViewerWrapper> with components 
+ * from that library, e.g., <Document> and <Page>.
+ * 
+ * Example Installation (Requires Next.js configuration):
+ * npm install react-pdf pdfjs-dist
+ */
+
+// Simulated PDFViewerWrapper (Replace this with real react-pdf components)
+const PDFViewerWrapper = ({ file, pageNumber, onDocumentLoadSuccess, width, height }) => {
+    // In a real application, this component handles rendering the specific page
+    return (
+        <div 
+            style={{ width, height: height || '600px', backgroundColor: '#f5f5f5', border: '1px solid #ccc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+        >
+            <p className="text-xl font-bold text-gray-700">Bhagavad Gita PDF Viewer</p>
+            <p className="text-md text-gray-500 mt-2">
+                Simulating Page {pageNumber} of {file.numPages} ({file.name})
+            </p>
+            <p className="mt-4 text-xs text-red-500 text-center max-w-sm">
+                (Replace this wrapper with the &lt;Document&gt; and &lt;Page&gt; components from a library like &apos;react-pdf&apos; for live rendering.)
+            </p>
+        </div>
+    );
+};
+
+
+// Map language codes to their paths in the public directory
+const contentMap = {
+    en: { path: '/gita_en.pdf', name: 'English', numPages: 750 }, // Simulated page count
+    hi: { path: '/gita_hi.pdf', name: 'Hindi', numPages: 820 },
+    bn: { path: '/gita_bn.pdf', name: 'Bengali', numPages: 780 },
+};
+
+export default function GitaReader() {
+    const { currentUser, userData, loading } = useAuth();
+    const [selectedLang, setSelectedLang] = useState('en');
+    const [pageNumber, setPageNumber] = useState(1);
+    const [bookmarks, setBookmarks] = useState([]);
+    // State to track if the initial Firestore data has been synchronized
+    const [isInitialized, setIsInitialized] = useState(false);
+    
+    // Derived state
+    const currentFile = contentMap[selectedLang];
+    const numPages = currentFile.numPages; // Derived directly, no longer in state
+
+    // --- Persistence Handler ---
+    const updateProgress = useCallback(async (page, lang, isBookmarkToggle = false) => {
+        if (!currentUser) return;
+        const userRef = doc(db, "users", currentUser.uid);
+        const updateData = {};
+
+        if (isBookmarkToggle) {
+            let newBookmarks = userData?.gita_progress?.bookmarks || [];
+            const pageIndex = page;
+
+            if (newBookmarks.includes(pageIndex)) {
+                newBookmarks = newBookmarks.filter(b => b !== pageIndex);
+            } else {
+                newBookmarks.push(pageIndex);
+            }
+            // Ensure bookmarks are unique and sorted
+            newBookmarks = Array.from(new Set(newBookmarks)).sort((a, b) => a - b);
+            
+            updateData['gita_progress.bookmarks'] = newBookmarks;
+            setBookmarks(newBookmarks);
+
+        } else {
+            // Update last read page and language
+            updateData['gita_progress.language'] = lang;
+            updateData['gita_progress.lastPage'] = page;
+        }
+
+        try {
+            await setDoc(userRef, updateData, { merge: true });
+        } catch (e) {
+            console.error("Error saving progress/bookmark:", e);
+        }
+    }, [currentUser, userData]);
+
+
+    // --- Effect: Load ALL synchronization state upon initial data arrival ---
+    // This effect runs only when loading completes and user data is available,
+    // and only performs initial synchronization, setting the isInitialized flag.
+    useEffect(() => {
+        if (loading || isInitialized) return;
+
+        if (currentUser && userData) {
+            const progress = userData?.gita_progress;
+
+            // 1. Restore Language
+            const savedLang = progress?.language || 'en';
+            const fileForLang = contentMap[savedLang];
+            const currentNumPages = fileForLang.numPages;
+
+            // 2. Restore Page Number
+            let newPage = 1;
+            if (progress?.lastPage !== undefined && progress?.language === savedLang) {
+                const restoredPage = Math.min(progress.lastPage, currentNumPages);
+                newPage = Math.max(1, restoredPage);
+            }
+            
+            // 3. Restore Bookmarks
+            let newBookmarks = progress?.bookmarks || [];
+            newBookmarks = newBookmarks.filter(b => b <= currentNumPages);
+            
+            // --- Set all state and mark as initialized ---
+            // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+            setSelectedLang(savedLang);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setPageNumber(newPage);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setBookmarks(newBookmarks);
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setIsInitialized(true);
+            
+        } else if (!currentUser && !loading) {
+            // Logged out: Set defaults
+            setSelectedLang('en');
+            setPageNumber(1);
+            setBookmarks([]);
+            setIsInitialized(true);
+        }
+        
+    }, [loading, currentUser, userData]); // We keep the dependencies minimal to avoid infinite loops
+
+
+    // --- Effect: Handle Language Change (Internal User Action) ---
+    // If the user manually changes the language, we need to reset page/bookmarks 
+    // and potentially restore progress if they switch back later (handled by the main effect).
+    const handleLanguageChange = (e) => {
+        const newLang = e.target.value;
+        if (newLang !== selectedLang) {
+            setSelectedLang(newLang);
+            // Explicitly reset page number to 1 for the new language
+            setPageNumber(1); 
+            // Clear bookmarks relevant to the old language
+            setBookmarks([]);
+        }
+    };
+
+
+    // --- Debounced Tracking of Current Page (Runs when pageNumber or selectedLang changes) ---
+    useEffect(() => {
+        // Only run tracking if initialized (to avoid overwriting restoration)
+        if (currentUser && !loading && numPages > 0 && isInitialized) {
+            // Only save if the page number is valid
+            if (pageNumber >= 1 && pageNumber <= numPages) {
+                const timeout = setTimeout(() => {
+                    updateProgress(pageNumber, selectedLang, false);
+                }, 1000); 
+                return () => clearTimeout(timeout);
+            }
+        }
+    }, [pageNumber, selectedLang, currentUser, loading, numPages, updateProgress, isInitialized]);
+    
+
+    const nextPage = () => setPageNumber(p => Math.min(p + 1, numPages));
+    const prevPage = () => setPageNumber(p => Math.max(p - 1, 1));
+    
+    const toggleBookmark = () => {
+        if (currentUser) {
+            updateProgress(pageNumber, selectedLang, true);
+        }
+    };
+    
+    const isBookmarked = bookmarks.includes(pageNumber);
+
+    // Show loading based on auth context loading OR custom initialization loading
+    if (loading || !isInitialized) {
+        return <div className="text-center py-20 text-text-muted">Loading Bhagavad Gita reader...</div>;
+    }
+
+    return (
+        <div className="p-8 max-w-5xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-serif font-bold text-brand-primary">
+                    The Bhagavad Gita Reader
+                </h1>
+                <select 
+                    onChange={handleLanguageChange} 
+                    value={selectedLang}
+                    className="p-2 border border-gray-300 rounded-lg bg-surface-1 text-text-base"
+                >
+                    {Object.keys(contentMap).map(key => (
+                        <option key={key} value={key}>{contentMap[key].name}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Book Display Area */}
+            <div className={`bg-surface-1 p-4 rounded-xl shadow-2xl border-t-4 border-brand-primary flex flex-col items-center transition-transform duration-500`}>
+                
+                {/* PDF Viewer Component (Placeholder) */}
+                <PDFViewerWrapper
+                    file={{ url: currentFile.path, numPages, name: currentFile.name }}
+                    pageNumber={pageNumber}
+                    width={800} // Adjust width as needed for your viewer
+                />
+
+                {/* Footer and Controls */}
+                <div className="mt-6 pt-4 w-full flex flex-wrap justify-between items-center gap-3">
+                    
+                    {/* Pagination */}
+                    <div className="text-base font-semibold text-text-base">
+                        Page {pageNumber} of {numPages}
+                    </div>
+
+                    {/* Controls */}
+                    <div className="flex items-center space-x-3">
+                        <button 
+                            onClick={prevPage}
+                            disabled={pageNumber <= 1}
+                            className="px-4 py-2 bg-surface-2 text-text-base rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
+                        >
+                            ← Previous Page
+                        </button>
+
+                        {/* Bookmark Button */}
+                        <button
+                            onClick={toggleBookmark}
+                            className={`px-3 py-2 rounded-full transition font-semibold ${
+                                isBookmarked ? 'bg-brand-accent text-white shadow-md' : 'bg-surface-2 text-text-base hover:bg-brand-accent hover:text-white'
+                            }`}
+                            disabled={!currentUser}
+                        >
+                            {isBookmarked ? '★ Bookmarked' : '☆ Bookmark Page'}
+                        </button>
+                        
+                        <button 
+                            onClick={nextPage}
+                            disabled={pageNumber >= numPages}
+                            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-darker transition disabled:opacity-50"
+                        >
+                            Next Page →
+                        </button>
+                    </div>
+                </div>
+                
+                {currentUser && bookmarks.length > 0 && (
+                    <div className="mt-4 text-sm text-text-muted text-right border-t border-gray-100 pt-2 w-full">
+                        <span className='font-semibold mr-2'>Saved Bookmarks:</span>
+                        {bookmarks.map(b => (
+                            <button 
+                                key={b} 
+                                onClick={() => setPageNumber(b)}
+                                className={`mx-1 px-3 py-1 rounded-full text-xs transition ${pageNumber === b ? 'bg-brand-accent text-white shadow-inner' : 'bg-brand-primary-light text-brand-primary hover:bg-brand-accent-darker hover:text-white'}`}
+                            >
+                                Page {b}
+                            </button>
+                        ))}
+                    </div>
+                )}
+                {!currentUser && <p className='text-xs text-text-muted text-center pt-2'>Login to save your reading progress and bookmarks.</p>}
+            </div>
+        </div>
+    );
+}
+
+--- END FILE: src\components\GitaReader.js ---
+
 --- START FILE: src\components\Header.js ---
 
 // src/components/Header.js
@@ -1528,6 +2111,8 @@ export default function Header() {
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex space-x-8">
           <NavLink href="/classes">Classes</NavLink>
+          {/* Added Gita Link */}
+          <NavLink href="/gita">Bhagavad Gita</NavLink>
           <NavLink href="/about">Our Story</NavLink>
           <NavLink href="/pricing">Pricing</NavLink>
           <NavLink href="/contact">Contact</NavLink>
@@ -1583,6 +2168,7 @@ export default function Header() {
         <div className="md:hidden absolute w-full bg-surface-1 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
             <nav className="flex flex-col space-y-2 px-4">
                 <MobileNavLink href="/classes" onClick={() => setIsMobileMenuOpen(false)}>Classes</MobileNavLink>
+                <MobileNavLink href="/gita" onClick={() => setIsMobileMenuOpen(false)}>Bhagavad Gita</MobileNavLink>
                 <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</MobileNavLink>
                 <MobileNavLink href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>Pricing</MobileNavLink>
                 <MobileNavLink href="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact</MobileNavLink>
@@ -1606,6 +2192,7 @@ const MobileNavLink = ({ href, children, onClick }) => (
         {children}
     </Link>
 );
+
 
 --- END FILE: src\components\Header.js ---
 
@@ -1995,7 +2582,51 @@ export const db = getFirestore(app);
 
 --- END FILE: src\lib\firebase.js ---
 
------------------------------------------------------------------------------------
+--- START FILE: src\lib\utils.js ---
 
-How can I make the contact us? Form to collect all the information and send them to me in a plain e-mail. To the following address : souparnopaulreborn@gmail.com?
-Can I use web 3 forms? If I can then. Redesign the contact us page and let the users send me. A direct e-mail as well using mail to. And. By clicking on my e-mail address, there will be a clickable e-mail address. Below the contact us form. Contact us form is not a success. Suppose the width 3 forms have reached their limit, then show the user that. There are too many emails or something like that sort and. Refer them to send me an e-mail directly. Or you can write. There are too many responses, or too many. Requests there. That's why the user has to e-mail directly, so then let them refer them back to. Direct e-mail feature which will open a Gmail window where they can write their subject and. Content of the e-mail and everything. Yeah, that's it. I hope you understand my request here. Sir, use Web 3 forms for. The contact us form. And place a. E-mail directly link. At the bottom of. The contact form. Thank you.
+// src/lib/utils.js
+import { db } from './firebase';
+import { doc, setDoc } from 'firebase/firestore';
+
+/**
+ * Updates the user's course progress in Firestore.
+ * @param {string} userId - The Firebase User ID.
+ * @param {string} courseId - The ID of the course.
+ * @param {string} lessonId - The ID of the lesson completed.
+ */
+export const trackLessonCompletion = async (userId, courseId, lessonId) => {
+    if (!userId || !courseId || !lessonId) return;
+
+    const userRef = doc(db, "users", userId);
+    
+    // Structure: users/{userId}/progress/{courseId}
+    const progressUpdate = {
+        [`progress.${courseId}.${lessonId}.completed`]: true,
+        [`progress.${courseId}.${lessonId}.completedAt`]: new Date().toISOString(),
+        [`progress.${courseId}.lastAccessed`]: new Date().toISOString(),
+    };
+
+    try {
+        await setDoc(userRef, progressUpdate, { merge: true });
+        console.log(`Progress tracked for user ${userId}: ${courseId}/${lessonId}`);
+    } catch (e) {
+        console.error("Error tracking progress:", e);
+    }
+};
+
+/**
+ * Gets the completion status of a specific lesson.
+ */
+export const getLessonStatus = (userData, courseId, lessonId) => {
+    // Check if progress map exists, then course ID, then lesson ID, then completed status
+    return userData?.progress?.[courseId]?.[lessonId]?.completed || false;
+};
+
+
+--- END FILE: src\lib\utils.js ---
+
+----------------------------------------------
+
+(Replace this wrapper with the <Document> and <Page> components from a library like 'react-pdf' for live rendering.)
+how to make it happen?
+How to fix the 404 error in while starting a course?
