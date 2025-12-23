@@ -9,7 +9,10 @@ import { doc, setDoc } from 'firebase/firestore';
  * @param {string} lessonId - The ID of the lesson completed.
  */
 export const trackLessonCompletion = async (userId, courseId, lessonId) => {
-    if (!userId || !courseId || !lessonId) return;
+    if (!userId || !courseId || !lessonId) {
+        console.error("Progress tracking failed: Missing User/Course/Lesson ID.");
+        return;
+    }
 
     const userRef = doc(db, "users", userId);
     
@@ -21,10 +24,16 @@ export const trackLessonCompletion = async (userId, courseId, lessonId) => {
     };
 
     try {
+        console.log(`[Firestore] Attempting write for user: ${userId}, course: ${courseId}`);
+        
         await setDoc(userRef, progressUpdate, { merge: true });
-        console.log(`Progress tracked for user ${userId}: ${courseId}/${lessonId}`);
+        
+        // --- SUCCESS LOG ---
+        console.log(`[Firestore] SUCCESS: Progress tracked for user ${userId}: ${courseId}/${lessonId}`);
     } catch (e) {
-        console.error("Error tracking progress:", e);
+        // --- FAILURE LOG ---
+        // This will now capture and display any connection or permission failures.
+        console.error("[Firestore] FATAL ERROR tracking progress:", e);
     }
 };
 
