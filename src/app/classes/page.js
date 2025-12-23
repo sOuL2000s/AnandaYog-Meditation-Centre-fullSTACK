@@ -27,6 +27,28 @@ const COURSE_DEFINITIONS = [
         isPremium: true,
         icon: '🤸'
     },
+    // --- NEW COURSES ADDED ---
+    { 
+        id: 'pranayama_masterclass', 
+        title: "Pranayama Masterclass", 
+        description: "12 detailed lessons on vital breath control techniques for energy management.",
+        isPremium: true,
+        icon: '🌬️'
+    },
+    { 
+        id: 'ashtanga_ultimatum', 
+        title: "Ashtanga Yoga Ultimatum", 
+        description: "20-week intensive program mastering the Primary Series (Vinyasa and Drishti).",
+        isPremium: true,
+        icon: '🔥'
+    },
+    { 
+        id: 'raja_yoga_supreme', 
+        title: "Raja Yoga Supreme", 
+        description: "8-part philosophical and practical study of Patanjali's Yoga Sutras.",
+        isPremium: true,
+        icon: '👑'
+    },
 ];
 
 export default function ClassesPage() {

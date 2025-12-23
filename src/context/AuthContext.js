@@ -71,8 +71,24 @@ export const AuthProvider = ({ children }) => {
         
         unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
-                const data = docSnap.data();
+                const rawData = docSnap.data();
+                
+                // --- CRITICAL FIX: Calculate Dynamic Subscription Status ---
+                let isSubscribed = rawData.isSubscribed || false;
+                if (rawData.subscriptionExpires) {
+                    const expiryDate = new Date(rawData.subscriptionExpires);
+                    const now = new Date();
+                    // If isSubscribed is true but the date has passed, flip the flag
+                    if (isSubscribed && expiryDate <= now) {
+                        isSubscribed = false; 
+                    }
+                }
+                
+                // Store the calculated status in the data object passed to the context
+                const data = { ...rawData, isSubscribed }; 
                 setUserData(data);
+                // -----------------------------------------------------------
+
                 
                 // Priority 1: Use theme from Firestore
                 if (data.theme) {

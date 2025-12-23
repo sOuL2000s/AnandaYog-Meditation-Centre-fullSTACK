@@ -32,11 +32,10 @@ const ALL_COURSES = {
             { id: 'lesson3', title: 'The 3 Jewels' },
             { id: 'lesson4', title: 'Advanced Sitting' },
             { id: 'lesson5', title: 'The Noble Silence' },
-            // Adding placeholders to match dashboard count of 15
-            { id: 'l6', title: 'Lecture 6' }, { id: 'l7', title: 'Lecture 7' }, { id: 'l8', title: 'Lecture 8' }, 
-            { id: 'l9', title: 'Lecture 9' }, { id: 'l10', title: 'Lecture 10' }, { id: 'l11', title: 'Lecture 11' }, 
-            { id: 'l12', title: 'Lecture 12' }, { id: 'l13', title: 'Lecture 13' }, { id: 'l14', title: 'Lecture 14' },
-            { id: 'l15', title: 'Lecture 15' },
+            { id: 'l6', title: 'Lecture 6: Equanimity' }, { id: 'l7', title: 'Lecture 7: The Eightfold Path' }, { id: 'l8', title: 'Lecture 8: Ethical Living' }, 
+            { id: 'l9', title: 'Lecture 9: Deepening Concentration' }, { id: 'l10', title: 'Lecture 10: Subtle Sensations' }, { id: 'l11', title: 'Lecture 11: Dissolution' }, 
+            { id: 'l12', title: 'Lecture 12: Continuous Practice' }, { id: 'l13', title: 'Lecture 13: Handling Pain' }, { id: 'l14', title: 'Lecture 14: Integrating Insight' },
+            { id: 'l15', title: 'Lecture 15: Concluding Remarks' },
         ]
     },
     'hatha_flow': { 
@@ -48,15 +47,74 @@ const ALL_COURSES = {
             { id: 'week3', title: 'Spinal Twists' },
             { id: 'week4', title: 'Inversions Prep' },
             { id: 'week5', title: 'Restorative Poses' },
-            // Adding placeholders to match dashboard count of 10
-            { id: 'h6', title: 'Flow 6' }, { id: 'h7', title: 'Flow 7' }, { id: 'h8', title: 'Flow 8' }, 
-            { id: 'h9', title: 'Flow 9' }, { id: 'h10', title: 'Flow 10' }, 
+            { id: 'h6', title: 'Flow 6: Core Stability' }, { id: 'h7', title: 'Flow 7: Standing Poses' }, { id: 'h8', title: 'Flow 8: Backbends' }, 
+            { id: 'h9', title: 'Flow 9: Balancing Act' }, { id: 'h10', title: 'Flow 10: Full Body Release' }, 
         ]
-    }
+    },
+    // --- NEW COURSES ADDED ---
+    'pranayama_masterclass': {
+        name: "Pranayama Masterclass",
+        isPremium: true,
+        lessons: [
+            { id: 'prana_intro', title: 'Lesson 1: Introduction to Prana' },
+            { id: 'bhastrika', title: 'Lesson 2: Bhastrika (Bellows Breath)' },
+            { id: 'nadhi_shodhana', title: 'Lesson 3: Nadi Shodhana (Alternate Nostril)' },
+            { id: 'ujjayi', title: 'Lesson 4: Ujjayi (Ocean Breath)' },
+            { id: 'sitali', title: 'Lesson 5: Sheetali & Sheetkari' },
+            { id: 'kapalbhati', title: 'Lesson 6: Kapalbhati (Skull Shining)' },
+            { id: 'kumbhaka_intro', title: 'Lesson 7: Intro to Kumbhaka (Retention)' },
+            { id: 'kumbhaka_adv', title: 'Lesson 8: Advanced Kumbhaka Practice' },
+            { id: 'lesson_9', title: 'Lesson 9: Vagus Nerve Toning' },
+            { id: 'lesson_10', title: 'Lesson 10: Full Yogic Breath' },
+            { id: 'lesson_11', title: 'Lesson 11: Daily Sequence' },
+            { id: 'lesson_12', title: 'Lesson 12: Integration & Review' },
+        ]
+    },
+    'ashtanga_ultimatum': {
+        name: "Ashtanga Yoga Ultimatum",
+        isPremium: true,
+        lessons: [
+            { id: 'primary_intro', title: 'Week 1: Primary Series Introduction' },
+            { id: 'surya_a', title: 'Week 2: Mastering Surya Namaskar A' },
+            { id: 'surya_b', title: 'Week 3: Mastering Surya Namaskar B' },
+            { id: 'standing_1', title: 'Week 4: Standing Poses Part 1' },
+            { id: 'standing_2', title: 'Week 5: Standing Poses Part 2' },
+            { id: 'seated_1', title: 'Week 6: Seated Poses Part 1' },
+            { id: 'seated_2', title: 'Week 7: Seated Poses Part 2' },
+            { id: 'finishing_1', title: 'Week 8: Finishing Sequence' },
+            { id: 'full_flow_1', title: 'Week 9: Full Primary Flow (Tension)' },
+            { id: 'full_flow_2', title: 'Week 10: Full Primary Flow (Release)' },
+            { id: 'w11', title: 'Week 11: Drishti and Bandhas' },
+            { id: 'w12', title: 'Week 12: Jump Back Transitions' },
+            { id: 'w13', title: 'Week 13: Paschimattanasana Focus' },
+            { id: 'w14', title: 'Week 14: Marichyasana Focus' },
+            { id: 'w15', title: 'Week 15: Navasana Endurance' },
+            { id: 'w16', title: 'Week 16: Baddha Konasana' },
+            { id: 'w17', title: 'Week 17: Urdhva Dhanurasana Prep' },
+            { id: 'w18', title: 'Week 18: Second Series Intro' },
+            { id: 'w19', title: 'Week 19: Full Practice Review' },
+            { id: 'w20', title: 'Week 20: Guided Savasana' },
+        ]
+    },
+    'raja_yoga_supreme': {
+        name: "Raja Yoga Supreme",
+        isPremium: true,
+        lessons: [
+            { id: 'patanjali', title: 'Sutra 1: Patanjali and the Eight Limbs' },
+            { id: 'yamas', title: 'Sutra 2: The Yamas (Ethical Restraints)' },
+            { id: 'niyamas', title: 'Sutra 3: The Niyamas (Observances)' },
+            { id: 'pratyahara', title: 'Sutra 4: Pratyahara (Sense Withdrawal)' },
+            { id: 'dharana', title: 'Sutra 5: Dharana (Concentration)' },
+            { id: 'dhyana', title: 'Sutra 6: Dhyana (Meditation)' },
+            { id: 'samadhi', title: 'Sutra 7: Samadhi (Absorption/Bliss)' },
+            { id: 'samyama', title: 'Sutra 8: Samyama (Integration)' },
+        ]
+    },
 };
 
 
 export default function CourseDetailPage({ params }) {
+// ... (rest of the component remains the same, as the tracking logic is sound)
     
     // --- CRITICAL FIX: Unwrap params using React.use() ---
     // Note: Since params is destructured from props, React.use(params) or React.use(params.id) 

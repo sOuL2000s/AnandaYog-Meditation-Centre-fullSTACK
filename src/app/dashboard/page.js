@@ -11,6 +11,10 @@ const TRACKED_COURSES = [
     { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7 },
     { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15 },
     { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10 },
+    // --- NEW COURSES ADDED ---
+    { id: 'pranayama_masterclass', name: "Pranayama Masterclass", totalLessons: 12 },
+    { id: 'ashtanga_ultimatum', name: "Ashtanga Yoga Ultimatum", totalLessons: 20 },
+    { id: 'raja_yoga_supreme', name: "Raja Yoga Supreme", totalLessons: 8 },
 ];
 
 
@@ -51,6 +55,16 @@ export default function DashboardPage() {
   // Determine access level
   const isSubscribed = userData?.isSubscribed;
   const currentPlan = userData?.subscriptionPlan || 'Explorer (Free Tier)';
+  
+  // FIX: Added logic to calculate remaining days
+  let daysRemaining = 'N/A';
+  if (isSubscribed && userData?.subscriptionExpires) {
+      const expiryDate = new Date(userData.subscriptionExpires);
+      const now = new Date();
+      const diffTime = Math.abs(expiryDate - now);
+      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+  
   const expirationDate = userData?.subscriptionExpires ? 
     new Date(userData.subscriptionExpires).toLocaleDateString() : 'N/A';
 
@@ -59,6 +73,7 @@ export default function DashboardPage() {
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
   // Calculate progress for display
+
   const getUserProgress = (courseId) => {
     const courseData = TRACKED_COURSES.find(c => c.id === courseId);
     if (!userData?.progress || !courseData) return '0%';
@@ -98,13 +113,18 @@ export default function DashboardPage() {
                   </span>
                 </p>
                 {isSubscribed && (
-                    <p className="text-sm text-text-muted mt-2">
-                        Expires: {expirationDate}
-                    </p>
+                    <>
+                        <p className="text-sm text-text-muted mt-2">
+                            Expires: {expirationDate}
+                        </p>
+                        <p className="text-sm text-status-success font-medium mt-1">
+                            Days Remaining: {daysRemaining}
+                        </p>
+                    </>
                 )}
                 {!isSubscribed && (
                     <p className="text-sm text-status-warning font-medium mt-3">
-                        Upgrade now to unlock all premium courses.
+                        Subscription Expired or Inactive. Renew now to unlock all premium courses.
                     </p>
                 )}
             </div>
@@ -187,6 +207,9 @@ export default function DashboardPage() {
                         {/* Links now use the actual course IDs */}
                         <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana_deep_dive" />
                         <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha_flow" />
+                        <CourseLink title="Pranayama Masterclass: Breath Control" href="/courses/pranayama_masterclass" />
+                        <CourseLink title="Ashtanga Yoga Ultimatum (Primary Series)" href="/courses/ashtanga_ultimatum" />
+                        <CourseLink title="Raja Yoga Supreme: The Eight Limbs" href="/courses/raja_yoga_supreme" />
                         <CourseLink title="Beginner's Mind (7 Days)" href="/courses/beginners_mind" />
                         <CourseLink title="Bhagavad Gita Reader" href="/gita" />
                     </div>

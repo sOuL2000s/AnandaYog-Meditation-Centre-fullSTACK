@@ -86,10 +86,12 @@ export default eslintConfig;
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
+  
+  // FIX: Necessary for Next.js to process CSS imports inside node_modules/react-pdf
+  transpilePackages: ['react-pdf'],
 };
 
 export default nextConfig;
-
 
 --- END FILE: next.config.mjs ---
 
@@ -108,9 +110,11 @@ export default nextConfig;
   "dependencies": {
     "firebase": "^12.7.0",
     "next": "16.1.0",
+    "pdfjs-dist": "^5.4.449",
     "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-pdf": "^10.2.0",
     "swr": "^2.3.8"
   },
   "devDependencies": {
@@ -120,6 +124,7 @@ export default nextConfig;
     "tailwindcss": "^4"
   }
 }
+
 
 --- END FILE: package.json ---
 
@@ -1483,7 +1488,6 @@ export default function GitaPage() {
     );
 }
 
-
 --- END FILE: src\app\gita\page.js ---
 
 --- START FILE: src\app\policy\page.js ---
@@ -1784,44 +1788,23 @@ import { useAuth } from '@/context/AuthContext';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Image from 'next/image';
+import dynamic from 'next/dynamic'; // Import dynamic
 
 /* 
- * CRITICAL NOTE: PDF RENDERING LIBRARY REQUIREMENT
- * -----------------------------------------------
- * To enable interactive page turning, dynamic page count, and real-time page number tracking 
- * from a PDF, you MUST install and configure a dedicated library, like 'react-pdf'.
- * 
- * In a live project, you would replace the simulated <PDFViewerWrapper> with components 
- * from that library, e.g., <Document> and <Page>.
- * 
- * Example Installation (Requires Next.js configuration):
- * npm install react-pdf pdfjs-dist
+ * CRITICAL FIX: Dynamically import the viewer component.
+ * This component will now handle setting the worker source and reporting the page count.
  */
-
-// Simulated PDFViewerWrapper (Replace this with real react-pdf components)
-const PDFViewerWrapper = ({ file, pageNumber, onDocumentLoadSuccess, width, height }) => {
-    // In a real application, this component handles rendering the specific page
-    return (
-        <div 
-            style={{ width, height: height || '600px', backgroundColor: '#f5f5f5', border: '1px solid #ccc', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
-        >
-            <p className="text-xl font-bold text-gray-700">Bhagavad Gita PDF Viewer</p>
-            <p className="text-md text-gray-500 mt-2">
-                Simulating Page {pageNumber} of {file.numPages} ({file.name})
-            </p>
-            <p className="mt-4 text-xs text-red-500 text-center max-w-sm">
-                (Replace this wrapper with the &lt;Document&gt; and &lt;Page&gt; components from a library like &apos;react-pdf&apos; for live rendering.)
-            </p>
-        </div>
-    );
-};
+const PDFViewerWrapper = dynamic(
+    () => import('./RealPDFViewer'), 
+    { ssr: false } 
+);
 
 
-// Map language codes to their paths in the public directory
+// Map language codes to their paths (REMOVED hardcoded numPages)
 const contentMap = {
-    en: { path: '/gita_en.pdf', name: 'English', numPages: 750 }, // Simulated page count
-    hi: { path: '/gita_hi.pdf', name: 'Hindi', numPages: 820 },
-    bn: { path: '/gita_bn.pdf', name: 'Bengali', numPages: 780 },
+    en: { path: '/gita_en.pdf', name: 'English' }, 
+    hi: { path: '/gita_hi.pdf', name: 'Hindi' },
+    bn: { path: '/gita_bn.pdf', name: 'Bengali' },
 };
 
 export default function GitaReader() {
@@ -1832,9 +1815,12 @@ export default function GitaReader() {
     // State to track if the initial Firestore data has been synchronized
     const [isInitialized, setIsInitialized] = useState(false);
     
+    // NEW STATE: Holds the real page count loaded by react-pdf
+    const [realNumPages, setRealNumPages] = useState(0); 
+    
     // Derived state
     const currentFile = contentMap[selectedLang];
-    const numPages = currentFile.numPages; // Derived directly, no longer in state
+    const numPages = realNumPages; // Use the real number here
 
     // --- Persistence Handler ---
     const updateProgress = useCallback(async (page, lang, isBookmarkToggle = false) => {
@@ -1851,14 +1837,12 @@ export default function GitaReader() {
             } else {
                 newBookmarks.push(pageIndex);
             }
-            // Ensure bookmarks are unique and sorted
             newBookmarks = Array.from(new Set(newBookmarks)).sort((a, b) => a - b);
             
             updateData['gita_progress.bookmarks'] = newBookmarks;
             setBookmarks(newBookmarks);
 
         } else {
-            // Update last read page and language
             updateData['gita_progress.language'] = lang;
             updateData['gita_progress.lastPage'] = page;
         }
@@ -1871,72 +1855,52 @@ export default function GitaReader() {
     }, [currentUser, userData]);
 
 
-    // --- Effect: Load ALL synchronization state upon initial data arrival ---
-    // This effect runs only when loading completes and user data is available,
-    // and only performs initial synchronization, setting the isInitialized flag.
+    // --- New Handler for Page Count received from PDFViewerWrapper ---
+    const handleDocumentLoadSuccess = useCallback((count) => {
+        setRealNumPages(count);
+        
+        if (currentUser && userData?.gita_progress?.lastPage) {
+             const restoredPage = Math.min(userData.gita_progress.lastPage, count);
+             setPageNumber(Math.max(1, restoredPage));
+        } else {
+             setPageNumber(1);
+        }
+    }, [currentUser, userData]);
+
+
+    // --- Effect: Load Synchronization State (Initial Load) ---
     useEffect(() => {
-        if (loading || isInitialized) return;
-
-        if (currentUser && userData) {
-            const progress = userData?.gita_progress;
-
-            // 1. Restore Language
-            const savedLang = progress?.language || 'en';
-            const fileForLang = contentMap[savedLang];
-            const currentNumPages = fileForLang.numPages;
-
-            // 2. Restore Page Number
-            let newPage = 1;
-            if (progress?.lastPage !== undefined && progress?.language === savedLang) {
-                const restoredPage = Math.min(progress.lastPage, currentNumPages);
-                newPage = Math.max(1, restoredPage);
-            }
-            
-            // 3. Restore Bookmarks
-            let newBookmarks = progress?.bookmarks || [];
-            newBookmarks = newBookmarks.filter(b => b <= currentNumPages);
-            
-            // --- Set all state and mark as initialized ---
-            // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
-            setSelectedLang(savedLang);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setPageNumber(newPage);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setBookmarks(newBookmarks);
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setIsInitialized(true);
-            
-        } else if (!currentUser && !loading) {
-            // Logged out: Set defaults
-            setSelectedLang('en');
-            setPageNumber(1);
-            setBookmarks([]);
-            setIsInitialized(true);
+        if (loading) {
+            return;
         }
         
-    }, [loading, currentUser, userData]); // We keep the dependencies minimal to avoid infinite loops
-
-
-    // --- Effect: Handle Language Change (Internal User Action) ---
-    // If the user manually changes the language, we need to reset page/bookmarks 
-    // and potentially restore progress if they switch back later (handled by the main effect).
-    const handleLanguageChange = (e) => {
-        const newLang = e.target.value;
-        if (newLang !== selectedLang) {
-            setSelectedLang(newLang);
-            // Explicitly reset page number to 1 for the new language
-            setPageNumber(1); 
-            // Clear bookmarks relevant to the old language
-            setBookmarks([]);
+        if (isInitialized) {
+            return;
         }
-    };
+
+        const initializeState = (user, data) => {
+            if (user && data) {
+                const progress = data?.gita_progress;
+                setSelectedLang(progress?.language || 'en');
+                setPageNumber(1); 
+                setBookmarks(progress?.bookmarks || []);
+            } else {
+                setSelectedLang('en');
+                setPageNumber(1);
+                setBookmarks([]);
+            }
+            
+            setIsInitialized(true); 
+        };
+        
+        initializeState(currentUser, userData);
+        
+    }, [loading, currentUser, userData, isInitialized]); 
 
 
-    // --- Debounced Tracking of Current Page (Runs when pageNumber or selectedLang changes) ---
+    // --- Debounced Tracking of Current Page ---
     useEffect(() => {
-        // Only run tracking if initialized (to avoid overwriting restoration)
-        if (currentUser && !loading && numPages > 0 && isInitialized) {
-            // Only save if the page number is valid
+        if (currentUser && !loading && numPages > 0 && isInitialized) { 
             if (pageNumber >= 1 && pageNumber <= numPages) {
                 const timeout = setTimeout(() => {
                     updateProgress(pageNumber, selectedLang, false);
@@ -1944,8 +1908,21 @@ export default function GitaReader() {
                 return () => clearTimeout(timeout);
             }
         }
-    }, [pageNumber, selectedLang, currentUser, loading, numPages, updateProgress, isInitialized]);
+    }, [pageNumber, selectedLang, currentUser, loading, numPages, updateProgress, isInitialized]); 
     
+    
+    // --- FIX: Handler: Language Change (MISSING DEFINITION) ---
+    const handleLanguageChange = (e) => {
+        const newLang = e.target.value;
+        if (newLang !== selectedLang) {
+            setSelectedLang(newLang);
+            setPageNumber(1); 
+            setBookmarks([]);
+            setRealNumPages(0); // Reset page count until new PDF loads
+        }
+    };
+    // -----------------------------------------------------------
+
 
     const nextPage = () => setPageNumber(p => Math.min(p + 1, numPages));
     const prevPage = () => setPageNumber(p => Math.max(p - 1, 1));
@@ -1958,10 +1935,11 @@ export default function GitaReader() {
     
     const isBookmarked = bookmarks.includes(pageNumber);
 
-    // Show loading based on auth context loading OR custom initialization loading
     if (loading || !isInitialized) {
         return <div className="text-center py-20 text-text-muted">Loading Bhagavad Gita reader...</div>;
     }
+
+    const isReady = numPages > 0; 
 
     return (
         <div className="p-8 max-w-5xl mx-auto">
@@ -1970,7 +1948,7 @@ export default function GitaReader() {
                     The Bhagavad Gita Reader
                 </h1>
                 <select 
-                    onChange={handleLanguageChange} 
+                    onChange={handleLanguageChange} // Referenced here!
                     value={selectedLang}
                     className="p-2 border border-gray-300 rounded-lg bg-surface-1 text-text-base"
                 >
@@ -1983,51 +1961,57 @@ export default function GitaReader() {
             {/* Book Display Area */}
             <div className={`bg-surface-1 p-4 rounded-xl shadow-2xl border-t-4 border-brand-primary flex flex-col items-center transition-transform duration-500`}>
                 
-                {/* PDF Viewer Component (Placeholder) */}
+                {/* PDF Viewer Component */}
                 <PDFViewerWrapper
-                    file={{ url: currentFile.path, numPages, name: currentFile.name }}
+                    file={currentFile}
                     pageNumber={pageNumber}
-                    width={800} // Adjust width as needed for your viewer
+                    onDocumentLoadSuccess={handleDocumentLoadSuccess} // Pass the new handler
                 />
 
                 {/* Footer and Controls */}
-                <div className="mt-6 pt-4 w-full flex flex-wrap justify-between items-center gap-3">
-                    
-                    {/* Pagination */}
-                    <div className="text-base font-semibold text-text-base">
-                        Page {pageNumber} of {numPages}
-                    </div>
-
-                    {/* Controls */}
-                    <div className="flex items-center space-x-3">
-                        <button 
-                            onClick={prevPage}
-                            disabled={pageNumber <= 1}
-                            className="px-4 py-2 bg-surface-2 text-text-base rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
-                        >
-                            ← Previous Page
-                        </button>
-
-                        {/* Bookmark Button */}
-                        <button
-                            onClick={toggleBookmark}
-                            className={`px-3 py-2 rounded-full transition font-semibold ${
-                                isBookmarked ? 'bg-brand-accent text-white shadow-md' : 'bg-surface-2 text-text-base hover:bg-brand-accent hover:text-white'
-                            }`}
-                            disabled={!currentUser}
-                        >
-                            {isBookmarked ? '★ Bookmarked' : '☆ Bookmark Page'}
-                        </button>
+                {isReady && ( 
+                    <div className="mt-6 pt-4 w-full flex flex-wrap justify-between items-center gap-3">
                         
-                        <button 
-                            onClick={nextPage}
-                            disabled={pageNumber >= numPages}
-                            className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-darker transition disabled:opacity-50"
-                        >
-                            Next Page →
-                        </button>
+                        {/* Pagination */}
+                        <div className="text-base font-semibold text-text-base">
+                            Page {pageNumber} of {numPages}
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex items-center space-x-3">
+                            <button 
+                                onClick={prevPage}
+                                disabled={pageNumber <= 1}
+                                className="px-4 py-2 bg-surface-2 text-text-base rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
+                            >
+                                ← Previous Page
+                            </button>
+
+                            {/* Bookmark Button */}
+                            <button
+                                onClick={toggleBookmark}
+                                className={`px-3 py-2 rounded-full transition font-semibold ${
+                                    isBookmarked ? 'bg-brand-accent text-white shadow-md' : 'bg-surface-2 text-text-base hover:bg-brand-accent hover:text-white'
+                                }`}
+                                disabled={!currentUser}
+                            >
+                                {isBookmarked ? '★ Bookmarked' : '☆ Bookmark Page'}
+                            </button>
+                            
+                            <button 
+                                onClick={nextPage}
+                                disabled={pageNumber >= numPages}
+                                className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-darker transition disabled:opacity-50"
+                            >
+                                Next Page →
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )} 
+                
+                {!isReady && (
+                    <p className='mt-4 text-text-muted'>Initializing PDF Viewer...</p>
+                )}
                 
                 {currentUser && bookmarks.length > 0 && (
                     <div className="mt-4 text-sm text-text-muted text-right border-t border-gray-100 pt-2 w-full">
@@ -2385,6 +2369,81 @@ export default function ProtectedRoute({ children }) {
 
 --- END FILE: src\components\ProtectedRoute.js ---
 
+--- START FILE: src\components\RealPDFViewer.js ---
+
+// src/components/RealPDFViewer.js
+"use client";
+
+import { Document, Page, pdfjs } from 'react-pdf';
+
+/* --- CRITICAL FIXES: CSS Imports --- */
+// NOTE: You MUST manually copy the following CSS files from 
+// node_modules/react-pdf/dist/esm/Page/ into src/styles/pdf/
+import '@/styles/pdf/AnnotationLayer.css'; 
+import '@/styles/pdf/TextLayer.css';      
+
+import { useState, useMemo } from 'react';
+
+/* --- CRITICAL FIX: Worker Source Configuration --- */
+// Use the version exposed by react-pdf to ensure worker synchronization.
+// This resolves the "No workerSrc specified" and version mismatch errors.
+const PDFJS_VERSION = pdfjs.version;
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
+
+
+export default function RealPDFViewer({ file, pageNumber, onDocumentLoadSuccess }) {
+    
+    const [containerWidth, setContainerWidth] = useState(null);
+    const [isLoading, setIsLoading] = useState(true); // Added Loading state
+
+    // FIX: Ensure containerRef is declared before use (fixes ReferenceError)
+    const containerRef = useMemo(() => (el) => {
+        if (el) {
+            setContainerWidth(el.getBoundingClientRect().width);
+        }
+    }, []);
+
+    // Load handler (now passes the real page count back to GitaReader)
+    function onDocumentLoad({ numPages: nextNumPages }) {
+        if (onDocumentLoadSuccess) {
+            onDocumentLoadSuccess(nextNumPages); // Pass real count to parent
+        }
+        setIsLoading(false); // Document structure is loaded
+    }
+
+    // Custom Loading Component for better UX
+    const LoadingComponent = (
+        <div style={{ height: '600px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
+            <p className="mt-4 text-brand-primary">
+                Loading Bhagavad Gita ({file.name}). Document Initialization in Progress...
+            </p>
+        </div>
+    );
+    
+
+    return (
+        <div ref={containerRef} style={{ width: '100%', height: '600px', overflow: 'auto' }}>
+            <Document
+                file={file.path} 
+                onLoadSuccess={onDocumentLoad}
+                loading={LoadingComponent} 
+                error="Failed to load PDF file. Please ensure the file exists."
+            >
+                {/* Only render the Page component if the document is not loading */}
+                {!isLoading && (
+                    <Page 
+                        pageNumber={pageNumber} 
+                        width={containerWidth ? Math.min(containerWidth, 800) : undefined}
+                    />
+                )}
+            </Document>
+        </div>
+    );
+}
+
+--- END FILE: src\components\RealPDFViewer.js ---
+
 --- START FILE: src\components\ThemeInitializer.js ---
 
 // src/components/ThemeInitializer.js
@@ -2625,8 +2684,6 @@ export const getLessonStatus = (userData, courseId, lessonId) => {
 
 --- END FILE: src\lib\utils.js ---
 
-----------------------------------------------
+------------------------------------------------------------------
 
-(Replace this wrapper with the <Document> and <Page> components from a library like 'react-pdf' for live rendering.)
-how to make it happen?
-How to fix the 404 error in while starting a course?
+Please verify here if all the things are working fine. By that I mean, the subscriptions are being tracked or not. Suppose a user has subscribed to Yogi Monthly or Yogi Annual, then are their subscriptions tracked? How many days are left and are shown? And after the days left, after the subscription days are finished, then they'll have to renew their subscription and they'll have to recharge again. That thing will happen. In case of the Yogi Monthly, they'll have 30 days. And in case of the Yogi Annual, they'll have a whole year, which will be 365 days. And after that, the thing that is happening is that the course pages are not there. Because the Beginner's Mind, Vipassana, Deep Dive, Hatha Yoga, Flow for Flexibility, those things are there. But what I want is, I want to include some more pages, some more courses. Suppose like Pranayama Masterclass or Ashtanga Yoga Ultimatum or something like that. Do something creative with Ashtanga Yoga. And Raja Yoga Supreme or something, name it something. Well, these courses I want. And within these courses, I'll place the contents. But right now, in the Beginner's Mind, there will be 7 days, as it has 7 days. So every day, there will be one step to follow. And that step could be marked as completed, if the user has completed. Or they can go back to that step again, if they want. There will be 7 steps. They will be instructed to do each step, each day. That will happen. And after that, in all the other courses also, there will be things, there will be steps. There, each step will be completed in each day. So that way, the things will be noted there. All the instructions will be provided there. And I want all the pages to be there, all the course pages to be there. I don't want any 404 response to be showing up there. And after that, I want you to verify if the Bhagavad Gita progress tracking is working or not. Because whenever I open the Bhagavad Gita in any language, it is not saving the progress of how far I have read. So, fix that as well. And what else do I have to do is... Yeah, work on the tracking a lot more and make it do wonders.

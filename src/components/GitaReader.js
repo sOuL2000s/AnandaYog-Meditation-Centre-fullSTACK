@@ -40,14 +40,17 @@ export default function GitaReader() {
     const currentFile = contentMap[selectedLang];
     const numPages = realNumPages; // Use the real number here
 
-    // --- Persistence Handler ---
+    // --- Persistence Handler (Fixed Bookmark Logic) ---
     const updateProgress = useCallback(async (page, lang, isBookmarkToggle = false) => {
         if (!currentUser) return;
         const userRef = doc(db, "users", currentUser.uid);
         const updateData = {};
 
+        // Use the current local state of bookmarks for immediate UI feedback
+        let currentBookmarks = isBookmarkToggle ? bookmarks : userData?.gita_progress?.bookmarks || [];
+
         if (isBookmarkToggle) {
-            let newBookmarks = userData?.gita_progress?.bookmarks || [];
+            let newBookmarks = [...currentBookmarks];
             const pageIndex = page;
 
             if (newBookmarks.includes(pageIndex)) {
@@ -58,7 +61,7 @@ export default function GitaReader() {
             newBookmarks = Array.from(new Set(newBookmarks)).sort((a, b) => a - b);
             
             updateData['gita_progress.bookmarks'] = newBookmarks;
-            setBookmarks(newBookmarks);
+            setBookmarks(newBookmarks); // Update local state immediately
 
         } else {
             updateData['gita_progress.language'] = lang;
@@ -70,38 +73,36 @@ export default function GitaReader() {
         } catch (e) {
             console.error("Error saving progress/bookmark:", e);
         }
-    }, [currentUser, userData]);
+    }, [currentUser, userData, bookmarks]); // Added bookmarks to dependencies
 
-
-    // --- New Handler for Page Count received from PDFViewerWrapper ---
+    // --- Handler for Page Count received from PDFViewerWrapper ---
     const handleDocumentLoadSuccess = useCallback((count) => {
         setRealNumPages(count);
         
-        if (currentUser && userData?.gita_progress?.lastPage) {
-             const restoredPage = Math.min(userData.gita_progress.lastPage, count);
-             setPageNumber(Math.max(1, restoredPage));
-        } else {
-             setPageNumber(1);
-        }
-    }, [currentUser, userData]);
+        // Ensure the current page is valid for the newly loaded PDF
+        setPageNumber(p => Math.max(1, Math.min(p, count))); 
+
+    }, []); 
 
 
-    // --- Effect: Load Synchronization State (Initial Load) ---
+    // --- Effect: Load Synchronization State (Initial Load - Fixed sequence) ---
     useEffect(() => {
-        if (loading) {
-            return;
-        }
-        
-        if (isInitialized) {
+        if (loading || isInitialized) {
             return;
         }
 
         const initializeState = (user, data) => {
             if (user && data) {
                 const progress = data?.gita_progress;
-                setSelectedLang(progress?.language || 'en');
-                setPageNumber(1); 
+                
+                const savedLang = progress?.language || 'en';
+                const savedPage = progress?.lastPage || 1; 
+
+                // Set initial state from Firestore
+                setSelectedLang(savedLang);
                 setBookmarks(progress?.bookmarks || []);
+                setPageNumber(savedPage); 
+                
             } else {
                 setSelectedLang('en');
                 setPageNumber(1);
@@ -129,7 +130,7 @@ export default function GitaReader() {
     }, [pageNumber, selectedLang, currentUser, loading, numPages, updateProgress, isInitialized]); 
     
     
-    // --- FIX: Handler: Language Change (MISSING DEFINITION) ---
+    // --- FIX: Handler: Language Change ---
     const handleLanguageChange = (e) => {
         const newLang = e.target.value;
         if (newLang !== selectedLang) {
