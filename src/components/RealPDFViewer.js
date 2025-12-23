@@ -6,7 +6,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 /* --- CRITICAL FIXES: CSS Imports --- */
 // NOTE: You MUST manually copy the following CSS files from 
 // node_modules/react-pdf/dist/esm/Page/ into src/styles/pdf/
-
+import '@/styles/pdf/AnnotationLayer.css'; 
+import '@/styles/pdf/TextLayer.css';      
 
 import { useState, useMemo } from 'react';
 
