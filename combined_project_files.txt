@@ -798,6 +798,28 @@ const COURSE_DEFINITIONS = [
         isPremium: true,
         icon: '🤸'
     },
+    // --- NEW COURSES ADDED ---
+    { 
+        id: 'pranayama_masterclass', 
+        title: "Pranayama Masterclass", 
+        description: "12 detailed lessons on vital breath control techniques for energy management.",
+        isPremium: true,
+        icon: '🌬️'
+    },
+    { 
+        id: 'ashtanga_ultimatum', 
+        title: "Ashtanga Yoga Ultimatum", 
+        description: "20-week intensive program mastering the Primary Series (Vinyasa and Drishti).",
+        isPremium: true,
+        icon: '🔥'
+    },
+    { 
+        id: 'raja_yoga_supreme', 
+        title: "Raja Yoga Supreme", 
+        description: "8-part philosophical and practical study of Patanjali's Yoga Sutras.",
+        isPremium: true,
+        icon: '👑'
+    },
 ];
 
 export default function ClassesPage() {
@@ -895,7 +917,6 @@ const CourseCard = ({ id, title, description, isPremium, isSubscribed, currentUs
         </div>
     );
 };
-
 
 --- END FILE: src\app\classes\page.js ---
 
@@ -1068,178 +1089,43 @@ export default function ContactPage() {
 --- START FILE: src\app\courses\[id]\page.js ---
 
 // src/app/courses/[id]/page.js
-"use client";
+// NO "use client" directive here! This is a Server Component.
 
-import { trackLessonCompletion, getLessonStatus } from '@/lib/utils';
-import { useAuth } from '@/context/AuthContext';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import React from 'react'; // Import React to use React.use
+import CourseContent from '@/components/CourseContent';
 
-// Simplified hardcoded course data
+// Simplified hardcoded course data (Used here only for existence check)
 const ALL_COURSES = {
-    'beginners_mind': { 
-        name: "Beginner's Mind (7 Days)", 
-        isPremium: false,
-        lessons: [
-            { id: 'day1', title: 'Day 1: Anchor the Breath' },
-            { id: 'day2', title: 'Day 2: Body Scan Foundation' },
-            { id: 'day3', title: 'Day 3: Handling Distractions' },
-            { id: 'day4', title: 'Day 4: Loving Kindness' },
-            { id: 'day5', title: 'Day 5: Short Daily Practice' },
-            { id: 'day6', title: 'Day 6: Posture and Alignment' },
-            { id: 'day7', title: 'Day 7: The Path Forward' },
-        ]
-    },
-    'vipassana_deep_dive': { 
-        name: "Vipassana Deep Dive", 
-        isPremium: true,
-        lessons: [
-            { id: 'intro', title: 'Introduction to Impermanence' },
-            { id: 'lesson1', title: 'The Sensation Map' },
-            { id: 'lesson2', title: 'Mindful Walking' },
-            { id: 'lesson3', title: 'The 3 Jewels' },
-            { id: 'lesson4', title: 'Advanced Sitting' },
-            { id: 'lesson5', title: 'The Noble Silence' },
-            // Adding placeholders to match dashboard count of 15
-            { id: 'l6', title: 'Lecture 6' }, { id: 'l7', title: 'Lecture 7' }, { id: 'l8', title: 'Lecture 8' }, 
-            { id: 'l9', title: 'Lecture 9' }, { id: 'l10', title: 'Lecture 10' }, { id: 'l11', title: 'Lecture 11' }, 
-            { id: 'l12', title: 'Lecture 12' }, { id: 'l13', title: 'Lecture 13' }, { id: 'l14', title: 'Lecture 14' },
-            { id: 'l15', title: 'Lecture 15' },
-        ]
-    },
-    'hatha_flow': { 
-        name: "Hatha Flow for Flexibility", 
-        isPremium: true,
-        lessons: [
-            { id: 'week1', title: 'Sun Salutations Deep Dive' },
-            { id: 'week2', title: 'Hip Openers' },
-            { id: 'week3', title: 'Spinal Twists' },
-            { id: 'week4', title: 'Inversions Prep' },
-            { id: 'week5', title: 'Restorative Poses' },
-            // Adding placeholders to match dashboard count of 10
-            { id: 'h6', title: 'Flow 6' }, { id: 'h7', title: 'Flow 7' }, { id: 'h8', title: 'Flow 8' }, 
-            { id: 'h9', title: 'Flow 9' }, { id: 'h10', title: 'Flow 10' }, 
-        ]
-    }
+    'beginners_mind': {},
+    'vipassana_deep_dive': {},
+    'hatha_flow': {},
+    'pranayama_masterclass': {},
+    'ashtanga_ultimatum': {},
+    'raja_yoga_supreme': {},
 };
 
 
-export default function CourseDetailPage({ params }) {
+// Made the component async to handle asynchronous parameters
+export default async function CourseDetailPage({ params }) {
     
-    // --- CRITICAL FIX: Unwrap params using React.use() ---
-    // Note: Since params is destructured from props, React.use(params) or React.use(params.id) 
-    // is required to safely access the properties in Next.js 16+ client components.
-    // If React.use() is causing issues, the safest fallback in older/mixed environments 
-    // is to access params directly *after* the client component renders, 
-    // but the error message strongly dictates React.use(). 
-    // Let's assume React.use() is available and correctly implemented for Next 16.
+    // --- CRITICAL FIX: Explicitly await the params object ---
+    // This is necessary because the framework is proxying 'params' as a Promise
+    // even in an async function context in your specific version/setup (Next 16.1.0/Turbopack).
+    const resolvedParams = await params;
+    const courseId = resolvedParams.id;
+    // --------------------------------------------------------
     
-    // Use optional chaining for safety if React.use() is not available in the sandbox environment, 
-    // but the error suggests this usage pattern.
-    // In a stable Next.js 16+ setup: 
-    // const unwrappedParams = React.use(params);
-    // const courseId = unwrappedParams.id;
-    
-    // For standard Next.js client components, we usually access it directly. 
-    // The warning suggests an asynchronous context is being hit. 
-    // Let's proceed with the standard direct access, assuming the console error 
-    // is a specific Turbopack dev-mode warning that often resolves in production 
-    // or by forcing a slightly different structure.
+    const courseExists = ALL_COURSES.hasOwnProperty(courseId);
 
-    const { currentUser, userData, loading } = useAuth();
-    // Reverting to standard access for compatibility, as React.use() may not be available 
-    // in all execution contexts or might cause build errors in non-standard setups.
-    const courseId = params.id; 
-    
-    const course = ALL_COURSES[courseId];
-
-    if (!course) {
+    if (!courseExists) {
         notFound();
     }
-
-    if (loading) {
-        return <div className="text-center py-20 text-text-muted">Loading Course Details...</div>;
-    }
-
-    // Access check: Free courses are always accessible if logged in. Premium courses require subscription.
-    const hasAccess = !course.isPremium || userData?.isSubscribed;
-
-    if (!currentUser) {
-        return (
-            <div className="text-center py-20">
-                <h2 className="text-3xl font-serif text-brand-primary mb-4">Login Required</h2>
-                <p className="text-text-muted">Please log in to view course content and track your progress.</p>
-                <Link href="/dashboard" className="mt-4 inline-block bg-brand-primary text-white py-2 px-6 rounded-full hover:bg-brand-primary-darker transition">Go to Dashboard</Link>
-            </div>
-        );
-    }
     
-    if (course.isPremium && !hasAccess) {
-        return (
-            <div className="text-center py-20">
-                <h2 className="text-3xl font-serif font-bold text-brand-accent mb-4">Premium Content Locked</h2>
-                <p className="text-text-muted">This course requires a subscription. View the free foundational course for now.</p>
-                <Link href="/pricing" className="mt-4 inline-block bg-brand-accent text-white py-2 px-6 rounded-full hover:bg-brand-accent-darker transition">View Plans</Link>
-            </div>
-        );
-    }
-    
-    const handleCompleteLesson = (lessonId) => {
-        if (currentUser) {
-            trackLessonCompletion(currentUser.uid, courseId, lessonId);
-        }
-    };
-    
-    const lessonsCompleted = course.lessons.filter(lesson => getLessonStatus(userData, courseId, lesson.id)).length;
-    const completionPercentage = Math.round((lessonsCompleted / course.lessons.length) * 100);
-
-
+    // Pass the safely retrieved ID to the client component
     return (
-        <div className="container mx-auto p-8 max-w-4xl">
-            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">{course.name}</h1>
-            <p className="text-lg text-text-muted mb-6">{course.isPremium ? 'Premium Course' : 'Free Course'}</p>
-
-            {/* Progress Display */}
-            <div className="mb-8 p-4 bg-surface-2 rounded-lg border-l-4 border-brand-accent">
-                <h3 className="text-xl font-semibold text-text-base mb-2">Your Progress: {completionPercentage}% ({lessonsCompleted} of {course.lessons.length} complete)</h3>
-                <div className="w-full bg-gray-300 rounded-full h-3">
-                    <div 
-                        className="h-3 rounded-full bg-brand-accent transition-all duration-700"
-                        style={{ width: `${completionPercentage}%` }}
-                    ></div>
-                </div>
-            </div>
-
-            {/* Lesson List */}
-            <div className="space-y-4">
-                {course.lessons.map(lesson => {
-                    const isCompleted = getLessonStatus(userData, courseId, lesson.id);
-                    
-                    return (
-                        <div key={lesson.id} className="p-4 bg-surface-1 rounded-lg shadow-md flex justify-between items-center border border-gray-100">
-                            <span className={`text-lg font-medium ${isCompleted ? 'text-status-success' : 'text-text-base'}`}>
-                                {isCompleted ? '✓ ' : '• '} {lesson.title}
-                            </span>
-                            <button
-                                onClick={() => handleCompleteLesson(lesson.id)}
-                                disabled={isCompleted}
-                                className={`text-sm py-1 px-3 rounded-full transition ${
-                                    isCompleted 
-                                        ? 'bg-status-success text-white opacity-70 cursor-not-allowed' 
-                                        : 'bg-brand-primary text-white hover:bg-brand-primary-darker'
-                                }`}
-                            >
-                                {isCompleted ? 'Completed' : 'Mark Complete'}
-                            </button>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
+        <CourseContent courseId={courseId} />
     );
 }
-
 
 --- END FILE: src\app\courses\[id]\page.js ---
 
@@ -1258,6 +1144,10 @@ const TRACKED_COURSES = [
     { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7 },
     { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15 },
     { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10 },
+    // --- NEW COURSES ADDED ---
+    { id: 'pranayama_masterclass', name: "Pranayama Masterclass", totalLessons: 12 },
+    { id: 'ashtanga_ultimatum', name: "Ashtanga Yoga Ultimatum", totalLessons: 20 },
+    { id: 'raja_yoga_supreme', name: "Raja Yoga Supreme", totalLessons: 8 },
 ];
 
 
@@ -1298,6 +1188,16 @@ export default function DashboardPage() {
   // Determine access level
   const isSubscribed = userData?.isSubscribed;
   const currentPlan = userData?.subscriptionPlan || 'Explorer (Free Tier)';
+  
+  // FIX: Added logic to calculate remaining days
+  let daysRemaining = 'N/A';
+  if (isSubscribed && userData?.subscriptionExpires) {
+      const expiryDate = new Date(userData.subscriptionExpires);
+      const now = new Date();
+      const diffTime = Math.abs(expiryDate - now);
+      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+  
   const expirationDate = userData?.subscriptionExpires ? 
     new Date(userData.subscriptionExpires).toLocaleDateString() : 'N/A';
 
@@ -1306,6 +1206,7 @@ export default function DashboardPage() {
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
   // Calculate progress for display
+
   const getUserProgress = (courseId) => {
     const courseData = TRACKED_COURSES.find(c => c.id === courseId);
     if (!userData?.progress || !courseData) return '0%';
@@ -1345,13 +1246,18 @@ export default function DashboardPage() {
                   </span>
                 </p>
                 {isSubscribed && (
-                    <p className="text-sm text-text-muted mt-2">
-                        Expires: {expirationDate}
-                    </p>
+                    <>
+                        <p className="text-sm text-text-muted mt-2">
+                            Expires: {expirationDate}
+                        </p>
+                        <p className="text-sm text-status-success font-medium mt-1">
+                            Days Remaining: {daysRemaining}
+                        </p>
+                    </>
                 )}
                 {!isSubscribed && (
                     <p className="text-sm text-status-warning font-medium mt-3">
-                        Upgrade now to unlock all premium courses.
+                        Subscription Expired or Inactive. Renew now to unlock all premium courses.
                     </p>
                 )}
             </div>
@@ -1434,6 +1340,9 @@ export default function DashboardPage() {
                         {/* Links now use the actual course IDs */}
                         <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana_deep_dive" />
                         <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha_flow" />
+                        <CourseLink title="Pranayama Masterclass: Breath Control" href="/courses/pranayama_masterclass" />
+                        <CourseLink title="Ashtanga Yoga Ultimatum (Primary Series)" href="/courses/ashtanga_ultimatum" />
+                        <CourseLink title="Raja Yoga Supreme: The Eight Limbs" href="/courses/raja_yoga_supreme" />
                         <CourseLink title="Beginner's Mind (7 Days)" href="/courses/beginners_mind" />
                         <CourseLink title="Bhagavad Gita Reader" href="/gita" />
                     </div>
@@ -1756,6 +1665,177 @@ export default function AuthStatus() {
 
 --- END FILE: src\components\AuthStatus.js ---
 
+--- START FILE: src\components\CourseContent.js ---
+
+// src/components/CourseContent.js
+"use client";
+
+import { trackLessonCompletion, getLessonStatus } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import Link from 'next/link';
+import { useState, useMemo } from 'react'; 
+
+// NOTE: Duplicated course data required for client-side rendering logic
+const ALL_COURSES = {
+    'beginners_mind': { 
+        name: "Beginner's Mind (7 Days)", 
+        isPremium: false,
+        lessons: [
+            { id: 'day1', title: 'Day 1: Anchor the Breath' }, { id: 'day2', title: 'Day 2: Body Scan Foundation' }, { id: 'day3', title: 'Day 3: Handling Distractions' },
+            { id: 'day4', title: 'Day 4: Loving Kindness' }, { id: 'day5', title: 'Day 5: Short Daily Practice' }, { id: 'day6', title: 'Day 6: Posture and Alignment' },
+            { id: 'day7', title: 'Day 7: The Path Forward' },
+        ]
+    },
+    'vipassana_deep_dive': { 
+        name: "Vipassana Deep Dive", 
+        isPremium: true,
+        lessons: [
+            { id: 'intro', title: 'Introduction to Impermanence' }, { id: 'lesson1', title: 'The Sensation Map' }, { id: 'lesson2', title: 'Mindful Walking' },
+            { id: 'lesson3', title: 'The 3 Jewels' }, { id: 'lesson4', title: 'Advanced Sitting' }, { id: 'lesson5', title: 'The Noble Silence' },
+            { id: 'l6', title: 'Lecture 6: Equanimity' }, { id: 'l7', title: 'Lecture 7: The Eightfold Path' }, { id: 'l8', title: 'Lecture 8: Ethical Living' }, 
+            { id: 'l9', title: 'Lecture 9: Deepening Concentration' }, { id: 'l10', title: 'Lecture 10: Subtle Sensations' }, { id: 'l11', title: 'Lecture 11: Dissolution' }, 
+            { id: 'l12', title: 'Lecture 12: Continuous Practice' }, { id: 'l13', title: 'Lecture 13: Handling Pain' }, { id: 'l14', title: 'Lecture 14: Integrating Insight' },
+            { id: 'l15', title: 'Lecture 15: Concluding Remarks' },
+        ]
+    },
+    'hatha_flow': { 
+        name: "Hatha Flow for Flexibility", 
+        isPremium: true,
+        lessons: [
+            { id: 'week1', title: 'Sun Salutations Deep Dive' }, { id: 'week2', title: 'Hip Openers' }, { id: 'week3', title: 'Spinal Twists' },
+            { id: 'week4', title: 'Inversions Prep' }, { id: 'week5', title: 'Restorative Poses' },
+            { id: 'h6', title: 'Flow 6: Core Stability' }, { id: 'h7', title: 'Flow 7: Standing Poses' }, { id: 'h8', title: 'Flow 8: Backbends' }, 
+            { id: 'h9', title: 'Flow 9: Balancing Act' }, { id: 'h10', title: 'Flow 10: Full Body Release' }, 
+        ]
+    },
+    'pranayama_masterclass': {
+        name: "Pranayama Masterclass", isPremium: true, lessons: Array.from({ length: 12 }, (_, i) => ({ id: `p${i+1}`, title: `Lesson ${i+1}: Technique ${i+1}`}))
+    },
+    'ashtanga_ultimatum': {
+        name: "Ashtanga Yoga Ultimatum", isPremium: true, lessons: Array.from({ length: 20 }, (_, i) => ({ id: `a${i+1}`, title: `Week ${i+1} Flow Focus`}))
+    },
+    'raja_yoga_supreme': {
+        name: "Raja Yoga Supreme", isPremium: true, lessons: Array.from({ length: 8 }, (_, i) => ({ id: `r${i+1}`, title: `Sutra ${i+1}: Practice Focus`}))
+    },
+};
+
+
+export default function CourseContent({ courseId }) {
+    
+    // --- 1. CALL ALL HOOKS UNCONDITIONALLY AT THE TOP ---
+    const { currentUser, userData, loading } = useAuth();
+    const [forceRerenderKey, setForceRerenderKey] = useState(0); 
+
+    // Fetch the course data immediately
+    const course = ALL_COURSES[courseId]; 
+    
+    // Calculate progress (This must be done here, but simplify dependencies)
+    // The forceRerenderKey is now the mechanism to trigger a recalculation when the user saves progress.
+    const { completionPercentage, lessonsCompleted } = useMemo(() => {
+        if (!course || !userData) {
+            return { completionPercentage: 0, lessonsCompleted: 0 };
+        }
+        
+        const completed = course.lessons.filter(lesson => getLessonStatus(userData, courseId, lesson.id)).length;
+        const percentage = Math.round((completed / course.lessons.length) * 100);
+        return { completionPercentage: percentage, lessonsCompleted: completed };
+    }, [userData, courseId, course]); // Simplified dependencies: userData (from context), courseId (prop), course (local data)
+    // ----------------------------------------------------------------------
+
+
+    const hasAccess = !course.isPremium || userData?.isSubscribed;
+
+    // --- 2. CONDITIONAL EARLY RETURNS FOLLOW ---
+
+    if (loading) {
+        return <div className="text-center py-20 text-text-muted">Loading Course Details...</div>;
+    }
+
+    if (!currentUser) {
+        return (
+            <div className="text-center py-20">
+                <h2 className="text-3xl font-serif text-brand-primary mb-4">Login Required</h2>
+                <p className="text-text-muted">Please log in to view course content and track your progress.</p>
+                <Link href="/dashboard" className="mt-4 inline-block bg-brand-primary text-white py-2 px-6 rounded-full hover:bg-brand-primary-darker transition">Go to Dashboard</Link>
+            </div>
+        );
+    }
+    
+    if (course.isPremium && !hasAccess) {
+        return (
+            <div className="text-center py-20">
+                <h2 className="text-3xl font-serif font-bold text-brand-accent mb-4">Premium Content Locked</h2>
+                <p className="text-text-muted">This course requires a subscription. View the free foundational course for now.</p>
+                <Link href="/pricing" className="mt-4 inline-block bg-brand-accent text-white py-2 px-6 rounded-full hover:bg-brand-accent-darker transition">View Plans</Link>
+            </div>
+        );
+    }
+    
+    // --- 3. INTERACTION LOGIC (Now correctly defined) ---
+    const handleCompleteLesson = async (lessonId) => { 
+        if (currentUser) {
+             console.log(`[Client] Initiating completion track for: ${courseId}/${lessonId}`);
+             
+             // Await the completion of the Firebase write
+             await trackLessonCompletion(currentUser.uid, courseId, lessonId);
+
+             // **CRITICAL FIX:** Force a local state update immediately after the successful write.
+             // This ensures the component re-renders quickly, pulling the updated userData 
+             // from the AuthContext (which received the onSnapshot event).
+             setForceRerenderKey(prev => prev + 1); 
+             
+             console.log("[Client] Rerender forced.");
+        }
+    };
+    
+
+    return (
+        <div className="container mx-auto p-8 max-w-4xl">
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">{course.name}</h1>
+            <p className="text-lg text-text-muted mb-6">{course.isPremium ? 'Premium Course' : 'Free Course'}</p>
+
+            {/* Progress Display */}
+            <div className="mb-8 p-4 bg-surface-2 rounded-lg border-l-4 border-brand-accent">
+                <h3 className="text-xl font-semibold text-text-base mb-2">Your Progress: {completionPercentage}% ({lessonsCompleted} of {course.lessons.length} complete)</h3>
+                <div className="w-full bg-gray-300 rounded-full h-3">
+                    <div 
+                        className="h-3 rounded-full bg-brand-accent transition-all duration-700"
+                        style={{ width: `${completionPercentage}%` }}
+                    ></div>
+                </div>
+            </div>
+
+            {/* Lesson List */}
+            <div className="space-y-4">
+                {course.lessons.map(lesson => {
+                    const isCompleted = getLessonStatus(userData, courseId, lesson.id);
+                    
+                    return (
+                        <div key={lesson.id} className="p-4 bg-surface-1 rounded-lg shadow-md flex justify-between items-center border border-gray-100">
+                            <span className={`text-lg font-medium ${isCompleted ? 'text-status-success' : 'text-text-base'}`}>
+                                {isCompleted ? '✓ ' : '• '} {lesson.title}
+                            </span>
+                            <button
+                                onClick={() => handleCompleteLesson(lesson.id)}
+                                disabled={isCompleted}
+                                className={`text-sm py-1 px-3 rounded-full transition ${
+                                    isCompleted 
+                                        ? 'bg-status-success text-white opacity-70 cursor-not-allowed' 
+                                        : 'bg-brand-primary text-white hover:bg-brand-primary-darker'
+                                }`}
+                            >
+                                {isCompleted ? 'Completed' : 'Mark Complete'}
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
+--- END FILE: src\components\CourseContent.js ---
+
 --- START FILE: src\components\Footer.js ---
 
 // src/components/Footer.js
@@ -1822,14 +1902,17 @@ export default function GitaReader() {
     const currentFile = contentMap[selectedLang];
     const numPages = realNumPages; // Use the real number here
 
-    // --- Persistence Handler ---
+    // --- Persistence Handler (Fixed Bookmark Logic) ---
     const updateProgress = useCallback(async (page, lang, isBookmarkToggle = false) => {
         if (!currentUser) return;
         const userRef = doc(db, "users", currentUser.uid);
         const updateData = {};
 
+        // Use the current local state of bookmarks for immediate UI feedback
+        let currentBookmarks = isBookmarkToggle ? bookmarks : userData?.gita_progress?.bookmarks || [];
+
         if (isBookmarkToggle) {
-            let newBookmarks = userData?.gita_progress?.bookmarks || [];
+            let newBookmarks = [...currentBookmarks];
             const pageIndex = page;
 
             if (newBookmarks.includes(pageIndex)) {
@@ -1840,7 +1923,7 @@ export default function GitaReader() {
             newBookmarks = Array.from(new Set(newBookmarks)).sort((a, b) => a - b);
             
             updateData['gita_progress.bookmarks'] = newBookmarks;
-            setBookmarks(newBookmarks);
+            setBookmarks(newBookmarks); // Update local state immediately
 
         } else {
             updateData['gita_progress.language'] = lang;
@@ -1852,38 +1935,36 @@ export default function GitaReader() {
         } catch (e) {
             console.error("Error saving progress/bookmark:", e);
         }
-    }, [currentUser, userData]);
+    }, [currentUser, userData, bookmarks]); // Added bookmarks to dependencies
 
-
-    // --- New Handler for Page Count received from PDFViewerWrapper ---
+    // --- Handler for Page Count received from PDFViewerWrapper ---
     const handleDocumentLoadSuccess = useCallback((count) => {
         setRealNumPages(count);
         
-        if (currentUser && userData?.gita_progress?.lastPage) {
-             const restoredPage = Math.min(userData.gita_progress.lastPage, count);
-             setPageNumber(Math.max(1, restoredPage));
-        } else {
-             setPageNumber(1);
-        }
-    }, [currentUser, userData]);
+        // Ensure the current page is valid for the newly loaded PDF
+        setPageNumber(p => Math.max(1, Math.min(p, count))); 
+
+    }, []); 
 
 
-    // --- Effect: Load Synchronization State (Initial Load) ---
+    // --- Effect: Load Synchronization State (Initial Load - Fixed sequence) ---
     useEffect(() => {
-        if (loading) {
-            return;
-        }
-        
-        if (isInitialized) {
+        if (loading || isInitialized) {
             return;
         }
 
         const initializeState = (user, data) => {
             if (user && data) {
                 const progress = data?.gita_progress;
-                setSelectedLang(progress?.language || 'en');
-                setPageNumber(1); 
+                
+                const savedLang = progress?.language || 'en';
+                const savedPage = progress?.lastPage || 1; 
+
+                // Set initial state from Firestore
+                setSelectedLang(savedLang);
                 setBookmarks(progress?.bookmarks || []);
+                setPageNumber(savedPage); 
+                
             } else {
                 setSelectedLang('en');
                 setPageNumber(1);
@@ -1911,7 +1992,7 @@ export default function GitaReader() {
     }, [pageNumber, selectedLang, currentUser, loading, numPages, updateProgress, isInitialized]); 
     
     
-    // --- FIX: Handler: Language Change (MISSING DEFINITION) ---
+    // --- FIX: Handler: Language Change ---
     const handleLanguageChange = (e) => {
         const newLang = e.target.value;
         if (newLang !== selectedLang) {
@@ -2551,8 +2632,24 @@ export const AuthProvider = ({ children }) => {
         
         unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
-                const data = docSnap.data();
+                const rawData = docSnap.data();
+                
+                // --- CRITICAL FIX: Calculate Dynamic Subscription Status ---
+                let isSubscribed = rawData.isSubscribed || false;
+                if (rawData.subscriptionExpires) {
+                    const expiryDate = new Date(rawData.subscriptionExpires);
+                    const now = new Date();
+                    // If isSubscribed is true but the date has passed, flip the flag
+                    if (isSubscribed && expiryDate <= now) {
+                        isSubscribed = false; 
+                    }
+                }
+                
+                // Store the calculated status in the data object passed to the context
+                const data = { ...rawData, isSubscribed }; 
                 setUserData(data);
+                // -----------------------------------------------------------
+
                 
                 // Priority 1: Use theme from Firestore
                 if (data.theme) {
@@ -2654,7 +2751,10 @@ import { doc, setDoc } from 'firebase/firestore';
  * @param {string} lessonId - The ID of the lesson completed.
  */
 export const trackLessonCompletion = async (userId, courseId, lessonId) => {
-    if (!userId || !courseId || !lessonId) return;
+    if (!userId || !courseId || !lessonId) {
+        console.error("Progress tracking failed: Missing User/Course/Lesson ID.");
+        return;
+    }
 
     const userRef = doc(db, "users", userId);
     
@@ -2666,10 +2766,16 @@ export const trackLessonCompletion = async (userId, courseId, lessonId) => {
     };
 
     try {
+        console.log(`[Firestore] Attempting write for user: ${userId}, course: ${courseId}`);
+        
         await setDoc(userRef, progressUpdate, { merge: true });
-        console.log(`Progress tracked for user ${userId}: ${courseId}/${lessonId}`);
+        
+        // --- SUCCESS LOG ---
+        console.log(`[Firestore] SUCCESS: Progress tracked for user ${userId}: ${courseId}/${lessonId}`);
     } catch (e) {
-        console.error("Error tracking progress:", e);
+        // --- FAILURE LOG ---
+        // This will now capture and display any connection or permission failures.
+        console.error("[Firestore] FATAL ERROR tracking progress:", e);
     }
 };
 
@@ -2681,9 +2787,8 @@ export const getLessonStatus = (userData, courseId, lessonId) => {
     return userData?.progress?.[courseId]?.[lessonId]?.completed || false;
 };
 
-
 --- END FILE: src\lib\utils.js ---
 
-------------------------------------------------------------------
+----------------------------------------------------------------------------------
 
-Please verify here if all the things are working fine. By that I mean, the subscriptions are being tracked or not. Suppose a user has subscribed to Yogi Monthly or Yogi Annual, then are their subscriptions tracked? How many days are left and are shown? And after the days left, after the subscription days are finished, then they'll have to renew their subscription and they'll have to recharge again. That thing will happen. In case of the Yogi Monthly, they'll have 30 days. And in case of the Yogi Annual, they'll have a whole year, which will be 365 days. And after that, the thing that is happening is that the course pages are not there. Because the Beginner's Mind, Vipassana, Deep Dive, Hatha Yoga, Flow for Flexibility, those things are there. But what I want is, I want to include some more pages, some more courses. Suppose like Pranayama Masterclass or Ashtanga Yoga Ultimatum or something like that. Do something creative with Ashtanga Yoga. And Raja Yoga Supreme or something, name it something. Well, these courses I want. And within these courses, I'll place the contents. But right now, in the Beginner's Mind, there will be 7 days, as it has 7 days. So every day, there will be one step to follow. And that step could be marked as completed, if the user has completed. Or they can go back to that step again, if they want. There will be 7 steps. They will be instructed to do each step, each day. That will happen. And after that, in all the other courses also, there will be things, there will be steps. There, each step will be completed in each day. So that way, the things will be noted there. All the instructions will be provided there. And I want all the pages to be there, all the course pages to be there. I don't want any 404 response to be showing up there. And after that, I want you to verify if the Bhagavad Gita progress tracking is working or not. Because whenever I open the Bhagavad Gita in any language, it is not saving the progress of how far I have read. So, fix that as well. And what else do I have to do is... Yeah, work on the tracking a lot more and make it do wonders.
+Now what I want to change in this website is that I want to replace the classes page with the detailed description about what we teach and how we proceed with our courses and everything. So mainly, basically, what the website is aiming to do is that my meditation center is a place where people will come, sit, meditate. It could be online, offline, anywhere. The thing is that all the courses that I have listed right now will be taught to them but will not be available as content on the website which will be unlocked when they subscribe. So yeah, keep that in mind and by keeping that in mind redesign the page and rename it to something like what we teach or how we benefit you or something like that. I think you get the gist of it. and I want the subscriptions to work finally so that whenever someone subscribes or pays the money their money doesn't get wasted it is accounted for and all the days are counted just like when someone subscribes their day count will start and when that day count ends then they'll have to recharge they can also recharge in advance as well then their day count will be added a new day count will be added suppose someone has three days left and recharges then they'll have a total of 33 days just like that this this I gave for example this will this way the things will go and now the thing that will work is that in in a free account which doesn't have any subscriptions will have access to free content which will be on their dashboard which they can access from their dashboard and the free content can be chosen by admin to be distributed or displayed to the user so there will be an admin account which will be decided by firebase one account will be predefined as admin by firebase they won't have to log in as admin by choosing a role all they have to do is just simply log in and their admin dashboard or things will be shown and they can choose to add like links and things and whatever things that they want the user to show and the thing is that free users will get some stuff and paid users will get some other stuff paid users will get what free users were getting already plus some new stuff by stuff I mean the free users will get video links for them and wisdom and blogs posts directly blogs posts directly into the dashboard or could be a new page that has blogs and posts and things there where admin can post things which free users to paid users anyone can see and for paid users the premium blog post will be there that same blog post area but the admin can change it to change it from free to premium like the premium users will get premium content exclusive content which will be blog posts or images text videos anything that will be posted by the admin there on the blog post area and the free users will get free content which will also be determined by the admin so yeah I need these changes to happen to the website and one more thing one small change that I want to make is that in the pdf reader there is a unloaded image shown on the right side of the pdf why is it there I don't want it there I want to remove that image or copyright icon or something that is on the right side of the pdf I only want the pdf to be within that pdf reader so users can concentrate and I don't like the pdf reader how the pdf reader is displaying the pdf because the pdf is the user has to read the pdf by upping and downing the scroll bar and horizontally moving the scroll bar so I don't want any scroll bars there I want full control of the pdf I mean user can choose to zoom in zoom out and anything whenever they want plus they can see the whole pdf contained inside that window I don't want scroll bars to be there freely moving pdf should be there so yeah that's it and I want the website to be more responsive for all screen sizes so please please check that as well yeah these are all the things that I want to change about this website please make sure these things are implemented and send me the updated codes and also tell me how to implement them send me all the full codes with changes implemented into them and tell guide me through it all thank you.

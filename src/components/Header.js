@@ -55,8 +55,8 @@ export default function Header() {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex space-x-8">
-          <NavLink href="/classes">Classes</NavLink>
-          {/* Added Gita Link */}
+          <NavLink href="/teachings">What We Teach</NavLink> {/* <-- UPDATED LINK */}
+          <NavLink href="/wisdom">Wisdom</NavLink> {/* <-- NEW LINK */}
           <NavLink href="/gita">Bhagavad Gita</NavLink>
           <NavLink href="/about">Our Story</NavLink>
           <NavLink href="/pricing">Pricing</NavLink>
@@ -112,7 +112,8 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute w-full bg-surface-1 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
             <nav className="flex flex-col space-y-2 px-4">
-                <MobileNavLink href="/classes" onClick={() => setIsMobileMenuOpen(false)}>Classes</MobileNavLink>
+                <MobileNavLink href="/teachings" onClick={() => setIsMobileMenuOpen(false)}>What We Teach</MobileNavLink> {/* <-- UPDATED */}
+                <MobileNavLink href="/wisdom" onClick={() => setIsMobileMenuOpen(false)}>Wisdom</MobileNavLink> {/* <-- NEW */}
                 <MobileNavLink href="/gita" onClick={() => setIsMobileMenuOpen(false)}>Bhagavad Gita</MobileNavLink>
                 <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</MobileNavLink>
                 <MobileNavLink href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>Pricing</MobileNavLink>

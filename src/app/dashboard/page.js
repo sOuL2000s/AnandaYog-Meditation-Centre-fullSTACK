@@ -5,21 +5,21 @@ import Link from 'next/link';
 import PaymentInitiator from '@/components/PaymentInitiator'; 
 import AuthStatus from '@/components/AuthStatus'; 
 import { useAuth } from '@/context/AuthContext'; 
+import AdminPanel from '@/components/AdminPanel'; // Import Admin Panel
 
 // Define hardcoded course list for dashboard progress display (must match IDs in src/app/courses/[id]/page.js)
 const TRACKED_COURSES = [
-    { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7 },
-    { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15 },
-    { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10 },
-    // --- NEW COURSES ADDED ---
-    { id: 'pranayama_masterclass', name: "Pranayama Masterclass", totalLessons: 12 },
-    { id: 'ashtanga_ultimatum', name: "Ashtanga Yoga Ultimatum", totalLessons: 20 },
-    { id: 'raja_yoga_supreme', name: "Raja Yoga Supreme", totalLessons: 8 },
+    { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7, isPremium: false },
+    { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15, isPremium: true },
+    { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10, isPremium: true },
+    { id: 'pranayama_masterclass', name: "Pranayama Masterclass", totalLessons: 12, isPremium: true },
+    { id: 'ashtanga_ultimatum', name: "Ashtanga Yoga Ultimatum", totalLessons: 20, isPremium: true },
+    { id: 'raja_yoga_supreme', name: "Raja Yoga Supreme", totalLessons: 8, isPremium: true },
 ];
 
 
 export default function DashboardPage() {
-  const { currentUser, userData, loading, logout } = useAuth();
+  const { currentUser, userData, loading, logout, isAdmin } = useAuth(); // Added isAdmin
 
   if (loading) {
     return (
@@ -61,8 +61,13 @@ export default function DashboardPage() {
   if (isSubscribed && userData?.subscriptionExpires) {
       const expiryDate = new Date(userData.subscriptionExpires);
       const now = new Date();
-      const diffTime = Math.abs(expiryDate - now);
-      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffTime = expiryDate - now; // Time difference in milliseconds
+      
+      if (diffTime > 0) {
+          daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      } else {
+          daysRemaining = 0; // Subscription is technically expired but we still show the date
+      }
   }
   
   const expirationDate = userData?.subscriptionExpires ? 
@@ -73,7 +78,6 @@ export default function DashboardPage() {
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
   // Calculate progress for display
-
   const getUserProgress = (courseId) => {
     const courseData = TRACKED_COURSES.find(c => c.id === courseId);
     if (!userData?.progress || !courseData) return '0%';
@@ -89,7 +93,10 @@ export default function DashboardPage() {
     const percentage = Math.round((completedLessons / courseData.totalLessons) * 100);
     return isNaN(percentage) ? '0%' : `${percentage}%`;
   };
-
+  
+  // Determine accessible courses based on subscription status
+  const accessibleCourses = TRACKED_COURSES.filter(course => !course.isPremium || isSubscribed);
+  const freeCourses = TRACKED_COURSES.filter(course => !course.isPremium);
 
   return (
     <div className="container mx-auto p-8 max-w-6xl">
@@ -117,7 +124,7 @@ export default function DashboardPage() {
                         <p className="text-sm text-text-muted mt-2">
                             Expires: {expirationDate}
                         </p>
-                        <p className="text-sm text-status-success font-medium mt-1">
+                        <p className={`text-sm font-medium mt-1 ${daysRemaining > 7 ? 'text-status-success' : 'text-status-warning'}`}>
                             Days Remaining: {daysRemaining}
                         </p>
                     </>
@@ -134,8 +141,7 @@ export default function DashboardPage() {
                 <h3 className="text-xl font-serif font-bold text-brand-primary mb-4">Your Course Progress</h3>
                 <ul className="space-y-3 text-text-base">
                     {TRACKED_COURSES.map(course => {
-                        // Determine if the course is accessible (Free or Subscribed)
-                        const isAccessible = course.id === 'beginners_mind' || isSubscribed;
+                        const isAccessible = !course.isPremium || isSubscribed;
                         const progress = getUserProgress(course.id);
                         const progressValue = parseInt(progress.replace('%', ''), 10);
 
@@ -172,6 +178,13 @@ export default function DashboardPage() {
                     Logout
                 </button>
             </div>
+            
+            {/* Admin Link */}
+            {isAdmin && (
+                <Link href="/wisdom" className="block text-center p-4 bg-brand-accent text-white font-bold rounded-lg shadow-lg hover:bg-brand-accent-darker transition">
+                    ★ Go to Admin Wisdom Portal
+                </Link>
+            )}
         </div>
 
         {/* Column 2 & 3: Payment & Protected Content */}
@@ -202,28 +215,38 @@ export default function DashboardPage() {
             <div className="p-8 bg-surface-1 rounded-lg shadow-xl border-t-4 border-brand-primary">
                 <h2 className="text-2xl font-serif font-bold mb-5 text-brand-primary">Your Course Library</h2>
                 
-                {isSubscribed ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Links now use the actual course IDs */}
-                        <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana_deep_dive" />
-                        <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha_flow" />
-                        <CourseLink title="Pranayama Masterclass: Breath Control" href="/courses/pranayama_masterclass" />
-                        <CourseLink title="Ashtanga Yoga Ultimatum (Primary Series)" href="/courses/ashtanga_ultimatum" />
-                        <CourseLink title="Raja Yoga Supreme: The Eight Limbs" href="/courses/raja_yoga_supreme" />
-                        <CourseLink title="Beginner's Mind (7 Days)" href="/courses/beginners_mind" />
-                        <CourseLink title="Bhagavad Gita Reader" href="/gita" />
-                    </div>
-                ) : (
-                    <div className="text-center p-8 bg-surface-2 border-2 border-dashed border-brand-accent rounded-lg">
-                        <p className="text-xl text-brand-accent font-medium mb-4">
-                            Upgrade Required: Full library access is currently locked.
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Free Content (Always Available) */}
+                    {freeCourses.map(course => (
+                        <CourseLink 
+                            key={course.id} 
+                            title={course.name} 
+                            href={`/courses/${course.id}`} 
+                            isPremium={false} 
+                        />
+                    ))}
+                    
+                    {/* Premium Content (Conditional Access) */}
+                    {TRACKED_COURSES.filter(c => c.isPremium).map(course => (
+                        <CourseLink 
+                            key={course.id} 
+                            title={course.name} 
+                            href={`/courses/${course.id}`} 
+                            isPremium={true}
+                            isLocked={!isSubscribed}
+                        />
+                    ))}
+                    
+                    {/* Universal Content */}
+                    <CourseLink title="Bhagavad Gita Reader" href="/gita" isPremium={false} />
+                    <CourseLink title="The Yogi's Wisdom" href="/wisdom" isPremium={false} />
+                </div>
+                
+                {!isSubscribed && (
+                    <div className="text-center p-4 mt-6 bg-surface-2 border-2 border-dashed border-brand-accent rounded-lg">
+                        <p className="text-lg text-brand-accent font-medium">
+                            Upgrade to unlock premium content!
                         </p>
-                        <p className="text-text-muted">
-                            Start with the 7 free introductory lessons: 
-                        </p>
-                        <Link href="/courses/beginners_mind" className="mt-4 inline-block text-brand-primary hover:underline font-semibold">
-                            Beginner&apos;s Mind (Free) →
-                        </Link>
                     </div>
                 )}
             </div>
@@ -233,13 +256,19 @@ export default function DashboardPage() {
   );
 }
 
-const CourseLink = ({ title, href }) => (
-    // Refactored background to Surface 2 and hover background to Primary Light
-    <Link 
-        href={href} 
-        className="block p-4 bg-surface-2 rounded-lg shadow-sm hover:bg-brand-primary-light transition duration-200 border-l-4 border-brand-primary"
-    >
-        <p className="font-semibold text-text-base">{title}</p>
-        <p className="text-sm text-text-muted">Start Lesson 1 →</p>
-    </Link>
-);
+const CourseLink = ({ title, href, isPremium, isLocked = false }) => {
+    const borderColor = isPremium ? 'border-brand-accent' : 'border-brand-primary';
+    const linkClass = isLocked ? 'opacity-60 cursor-default' : 'hover:bg-brand-primary-light';
+    const textClass = isLocked ? 'text-text-muted' : 'text-text-base';
+    
+    const content = (
+        <div className={`p-4 bg-surface-2 rounded-lg shadow-sm transition duration-200 border-l-4 ${borderColor} ${linkClass}`}>
+            <p className={`font-semibold ${textClass}`}>{title}</p>
+            <p className="text-sm text-text-muted">
+                {isLocked ? '🔒 Subscription Required' : 'Start Lesson 1 →'}
+            </p>
+        </div>
+    );
+    
+    return isLocked ? <div className='block'>{content}</div> : <Link href={href}>{content}</Link>;
+};

@@ -3,7 +3,7 @@
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore'; // <-- ADDED getDoc
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 
@@ -21,7 +21,7 @@ export async function POST(request) {
       signature, 
       userId, 
       amount,
-      planName // New field
+      planName 
     } = await request.json();
 
     // 1. Construct the signature string
@@ -36,8 +36,25 @@ export async function POST(request) {
 
     // --- Verification Successful ---
     
-    // 3. Optional: Add logic to calculate expiration date based on planName (Monthly/Annual)
-    let expirationDate = new Date();
+    // 3. Implement CUMULATIVE EXPIRATION LOGIC
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef); 
+
+    let baseDate = new Date(); // Default start is now
+
+    if (userSnap.exists()) {
+        const data = userSnap.data();
+        if (data.subscriptionExpires) {
+            const existingExpiry = new Date(data.subscriptionExpires);
+            // If the existing subscription is still in the future, use it as the new base date
+            if (existingExpiry > baseDate) {
+                baseDate = existingExpiry;
+            }
+        }
+    }
+    
+    let expirationDate = new Date(baseDate.getTime()); // Clone the base date for calculation
+
     if (planName === 'Yogi Monthly') {
         expirationDate.setMonth(expirationDate.getMonth() + 1);
     } else if (planName === 'Yogi Annual') {
@@ -45,7 +62,6 @@ export async function POST(request) {
     }
 
     // 4. Update the user's Firestore record (Heavy Lifting Done Here!)
-    const userRef = doc(db, "users", userId);
     await setDoc(userRef, {
       lastSubscriptionDate: new Date().toISOString(),
       subscriptionExpires: expirationDate.toISOString(),

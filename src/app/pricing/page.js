@@ -20,7 +20,7 @@ export default function PricingPage() {
             <li className="text-text-muted">✗ Unlimited Course Access</li>
           </ul>
           <Link 
-            href="/classes" 
+            href="/teachings" // <-- UPDATED LINK
             className="w-full inline-block bg-surface-2 text-text-base py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
           >
             Start Learning
@@ -38,7 +38,7 @@ export default function PricingPage() {
             <li>✓ Live Q&A Sessions (Weekly)</li>
           </ul>
           <Link 
-            href="/dashboard" 
+            href="/dashboard" // <-- UPDATED LINK
             className="w-full inline-block bg-brand-accent text-white py-3 rounded-lg font-semibold hover:bg-brand-accent-darker transition shadow-lg"
           >
             Subscribe Now
@@ -57,7 +57,7 @@ export default function PricingPage() {
             <li>✓ Private Member Community</li>
           </ul>
           <Link 
-            href="/dashboard" 
+            href="/dashboard" // <-- UPDATED LINK
             className="w-full inline-block bg-brand-primary text-white py-3 rounded-lg font-semibold hover:bg-brand-primary-darker transition"
           >
             Go Annual

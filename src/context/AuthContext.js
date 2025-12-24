@@ -22,6 +22,9 @@ const getInitialTheme = () => {
     return 'light'; // Strict Default (Light Mode)
 };
 
+// CRITICAL: Define Admin UID from ENV variable
+const ADMIN_UID = process.env.NEXT_PUBLIC_ADMIN_FIREBASE_UID;
+
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -30,6 +33,9 @@ export const AuthProvider = ({ children }) => {
   
   // Initialize theme using the function for unauthenticated state
   const [theme, setTheme] = useState(getInitialTheme); 
+  
+  // State for Admin status
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const googleProvider = new GoogleAuthProvider();
   const login = () => signInWithPopup(auth, googleProvider);
@@ -64,6 +70,9 @@ export const AuthProvider = ({ children }) => {
     unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       setLoading(false);
+      
+      // Set Admin Status based on the logged-in user
+      setIsAdmin(!!user && user.uid === ADMIN_UID);
 
       if (user) {
         // --- LOGGED IN ---
@@ -142,6 +151,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     theme,           
     toggleTheme,     
+    isAdmin, // <-- Added isAdmin
   };
 
   return (

@@ -87,11 +87,11 @@ export default function HomePage() {
                 Explore our full catalog of guided meditations, Hatha, and Vinyasa courses designed by master teachers.
             </p>
             <Link 
-                href="/classes"
+                href="/teachings" // <-- UPDATED LINK
                 // Refactored CTA to use custom accent colors
                 className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg"
             >
-                View All Courses
+                Learn What We Teach
             </Link>
         </section>
 
