@@ -442,11 +442,11 @@ export default function HomePage() {
                 Explore our full catalog of guided meditations, Hatha, and Vinyasa courses designed by master teachers.
             </p>
             <Link 
-                href="/classes"
+                href="/teachings" // <-- UPDATED LINK
                 // Refactored CTA to use custom accent colors
                 className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg"
             >
-                View All Courses
+                Learn What We Teach
             </Link>
         </section>
 
@@ -702,7 +702,7 @@ export async function POST(request) {
 
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore'; // <-- ADDED getDoc
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 
@@ -720,7 +720,7 @@ export async function POST(request) {
       signature, 
       userId, 
       amount,
-      planName // New field
+      planName 
     } = await request.json();
 
     // 1. Construct the signature string
@@ -735,8 +735,25 @@ export async function POST(request) {
 
     // --- Verification Successful ---
     
-    // 3. Optional: Add logic to calculate expiration date based on planName (Monthly/Annual)
-    let expirationDate = new Date();
+    // 3. Implement CUMULATIVE EXPIRATION LOGIC
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef); 
+
+    let baseDate = new Date(); // Default start is now
+
+    if (userSnap.exists()) {
+        const data = userSnap.data();
+        if (data.subscriptionExpires) {
+            const existingExpiry = new Date(data.subscriptionExpires);
+            // If the existing subscription is still in the future, use it as the new base date
+            if (existingExpiry > baseDate) {
+                baseDate = existingExpiry;
+            }
+        }
+    }
+    
+    let expirationDate = new Date(baseDate.getTime()); // Clone the base date for calculation
+
     if (planName === 'Yogi Monthly') {
         expirationDate.setMonth(expirationDate.getMonth() + 1);
     } else if (planName === 'Yogi Annual') {
@@ -744,7 +761,6 @@ export async function POST(request) {
     }
 
     // 4. Update the user's Firestore record (Heavy Lifting Done Here!)
-    const userRef = doc(db, "users", userId);
     await setDoc(userRef, {
       lastSubscriptionDate: new Date().toISOString(),
       subscriptionExpires: expirationDate.toISOString(),
@@ -766,159 +782,6 @@ export async function POST(request) {
 }
 
 --- END FILE: src\app\api\verify-payment\route.js ---
-
---- START FILE: src\app\classes\page.js ---
-
-// src/app/classes/page.js
-"use client";
-
-import { useAuth } from '@/context/AuthContext';
-import Link from 'next/link';
-
-// Define the courses with IDs and lesson counts for tracking
-const COURSE_DEFINITIONS = [
-    { 
-        id: 'beginners_mind', 
-        title: "Beginner's Mind (7 Days)", 
-        description: "An introductory course covering breathwork and foundational sitting techniques.",
-        isPremium: false,
-        icon: '🧘'
-    },
-    { 
-        id: 'vipassana_deep_dive', 
-        title: "Vipassana Deep Dive", 
-        description: "Advanced silent meditation techniques for experienced practitioners (15 lessons).",
-        isPremium: true,
-        icon: '👁️'
-    },
-    { 
-        id: 'hatha_flow', 
-        title: "Hatha Flow for Flexibility", 
-        description: "Weekly guided sessions focusing on core strength and deep relaxation (10 weeks).",
-        isPremium: true,
-        icon: '🤸'
-    },
-    // --- NEW COURSES ADDED ---
-    { 
-        id: 'pranayama_masterclass', 
-        title: "Pranayama Masterclass", 
-        description: "12 detailed lessons on vital breath control techniques for energy management.",
-        isPremium: true,
-        icon: '🌬️'
-    },
-    { 
-        id: 'ashtanga_ultimatum', 
-        title: "Ashtanga Yoga Ultimatum", 
-        description: "20-week intensive program mastering the Primary Series (Vinyasa and Drishti).",
-        isPremium: true,
-        icon: '🔥'
-    },
-    { 
-        id: 'raja_yoga_supreme', 
-        title: "Raja Yoga Supreme", 
-        description: "8-part philosophical and practical study of Patanjali's Yoga Sutras.",
-        isPremium: true,
-        icon: '👑'
-    },
-];
-
-export default function ClassesPage() {
-    // Extracted 'loading' correctly from useAuth()
-    const { currentUser, userData, loading, login } = useAuth(); 
-    const isSubscribed = userData?.isSubscribed;
-
-    return (
-        <div className="container mx-auto p-8">
-            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-8">Our Course Catalog</h1>
-            
-            <p className="text-lg text-text-muted mb-10">
-                {isSubscribed 
-                    ? "Welcome! You have full access to all courses listed below."
-                    : "Access limited foundational content. Subscribe now for the full catalog."
-                }
-            </p>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {COURSE_DEFINITIONS.map(course => (
-                    <CourseCard 
-                        key={course.id}
-                        {...course}
-                        isSubscribed={isSubscribed}
-                        currentUser={currentUser}
-                        login={login}
-                        loading={loading}
-                    />
-                ))}
-            </div>
-            
-            <div className="mt-16 text-center">
-                <h2 className="text-3xl font-serif font-bold text-brand-primary mb-4">Beyond Courses</h2>
-                <Link 
-                    href="/gita"
-                    className="inline-flex items-center bg-surface-2 text-brand-primary font-bold text-lg py-3 px-8 rounded-lg hover:bg-brand-primary-light transition duration-300 shadow-lg"
-                >
-                    📖 Read the Bhagavad Gita (Multi-Language) →
-                </Link>
-            </div>
-        </div>
-    );
-}
-
-const CourseCard = ({ id, title, description, isPremium, isSubscribed, currentUser, login, loading, icon }) => {
-    let buttonContent, linkHref, isButtonAction = false;
-
-    if (loading) {
-        buttonContent = "Checking Access...";
-        linkHref = "#";
-    }
-    else if (!currentUser) {
-        buttonContent = "Login to Enroll";
-        linkHref = "#"; // Use action button to trigger login
-        isButtonAction = true;
-    } else if (isPremium && !isSubscribed) {
-        buttonContent = "Upgrade to Unlock";
-        linkHref = '/pricing';
-    } else { // Free course or Subscribed
-        buttonContent = "Start Course";
-        linkHref = `/courses/${id}`; // Actual course link
-    }
-    
-    const badgeColor = isPremium ? 'text-brand-accent' : 'text-brand-primary';
-    const buttonClass = (isPremium && !isSubscribed) 
-        ? "bg-brand-accent hover:bg-brand-accent-darker"
-        : "bg-brand-primary hover:bg-brand-primary-darker";
-
-    const Content = (
-        <button 
-            className={`w-full text-white py-2 rounded-lg transition shadow-md ${buttonClass}`}
-            disabled={loading}
-            onClick={() => { if (isButtonAction) login(); }} // Trigger login if it's a non-link action
-        >
-            {buttonContent}
-        </button>
-    );
-    
-    return (
-        <div className="bg-surface-1 p-6 rounded-lg shadow-lg border border-gray-100 flex flex-col justify-between">
-            <div>
-                <div className="text-3xl mb-2">{icon}</div>
-                <h2 className="text-xl font-semibold text-brand-primary mb-2">{title}</h2>
-                <p className={`text-sm font-medium mb-3 ${badgeColor}`}>{isPremium ? 'PREMIUM ACCESS' : 'FREE FOUNDATION'}</p>
-                <p className="text-text-base mb-4">{description}</p>
-            </div>
-            
-            {(linkHref !== "#" && !isButtonAction) ? (
-                 <Link href={linkHref}>
-                    {Content}
-                 </Link>
-            ) : (
-                Content 
-            )}
-        </div>
-    );
-};
-
---- END FILE: src\app\classes\page.js ---
 
 --- START FILE: src\app\contact\page.js ---
 
@@ -1138,21 +1001,21 @@ import Link from 'next/link';
 import PaymentInitiator from '@/components/PaymentInitiator'; 
 import AuthStatus from '@/components/AuthStatus'; 
 import { useAuth } from '@/context/AuthContext'; 
+import AdminPanel from '@/components/AdminPanel'; // Import Admin Panel
 
 // Define hardcoded course list for dashboard progress display (must match IDs in src/app/courses/[id]/page.js)
 const TRACKED_COURSES = [
-    { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7 },
-    { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15 },
-    { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10 },
-    // --- NEW COURSES ADDED ---
-    { id: 'pranayama_masterclass', name: "Pranayama Masterclass", totalLessons: 12 },
-    { id: 'ashtanga_ultimatum', name: "Ashtanga Yoga Ultimatum", totalLessons: 20 },
-    { id: 'raja_yoga_supreme', name: "Raja Yoga Supreme", totalLessons: 8 },
+    { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7, isPremium: false },
+    { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15, isPremium: true },
+    { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10, isPremium: true },
+    { id: 'pranayama_masterclass', name: "Pranayama Masterclass", totalLessons: 12, isPremium: true },
+    { id: 'ashtanga_ultimatum', name: "Ashtanga Yoga Ultimatum", totalLessons: 20, isPremium: true },
+    { id: 'raja_yoga_supreme', name: "Raja Yoga Supreme", totalLessons: 8, isPremium: true },
 ];
 
 
 export default function DashboardPage() {
-  const { currentUser, userData, loading, logout } = useAuth();
+  const { currentUser, userData, loading, logout, isAdmin } = useAuth(); // Added isAdmin
 
   if (loading) {
     return (
@@ -1194,8 +1057,13 @@ export default function DashboardPage() {
   if (isSubscribed && userData?.subscriptionExpires) {
       const expiryDate = new Date(userData.subscriptionExpires);
       const now = new Date();
-      const diffTime = Math.abs(expiryDate - now);
-      daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const diffTime = expiryDate - now; // Time difference in milliseconds
+      
+      if (diffTime > 0) {
+          daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      } else {
+          daysRemaining = 0; // Subscription is technically expired but we still show the date
+      }
   }
   
   const expirationDate = userData?.subscriptionExpires ? 
@@ -1206,7 +1074,6 @@ export default function DashboardPage() {
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
 
   // Calculate progress for display
-
   const getUserProgress = (courseId) => {
     const courseData = TRACKED_COURSES.find(c => c.id === courseId);
     if (!userData?.progress || !courseData) return '0%';
@@ -1222,7 +1089,10 @@ export default function DashboardPage() {
     const percentage = Math.round((completedLessons / courseData.totalLessons) * 100);
     return isNaN(percentage) ? '0%' : `${percentage}%`;
   };
-
+  
+  // Determine accessible courses based on subscription status
+  const accessibleCourses = TRACKED_COURSES.filter(course => !course.isPremium || isSubscribed);
+  const freeCourses = TRACKED_COURSES.filter(course => !course.isPremium);
 
   return (
     <div className="container mx-auto p-8 max-w-6xl">
@@ -1250,7 +1120,7 @@ export default function DashboardPage() {
                         <p className="text-sm text-text-muted mt-2">
                             Expires: {expirationDate}
                         </p>
-                        <p className="text-sm text-status-success font-medium mt-1">
+                        <p className={`text-sm font-medium mt-1 ${daysRemaining > 7 ? 'text-status-success' : 'text-status-warning'}`}>
                             Days Remaining: {daysRemaining}
                         </p>
                     </>
@@ -1267,8 +1137,7 @@ export default function DashboardPage() {
                 <h3 className="text-xl font-serif font-bold text-brand-primary mb-4">Your Course Progress</h3>
                 <ul className="space-y-3 text-text-base">
                     {TRACKED_COURSES.map(course => {
-                        // Determine if the course is accessible (Free or Subscribed)
-                        const isAccessible = course.id === 'beginners_mind' || isSubscribed;
+                        const isAccessible = !course.isPremium || isSubscribed;
                         const progress = getUserProgress(course.id);
                         const progressValue = parseInt(progress.replace('%', ''), 10);
 
@@ -1305,6 +1174,13 @@ export default function DashboardPage() {
                     Logout
                 </button>
             </div>
+            
+            {/* Admin Link */}
+            {isAdmin && (
+                <Link href="/wisdom" className="block text-center p-4 bg-brand-accent text-white font-bold rounded-lg shadow-lg hover:bg-brand-accent-darker transition">
+                    ★ Go to Admin Wisdom Portal
+                </Link>
+            )}
         </div>
 
         {/* Column 2 & 3: Payment & Protected Content */}
@@ -1335,28 +1211,38 @@ export default function DashboardPage() {
             <div className="p-8 bg-surface-1 rounded-lg shadow-xl border-t-4 border-brand-primary">
                 <h2 className="text-2xl font-serif font-bold mb-5 text-brand-primary">Your Course Library</h2>
                 
-                {isSubscribed ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Links now use the actual course IDs */}
-                        <CourseLink title="Mastering Vipassana: 30 Day Series" href="/courses/vipassana_deep_dive" />
-                        <CourseLink title="Hatha Flow for Flexibility" href="/courses/hatha_flow" />
-                        <CourseLink title="Pranayama Masterclass: Breath Control" href="/courses/pranayama_masterclass" />
-                        <CourseLink title="Ashtanga Yoga Ultimatum (Primary Series)" href="/courses/ashtanga_ultimatum" />
-                        <CourseLink title="Raja Yoga Supreme: The Eight Limbs" href="/courses/raja_yoga_supreme" />
-                        <CourseLink title="Beginner's Mind (7 Days)" href="/courses/beginners_mind" />
-                        <CourseLink title="Bhagavad Gita Reader" href="/gita" />
-                    </div>
-                ) : (
-                    <div className="text-center p-8 bg-surface-2 border-2 border-dashed border-brand-accent rounded-lg">
-                        <p className="text-xl text-brand-accent font-medium mb-4">
-                            Upgrade Required: Full library access is currently locked.
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Free Content (Always Available) */}
+                    {freeCourses.map(course => (
+                        <CourseLink 
+                            key={course.id} 
+                            title={course.name} 
+                            href={`/courses/${course.id}`} 
+                            isPremium={false} 
+                        />
+                    ))}
+                    
+                    {/* Premium Content (Conditional Access) */}
+                    {TRACKED_COURSES.filter(c => c.isPremium).map(course => (
+                        <CourseLink 
+                            key={course.id} 
+                            title={course.name} 
+                            href={`/courses/${course.id}`} 
+                            isPremium={true}
+                            isLocked={!isSubscribed}
+                        />
+                    ))}
+                    
+                    {/* Universal Content */}
+                    <CourseLink title="Bhagavad Gita Reader" href="/gita" isPremium={false} />
+                    <CourseLink title="The Yogi's Wisdom" href="/wisdom" isPremium={false} />
+                </div>
+                
+                {!isSubscribed && (
+                    <div className="text-center p-4 mt-6 bg-surface-2 border-2 border-dashed border-brand-accent rounded-lg">
+                        <p className="text-lg text-brand-accent font-medium">
+                            Upgrade to unlock premium content!
                         </p>
-                        <p className="text-text-muted">
-                            Start with the 7 free introductory lessons: 
-                        </p>
-                        <Link href="/courses/beginners_mind" className="mt-4 inline-block text-brand-primary hover:underline font-semibold">
-                            Beginner&apos;s Mind (Free) →
-                        </Link>
                     </div>
                 )}
             </div>
@@ -1366,17 +1252,22 @@ export default function DashboardPage() {
   );
 }
 
-const CourseLink = ({ title, href }) => (
-    // Refactored background to Surface 2 and hover background to Primary Light
-    <Link 
-        href={href} 
-        className="block p-4 bg-surface-2 rounded-lg shadow-sm hover:bg-brand-primary-light transition duration-200 border-l-4 border-brand-primary"
-    >
-        <p className="font-semibold text-text-base">{title}</p>
-        <p className="text-sm text-text-muted">Start Lesson 1 →</p>
-    </Link>
-);
-
+const CourseLink = ({ title, href, isPremium, isLocked = false }) => {
+    const borderColor = isPremium ? 'border-brand-accent' : 'border-brand-primary';
+    const linkClass = isLocked ? 'opacity-60 cursor-default' : 'hover:bg-brand-primary-light';
+    const textClass = isLocked ? 'text-text-muted' : 'text-text-base';
+    
+    const content = (
+        <div className={`p-4 bg-surface-2 rounded-lg shadow-sm transition duration-200 border-l-4 ${borderColor} ${linkClass}`}>
+            <p className={`font-semibold ${textClass}`}>{title}</p>
+            <p className="text-sm text-text-muted">
+                {isLocked ? '🔒 Subscription Required' : 'Start Lesson 1 →'}
+            </p>
+        </div>
+    );
+    
+    return isLocked ? <div className='block'>{content}</div> : <Link href={href}>{content}</Link>;
+};
 
 --- END FILE: src\app\dashboard\page.js ---
 
@@ -1477,7 +1368,7 @@ export default function PricingPage() {
             <li className="text-text-muted">✗ Unlimited Course Access</li>
           </ul>
           <Link 
-            href="/classes" 
+            href="/teachings" // <-- UPDATED LINK
             className="w-full inline-block bg-surface-2 text-text-base py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
           >
             Start Learning
@@ -1495,7 +1386,7 @@ export default function PricingPage() {
             <li>✓ Live Q&A Sessions (Weekly)</li>
           </ul>
           <Link 
-            href="/dashboard" 
+            href="/dashboard" // <-- UPDATED LINK
             className="w-full inline-block bg-brand-accent text-white py-3 rounded-lg font-semibold hover:bg-brand-accent-darker transition shadow-lg"
           >
             Subscribe Now
@@ -1514,7 +1405,7 @@ export default function PricingPage() {
             <li>✓ Private Member Community</li>
           </ul>
           <Link 
-            href="/dashboard" 
+            href="/dashboard" // <-- UPDATED LINK
             className="w-full inline-block bg-brand-primary text-white py-3 rounded-lg font-semibold hover:bg-brand-primary-darker transition"
           >
             Go Annual
@@ -1526,6 +1417,100 @@ export default function PricingPage() {
 }
 
 --- END FILE: src\app\pricing\page.js ---
+
+--- START FILE: src\app\teachings\page.js ---
+
+// src/app/teachings/page.js
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+
+const TEACHING_PRINCIPLES = [
+    { 
+        title: "The Eightfold Path", 
+        description: "Practices rooted in Patanjali's Yoga Sutras, focusing on mental and ethical discipline (Raja Yoga)."
+    },
+    { 
+        title: "Prana & Breathwork", 
+        description: "Mastering life force (Pranayama) through structured breathing techniques for energy control and calm."
+    },
+    { 
+        title: "Vipassana Meditation", 
+        description: "The traditional method of insight meditation, focusing on deep, non-judgmental awareness of body sensations."
+    },
+    { 
+        title: "Hatha & Vinyasa", 
+        description: "Physical practices (Asana) blended into gentle Hatha flows and dynamic Vinyasa sequences for body integration."
+    },
+];
+
+const CoursePillars = () => (
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {TEACHING_PRINCIPLES.map((pillar, index) => (
+            <div 
+                key={index} 
+                // Refactored background to Surface 1
+                className="bg-surface-1 p-6 rounded-xl shadow-lg border-t-4 border-brand-accent transform hover:scale-[1.03] transition duration-300"
+            >
+                <h3 className="text-xl font-semibold font-serif text-brand-primary mb-2">{pillar.title}</h3>
+                <p className="text-text-base text-sm">{pillar.description}</p>
+            </div>
+        ))}
+    </div>
+);
+
+export default function TeachingsPage() {
+    return (
+        <div className="container mx-auto p-8 max-w-6xl">
+            {/* Hero Section */}
+            <header className="text-center mb-16 pt-8">
+                <h1 className="text-5xl font-serif font-extrabold text-brand-primary mb-4">
+                    The AnandaYog Path: What We Teach
+                </h1>
+                <p className="text-xl text-text-muted max-w-4xl mx-auto">
+                    We offer an integrated approach to ancient wisdom, guiding you from foundational breathwork to deep self-inquiry and liberation.
+                </p>
+            </header>
+
+            {/* Teaching Pillars */}
+            <section className="mb-16">
+                <h2 className="text-3xl font-bold font-serif text-brand-primary mb-8 text-center">
+                    Our Four Pillars of Practice
+                </h2>
+                <CoursePillars />
+            </section>
+
+            {/* Course Methodology */}
+            <section className="bg-surface-2 p-10 rounded-2xl shadow-inner border-l-4 border-brand-primary">
+                <h2 className="text-3xl font-bold font-serif text-brand-primary mb-4">
+                    Our Course Methodology
+                </h2>
+                <div className="space-y-6 text-text-base">
+                    <p>
+                        All our premium courses are structured to facilitate growth at your own pace. Content is delivered via high-quality video, audio, and supplementary text guides. Access to our entire library is unlocked through a single monthly or annual subscription.
+                    </p>
+                    <ul className="list-disc list-inside ml-4 space-y-2">
+                        <li>**Foundational Courses:** Accessible to all (even free tier) to establish the basics.</li>
+                        <li>**Deep Dive Modules:** Reserved for subscribed members, providing structured paths in specific disciplines like Vipassana or Ashtanga.</li>
+                        <li>**Progress Tracking:** Your completion status is saved in real-time to your dashboard.</li>
+                    </ul>
+                </div>
+                
+                <div className="mt-8 text-center">
+                    <Link 
+                        href="/pricing"
+                        // Refactored CTA to use custom accent colors
+                        className="inline-block bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg"
+                    >
+                        See Subscription Plans
+                    </Link>
+                </div>
+            </section>
+        </div>
+    );
+}
+
+
+--- END FILE: src\app\teachings\page.js ---
 
 --- START FILE: src\app\terms\page.js ---
 
@@ -1573,6 +1558,245 @@ export default function TermsPage() {
 }
 
 --- END FILE: src\app\terms\page.js ---
+
+--- START FILE: src\app\wisdom\page.js ---
+
+// src/app/wisdom/page.js
+"use client";
+
+import { useAuth } from '@/context/AuthContext';
+import { db } from '@/lib/firebase';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import AdminPanel from '@/components/AdminPanel';
+import Link from 'next/link';
+
+export default function WisdomPage() {
+    const { currentUser, userData, loading } = useAuth();
+    const [posts, setPosts] = useState([]);
+
+    const isAdmin = currentUser?.uid === process.env.NEXT_PUBLIC_ADMIN_FIREBASE_UID;
+    const isSubscribed = userData?.isSubscribed;
+    
+    // Fetch posts in real-time
+    useEffect(() => {
+        const postsCol = collection(db, "wisdom_posts");
+        const q = query(postsCol, orderBy("createdAt", "desc"));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const fetchedPosts = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setPosts(fetchedPosts);
+        }, (error) => {
+            console.error("Error fetching wisdom posts:", error);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    // Filter posts based on user access
+    const filteredPosts = posts.filter(post => {
+        // Admins see everything
+        if (isAdmin) return true;
+        // Free posts are always visible
+        if (post.access === 'free') return true;
+        // Premium posts require subscription
+        if (post.access === 'premium' && isSubscribed) return true;
+        
+        return false;
+    });
+
+    if (loading) {
+        return <div className="text-center py-20 text-text-muted">Loading Wisdom Library...</div>;
+    }
+
+    return (
+        <div className="container mx-auto p-8 max-w-4xl">
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">
+                The Yogi&apos;s Wisdom
+            </h1>
+            <p className="text-lg text-text-muted mb-8">
+                Daily insights, practice tips, and philosophical reflections.
+            </p>
+
+            {isAdmin && (
+                <div className="mb-8">
+                    <AdminPanel currentUser={currentUser} />
+                </div>
+            )}
+
+            <div className="space-y-6">
+                {filteredPosts.length > 0 ? (
+                    filteredPosts.map(post => (
+                        <PostCard 
+                            key={post.id} 
+                            post={post} 
+                            isSubscribed={isSubscribed}
+                            isAdmin={isAdmin}
+                        />
+                    ))
+                ) : (
+                    <div className="p-8 bg-surface-2 rounded-lg text-center text-text-muted">
+                        No wisdom posts available yet.
+                    </div>
+                )}
+            </div>
+
+            {!isSubscribed && posts.some(p => p.access === 'premium') && (
+                <div className="mt-10 p-8 text-center bg-brand-accent/10 border-l-4 border-brand-accent rounded-lg">
+                    <p className="text-xl font-semibold text-brand-accent mb-4">Unlock Premium Wisdom</p>
+                    <p className="text-text-base mb-4">
+                        Subscribe to gain exclusive access to deep-dive articles and masterclass videos reserved only for paid members.
+                    </p>
+                    <Link href="/pricing" className="bg-brand-accent text-white py-2 px-6 rounded-full hover:bg-brand-accent-darker transition">
+                        View Subscription Plans
+                    </Link>
+                </div>
+            )}
+        </div>
+    );
+}
+
+const PostCard = ({ post, isSubscribed, isAdmin }) => {
+    const isPremium = post.access === 'premium';
+    const isLocked = isPremium && !isSubscribed && !isAdmin;
+    
+    // Style adjustments for locked content
+    const cardClass = isLocked ? 'opacity-50 blur-sm' : 'hover:shadow-xl';
+    
+    return (
+        <div className={`p-6 bg-surface-1 rounded-lg shadow-md border-l-4 ${isPremium ? 'border-brand-accent' : 'border-status-success'} transition duration-300 ${cardClass}`}>
+            <div className="flex justify-between items-start mb-2">
+                <h2 className="text-2xl font-serif font-bold text-text-base">{post.title}</h2>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${isPremium ? 'bg-brand-accent text-white' : 'bg-status-success text-white'}`}>
+                    {isPremium ? 'Premium' : 'Free'}
+                </span>
+            </div>
+            
+            {isLocked && (
+                <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-xl font-bold text-red-600 dark:text-red-400">Content Locked</span>
+                </div>
+            )}
+
+            <p className="text-text-muted mb-4">{post.summary}</p>
+            
+            {!isLocked && (
+                <Link href={`#post-${post.id}`} className="text-brand-primary hover:underline font-medium text-sm">
+                    Read Full Post →
+                </Link>
+            )}
+        </div>
+    );
+};
+
+--- END FILE: src\app\wisdom\page.js ---
+
+--- START FILE: src\components\AdminPanel.js ---
+
+// src/components/AdminPanel.js
+"use client";
+
+import { useState } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+
+export default function AdminPanel({ currentUser }) {
+    const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState('');
+    const [access, setAccess] = useState('free');
+    const [status, setStatus] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    if (currentUser?.uid !== process.env.NEXT_PUBLIC_ADMIN_FIREBASE_UID) {
+        return null; 
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!title || !summary) {
+            setStatus("Title and Summary are required.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setStatus("Posting content...");
+
+        try {
+            await addDoc(collection(db, "wisdom_posts"), {
+                title,
+                summary,
+                access,
+                author: currentUser.displayName || 'Admin',
+                createdAt: serverTimestamp(),
+            });
+
+            setStatus("Post created successfully!");
+            setTitle('');
+            setSummary('');
+            setAccess('free');
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            setStatus(`Error: Failed to create post. ${error.message}`);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="p-6 bg-surface-2 rounded-lg shadow-inner border border-brand-primary">
+            <h2 className="text-2xl font-serif font-bold text-brand-primary mb-4">Admin Content Manager</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label htmlFor="title" className="block text-sm font-medium text-text-base">Title</label>
+                    <input
+                        type="text"
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border rounded-md"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="summary" className="block text-sm font-medium text-text-base">Summary/Content (Placeholder)</label>
+                    <textarea
+                        id="summary"
+                        value={summary}
+                        onChange={(e) => setSummary(e.target.value)}
+                        rows="3"
+                        required
+                        className="w-full px-3 py-2 border rounded-md"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="access" className="block text-sm font-medium text-text-base">Access Level</label>
+                    <select
+                        id="access"
+                        value={access}
+                        onChange={(e) => setAccess(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md"
+                    >
+                        <option value="free">Free (All Users)</option>
+                        <option value="premium">Premium (Subscribed Users Only)</option>
+                    </select>
+                </div>
+                <button
+                    type="submit"
+                    className="w-full bg-brand-primary text-white py-2 rounded-lg hover:bg-brand-primary-darker disabled:opacity-50 transition"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? 'Publishing...' : 'Publish Post'}
+                </button>
+                {status && <p className="text-sm mt-2 text-center text-status-success">{status}</p>}
+            </form>
+        </div>
+    );
+}
+
+--- END FILE: src\components\AdminPanel.js ---
 
 --- START FILE: src\components\AuthStatus.js ---
 
@@ -2175,8 +2399,8 @@ export default function Header() {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex space-x-8">
-          <NavLink href="/classes">Classes</NavLink>
-          {/* Added Gita Link */}
+          <NavLink href="/teachings">What We Teach</NavLink> {/* <-- UPDATED LINK */}
+          <NavLink href="/wisdom">Wisdom</NavLink> {/* <-- NEW LINK */}
           <NavLink href="/gita">Bhagavad Gita</NavLink>
           <NavLink href="/about">Our Story</NavLink>
           <NavLink href="/pricing">Pricing</NavLink>
@@ -2232,7 +2456,8 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute w-full bg-surface-1 shadow-lg border-t border-gray-100 dark:border-gray-700 pt-2 pb-4 z-40">
             <nav className="flex flex-col space-y-2 px-4">
-                <MobileNavLink href="/classes" onClick={() => setIsMobileMenuOpen(false)}>Classes</MobileNavLink>
+                <MobileNavLink href="/teachings" onClick={() => setIsMobileMenuOpen(false)}>What We Teach</MobileNavLink> {/* <-- UPDATED */}
+                <MobileNavLink href="/wisdom" onClick={() => setIsMobileMenuOpen(false)}>Wisdom</MobileNavLink> {/* <-- NEW */}
                 <MobileNavLink href="/gita" onClick={() => setIsMobileMenuOpen(false)}>Bhagavad Gita</MobileNavLink>
                 <MobileNavLink href="/about" onClick={() => setIsMobileMenuOpen(false)}>Our Story</MobileNavLink>
                 <MobileNavLink href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>Pricing</MobileNavLink>
@@ -2257,7 +2482,6 @@ const MobileNavLink = ({ href, children, onClick }) => (
         {children}
     </Link>
 );
-
 
 --- END FILE: src\components\Header.js ---
 
@@ -2475,11 +2699,13 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${PDFJS_VERSION}/b
 export default function RealPDFViewer({ file, pageNumber, onDocumentLoadSuccess }) {
     
     const [containerWidth, setContainerWidth] = useState(null);
-    const [isLoading, setIsLoading] = useState(true); // Added Loading state
+    const [isLoading, setIsLoading] = useState(true); 
 
     // FIX: Ensure containerRef is declared before use (fixes ReferenceError)
     const containerRef = useMemo(() => (el) => {
         if (el) {
+            // Use ResizeObserver for responsive updates if necessary, 
+            // but simple client rect width on mount is usually sufficient
             setContainerWidth(el.getBoundingClientRect().width);
         }
     }, []);
@@ -2494,7 +2720,7 @@ export default function RealPDFViewer({ file, pageNumber, onDocumentLoadSuccess 
 
     // Custom Loading Component for better UX
     const LoadingComponent = (
-        <div style={{ height: '600px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
+        <div style={{ height: '600px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgb(var(--bg-surface-1))' }}>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-primary"></div>
             <p className="mt-4 text-brand-primary">
                 Loading Bhagavad Gita ({file.name}). Document Initialization in Progress...
@@ -2502,20 +2728,27 @@ export default function RealPDFViewer({ file, pageNumber, onDocumentLoadSuccess 
         </div>
     );
     
+    // Determine max page width for rendering
+    // We aim for max readability (800px) or fit the container if it's smaller.
+    const maxWidth = containerWidth ? Math.min(containerWidth - 32, 800) : undefined; // Subtract padding/margin
 
     return (
-        <div ref={containerRef} style={{ width: '100%', height: '600px', overflow: 'auto' }}>
+        // REMOVED FIXED HEIGHT: Allow natural PDF height to dictate vertical size.
+        <div ref={containerRef} className="w-full flex justify-center py-4" style={{ minHeight: '600px' }}>
             <Document
                 file={file.path} 
                 onLoadSuccess={onDocumentLoad}
                 loading={LoadingComponent} 
-                error="Failed to load PDF file. Please ensure the file exists."
+                error={<div className="text-red-500 p-8">Failed to load PDF file. Please ensure the file exists.</div>}
             >
-                {/* Only render the Page component if the document is not loading */}
+                {/* Only render the Page component if the document structure is loaded */}
                 {!isLoading && (
                     <Page 
                         pageNumber={pageNumber} 
-                        width={containerWidth ? Math.min(containerWidth, 800) : undefined}
+                        // Set width to control the zoom/scale
+                        width={maxWidth}
+                        renderTextLayer={true} 
+                        renderAnnotationLayer={true}
                     />
                 )}
             </Document>
@@ -2583,6 +2816,9 @@ const getInitialTheme = () => {
     return 'light'; // Strict Default (Light Mode)
 };
 
+// CRITICAL: Define Admin UID from ENV variable
+const ADMIN_UID = process.env.NEXT_PUBLIC_ADMIN_FIREBASE_UID;
+
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -2591,6 +2827,9 @@ export const AuthProvider = ({ children }) => {
   
   // Initialize theme using the function for unauthenticated state
   const [theme, setTheme] = useState(getInitialTheme); 
+  
+  // State for Admin status
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const googleProvider = new GoogleAuthProvider();
   const login = () => signInWithPopup(auth, googleProvider);
@@ -2625,6 +2864,9 @@ export const AuthProvider = ({ children }) => {
     unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       setLoading(false);
+      
+      // Set Admin Status based on the logged-in user
+      setIsAdmin(!!user && user.uid === ADMIN_UID);
 
       if (user) {
         // --- LOGGED IN ---
@@ -2703,6 +2945,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     theme,           
     toggleTheme,     
+    isAdmin, // <-- Added isAdmin
   };
 
   return (
@@ -2789,6 +3032,6 @@ export const getLessonStatus = (userData, courseId, lessonId) => {
 
 --- END FILE: src\lib\utils.js ---
 
-----------------------------------------------------------------------------------
+-----------------------------------------------------
 
-Now what I want to change in this website is that I want to replace the classes page with the detailed description about what we teach and how we proceed with our courses and everything. So mainly, basically, what the website is aiming to do is that my meditation center is a place where people will come, sit, meditate. It could be online, offline, anywhere. The thing is that all the courses that I have listed right now will be taught to them but will not be available as content on the website which will be unlocked when they subscribe. So yeah, keep that in mind and by keeping that in mind redesign the page and rename it to something like what we teach or how we benefit you or something like that. I think you get the gist of it. and I want the subscriptions to work finally so that whenever someone subscribes or pays the money their money doesn't get wasted it is accounted for and all the days are counted just like when someone subscribes their day count will start and when that day count ends then they'll have to recharge they can also recharge in advance as well then their day count will be added a new day count will be added suppose someone has three days left and recharges then they'll have a total of 33 days just like that this this I gave for example this will this way the things will go and now the thing that will work is that in in a free account which doesn't have any subscriptions will have access to free content which will be on their dashboard which they can access from their dashboard and the free content can be chosen by admin to be distributed or displayed to the user so there will be an admin account which will be decided by firebase one account will be predefined as admin by firebase they won't have to log in as admin by choosing a role all they have to do is just simply log in and their admin dashboard or things will be shown and they can choose to add like links and things and whatever things that they want the user to show and the thing is that free users will get some stuff and paid users will get some other stuff paid users will get what free users were getting already plus some new stuff by stuff I mean the free users will get video links for them and wisdom and blogs posts directly blogs posts directly into the dashboard or could be a new page that has blogs and posts and things there where admin can post things which free users to paid users anyone can see and for paid users the premium blog post will be there that same blog post area but the admin can change it to change it from free to premium like the premium users will get premium content exclusive content which will be blog posts or images text videos anything that will be posted by the admin there on the blog post area and the free users will get free content which will also be determined by the admin so yeah I need these changes to happen to the website and one more thing one small change that I want to make is that in the pdf reader there is a unloaded image shown on the right side of the pdf why is it there I don't want it there I want to remove that image or copyright icon or something that is on the right side of the pdf I only want the pdf to be within that pdf reader so users can concentrate and I don't like the pdf reader how the pdf reader is displaying the pdf because the pdf is the user has to read the pdf by upping and downing the scroll bar and horizontally moving the scroll bar so I don't want any scroll bars there I want full control of the pdf I mean user can choose to zoom in zoom out and anything whenever they want plus they can see the whole pdf contained inside that window I don't want scroll bars to be there freely moving pdf should be there so yeah that's it and I want the website to be more responsive for all screen sizes so please please check that as well yeah these are all the things that I want to change about this website please make sure these things are implemented and send me the updated codes and also tell me how to implement them send me all the full codes with changes implemented into them and tell guide me through it all thank you.
+Let the admin be able to add posts in the Wisdom page, and edit posts, delete posts, and also let the admin add links in their posts, and also photos in their blog posts. So that, and what admin will also be able to do is update the progress of the users or the enrolled participants, so that, and also write remarks on their account, which they will be able to see if the admin has to say something to some of the users, then the admin can communicate through the remarks on notes placed in their personal dashboard. So yeah, the admin will be able to see what people are enrolled in the program, and the admin will be able to enroll people into certain programs, and that will be shown in the user's dashboard. The admin will be able to see who have active subscriptions, and who haven't, who are free members, and who aren't. And one more thing is that, in the what we teach section, I see that under our course methodology, there I saw that you tried to bold three points, but they were not bolded. I can see the stars right beside the point headings, like foundational courses, deep dive modules, progress tracking. These things should be taken care of. And I think within the dashboard, within the user's dashboard, there should be, please can you remove your course library, or you can keep it there, but each user's course library will be managed by the admin, and for the admin, make a specialized admin panel where the admin will be able to handle, control everything inside the website, and in case of the blog posts again, hear me out again, the blog posts will be about anything, the admin should be able to post anything, each and every kind of content there. Yeah, that's it. And yeah, the admin will be able to up or down the progress bar of each and every participant. For the admin view, there will be a lot, lot, lot, lot more controls there, so yeah, keep that in mind, and make a specified specialized admin dashboard there, which will be separate from the, yeah, and the admin will also be able to preview as what the normal user will be able to see, and yeah, the admin should be able to preview what a premium subscriber is able to see, and what a free user is able to see, yeah, that as well. I want all these features to be implemented, and after implementing all these features, can you please send me the updated codes and the proper guidance along with it, so I can set it up, test it myself, and deploy it finally. Thanks a lot.

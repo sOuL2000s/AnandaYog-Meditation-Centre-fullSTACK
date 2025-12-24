@@ -67,9 +67,10 @@ export default function TeachingsPage() {
                         All our premium courses are structured to facilitate growth at your own pace. Content is delivered via high-quality video, audio, and supplementary text guides. Access to our entire library is unlocked through a single monthly or annual subscription.
                     </p>
                     <ul className="list-disc list-inside ml-4 space-y-2">
-                        <li>**Foundational Courses:** Accessible to all (even free tier) to establish the basics.</li>
-                        <li>**Deep Dive Modules:** Reserved for subscribed members, providing structured paths in specific disciplines like Vipassana or Ashtanga.</li>
-                        <li>**Progress Tracking:** Your completion status is saved in real-time to your dashboard.</li>
+                        {/* FIX: Corrected the text formatting for bolding using Tailwind class */}
+                        <li><span className="font-bold">Foundational Courses:</span> Accessible to all (even free tier) to establish the basics.</li>
+                        <li><span className="font-bold">Deep Dive Modules:</span> Reserved for subscribed members, providing structured paths in specific disciplines like Vipassana or Ashtanga.</li>
+                        <li><span className="font-bold">Progress Tracking:</span> Your completion status is saved in real-time to your dashboard.</li>
                     </ul>
                 </div>
                 

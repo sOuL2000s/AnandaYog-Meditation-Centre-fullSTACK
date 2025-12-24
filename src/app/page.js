@@ -35,7 +35,8 @@ const BlissfulHero = () => (
       <Link 
         href="/dashboard" // Changed to point to dashboard for login/status check
         // Refactored to use custom accent colors
-        className="bg-brand-accent text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
+        // FIX: Added whitespace-nowrap for responsiveness
+        className="bg-brand-accent text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5 whitespace-nowrap"
       >
         Start 7 Days Free
       </Link>
@@ -89,7 +90,8 @@ export default function HomePage() {
             <Link 
                 href="/teachings" // <-- UPDATED LINK
                 // Refactored CTA to use custom accent colors
-                className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg"
+                // FIX: Added whitespace-nowrap for responsiveness
+                className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg whitespace-nowrap"
             >
                 Learn What We Teach
             </Link>
@@ -107,7 +109,7 @@ const ValueCard = ({ icon, title, description }) => (
         {/* Refactored background color */}
         <div className="text-4xl mb-4 p-3 bg-surface-2 rounded-lg inline-block">{icon}</div>
         {/* Refactored text color */}
-        <h3 className="text-2xl font-semibold text-brand-primary mb-3 font-serif">{title}</h3>
+        <h3 className="text-2xl font-semibold font-serif text-brand-primary mb-3">{title}</h3>
         {/* Refactored text color */}
         <p className="text-text-base">{description}</p>
     </div>

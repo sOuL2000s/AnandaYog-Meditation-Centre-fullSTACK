@@ -5,7 +5,6 @@ import Link from 'next/link';
 import PaymentInitiator from '@/components/PaymentInitiator'; 
 import AuthStatus from '@/components/AuthStatus'; 
 import { useAuth } from '@/context/AuthContext'; 
-import AdminPanel from '@/components/AdminPanel'; // Import Admin Panel
 
 // Define hardcoded course list for dashboard progress display (must match IDs in src/app/courses/[id]/page.js)
 const TRACKED_COURSES = [
@@ -73,6 +72,8 @@ export default function DashboardPage() {
   const expirationDate = userData?.subscriptionExpires ? 
     new Date(userData.subscriptionExpires).toLocaleDateString() : 'N/A';
 
+  const adminNotes = userData?.adminNotes; // Get admin notes
+    
   // Use standard Tailwind colors for status indicators for clear differentiation
   const accessColor = isSubscribed ? 'text-green-600' : 'text-amber-600'; 
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
@@ -110,6 +111,17 @@ export default function DashboardPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Column 1: Status & Logout */}
         <div className="lg:col-span-1 space-y-8">
+            
+            {/* Admin Notes/Remarks Display (NEW FEATURE) */}
+            {adminNotes && (
+                <div className="p-6 bg-brand-accent/10 border-l-4 border-brand-accent rounded-lg shadow-md">
+                    <h2 className="text-lg font-semibold mb-2 text-brand-accent flex items-center">
+                        <span className="text-2xl mr-2">★</span> Admin Note for You
+                    </h2>
+                    <p className="text-sm text-text-base italic">{adminNotes}</p>
+                </div>
+            )}
+            
             {/* Subscription Status Card - Refactored background to Surface 1 */}
             <div className={`bg-surface-1 p-6 rounded-lg shadow-2xl border-l-4 ${accessBorderColor} `}>
                 <h2 className="text-2xl font-semibold mb-3 text-text-base">Membership Status</h2>
@@ -181,8 +193,9 @@ export default function DashboardPage() {
             
             {/* Admin Link */}
             {isAdmin && (
-                <Link href="/wisdom" className="block text-center p-4 bg-brand-accent text-white font-bold rounded-lg shadow-lg hover:bg-brand-accent-darker transition">
-                    ★ Go to Admin Wisdom Portal
+                // Changed link target to the new Admin Panel
+                <Link href="/admin" className="block text-center p-4 bg-brand-accent text-white font-bold rounded-lg shadow-lg hover:bg-brand-accent-darker transition">
+                    ★ Go to Admin Control Panel
                 </Link>
             )}
         </div>
