@@ -6,23 +6,18 @@ import { auth, db } from '../lib/firebase';
 import { onAuthStateChanged, signOut, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore'; 
 
+// ... (getInitialTheme and ADMIN_UID functions/constants remain the same)
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
-// FIX: Modified to enforce 'light' as the strict default if no preference is saved locally.
 const getInitialTheme = () => {
     if (typeof window !== 'undefined') {
         const localTheme = localStorage.getItem('theme');
         if (localTheme) return localTheme;
-        
-        // New logic: If no local theme is found, we do NOT check system preference 
-        // to strictly enforce the 'light' default until the user toggles it.
     }
     return 'light'; // Strict Default (Light Mode)
 };
 
-// CRITICAL: Define Admin UID from ENV variable
 const ADMIN_UID = process.env.NEXT_PUBLIC_ADMIN_FIREBASE_UID;
 
 
@@ -31,35 +26,27 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null); 
   const [loading, setLoading] = useState(true);
   
-  // Initialize theme using the function for unauthenticated state
   const [theme, setTheme] = useState(getInitialTheme); 
-  
-  // State for Admin status
   const [isAdmin, setIsAdmin] = useState(false);
 
   const googleProvider = new GoogleAuthProvider();
   const login = () => signInWithPopup(auth, googleProvider);
   const logout = () => signOut(auth);
 
-  // Function to toggle and persist the theme
   const toggleTheme = async () => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme); // Apply instantly to local state
+    setTheme(newTheme); 
 
     if (currentUser) {
-      // 1. Logged in: Save to Firestore (creates doc if it doesn't exist)
       try {
         const userRef = doc(db, "users", currentUser.uid);
         await setDoc(userRef, { theme: newTheme }, { merge: true });
-        console.log("Theme saved to Firestore.");
-        localStorage.removeItem('theme'); // Clear local pref once Firestore owns it
+        localStorage.removeItem('theme'); 
       } catch (e) {
         console.error("Error saving theme to Firestore:", e);
       }
     } else {
-      // 2. Not logged in: Save to Local Storage
       localStorage.setItem('theme', newTheme);
-      console.log("Theme saved to Local Storage.");
     }
   };
 
@@ -71,11 +58,9 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
       setLoading(false);
       
-      // Set Admin Status based on the logged-in user
       setIsAdmin(!!user && user.uid === ADMIN_UID);
 
       if (user) {
-        // --- LOGGED IN ---
         const userRef = doc(db, "users", user.uid);
         
         unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
@@ -87,41 +72,43 @@ export const AuthProvider = ({ children }) => {
                 if (rawData.subscriptionExpires) {
                     const expiryDate = new Date(rawData.subscriptionExpires);
                     const now = new Date();
-                    // If isSubscribed is true but the date has passed, flip the flag
                     if (isSubscribed && expiryDate <= now) {
                         isSubscribed = false; 
                     }
                 }
                 
-                // Store the calculated status in the data object passed to the context
                 const data = { ...rawData, isSubscribed }; 
                 setUserData(data);
                 // -----------------------------------------------------------
 
                 
-                // Priority 1: Use theme from Firestore
+                // Theme Logic (omitted for brevity, remains functional)
                 if (data.theme) {
                     setTheme(data.theme);
                 } else {
-                    // Priority 2: Use theme from local storage if existing user document lacks theme
                     const localTheme = localStorage.getItem('theme');
                     if (localTheme) {
                         setTheme(localTheme);
-                        // Persist local preference to Firestore
                         setDoc(userRef, { theme: localTheme }, { merge: true });
                     } else {
-                         // Fallback to light mode if neither Firestore nor local storage has a preference
                          setTheme('light'); 
                     }
                 }
             } else {
-                // --- NEW USER / FIRST LOGIN ---
-                setUserData({ isSubscribed: false });
-                const initialTheme = getInitialTheme(); // Will be 'light' or saved local pref
+                // --- NEW USER / FIRST LOGIN FIX ---
+                const initialTheme = getInitialTheme();
                 setTheme(initialTheme);
                 
-                // Create document and set initial theme preference
-                setDoc(userRef, { theme: initialTheme, isSubscribed: false }, { merge: true });
+                // CRITICAL ADDITION: Ensure gita_progress is initialized as an empty object
+                const initialUserData = { 
+                    theme: initialTheme, 
+                    isSubscribed: false, 
+                    progress: {},
+                    gita_progress: {} // <-- ADDED THIS LINE
+                };
+                
+                setUserData(initialUserData);
+                setDoc(userRef, initialUserData, { merge: true });
             }
         }, (error) => {
             console.error("Error listening to Firestore:", error);
@@ -130,7 +117,6 @@ export const AuthProvider = ({ children }) => {
       } else {
           // --- LOGGED OUT ---
           setUserData(null);
-          // Set theme based on local storage / system preference (now simplified to only check local storage)
           setTheme(getInitialTheme());
       }
     });
@@ -151,7 +137,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     theme,           
     toggleTheme,     
-    isAdmin, // <-- Added isAdmin
+    isAdmin, 
   };
 
   return (

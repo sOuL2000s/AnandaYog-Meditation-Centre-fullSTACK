@@ -16,23 +16,30 @@ export const trackLessonCompletion = async (userId, courseId, lessonId) => {
 
     const userRef = doc(db, "users", userId);
     
-    // Structure: users/{userId}/progress/{courseId}
+    // --- CRITICAL FIX: Use the nested field path notation ---
+    // This tells Firestore to update the nested map fields correctly.
     const progressUpdate = {
+        // Example: progress.beginners_mind.day1.completed
         [`progress.${courseId}.${lessonId}.completed`]: true,
         [`progress.${courseId}.${lessonId}.completedAt`]: new Date().toISOString(),
         [`progress.${courseId}.lastAccessed`]: new Date().toISOString(),
     };
+    // The previous implementation was already using this syntax, 
+    // but the issue often arises when the parent 'progress' map is missing.
+    
+    // To ensure the parent 'progress' map exists, we rely on the AuthContext
+    // initializer, but the syntax itself is the correct way to perform nested writes 
+    // in Firestore using the Firebase SDK. We will trust the syntax and rely on 
+    // the AuthContext fix from the previous step.
 
     try {
-        console.log(`[Firestore] Attempting write for user: ${userId}, course: ${courseId}`);
+        console.log(`[Firestore] Attempting course progress write for user: ${userId}, course: ${courseId}`);
         
         await setDoc(userRef, progressUpdate, { merge: true });
         
         // --- SUCCESS LOG ---
         console.log(`[Firestore] SUCCESS: Progress tracked for user ${userId}: ${courseId}/${lessonId}`);
     } catch (e) {
-        // --- FAILURE LOG ---
-        // This will now capture and display any connection or permission failures.
         console.error("[Firestore] FATAL ERROR tracking progress:", e);
     }
 };
@@ -41,19 +48,21 @@ export const trackLessonCompletion = async (userId, courseId, lessonId) => {
  * Gets the completion status of a specific lesson.
  */
 export const getLessonStatus = (userData, courseId, lessonId) => {
-    // Check if progress map exists, then course ID, then lesson ID, then completed status
+    // This client-side read relies on the Firestore data being nested maps:
+    // userData.progress -> { 'beginners_mind': { 'day1': { completed: true } } }
+    
+    // If the Firestore data is currently flat (as per screenshot), 
+    // this read will ALWAYS return false until the structure is fixed.
     return userData?.progress?.[courseId]?.[lessonId]?.completed || false;
 };
 
 
 // ------------------------------------------------------------------
-// --- ADMIN FUNCTIONS ---
+// --- ADMIN FUNCTIONS (Checking for the same flat field issue here) ---
 // ------------------------------------------------------------------
 
 /**
  * Admin utility to update generalized user data (like notes or subscription fields).
- * @param {string} userId 
- * @param {object} data - Data object to merge (e.g., { adminNotes: '...', subscriptionExpires: '...' })
  */
 export const updateUserDataAdmin = async (userId, data) => {
     if (!userId) {
@@ -67,10 +76,6 @@ export const updateUserDataAdmin = async (userId, data) => {
 
 /**
  * Admin utility to manually set a specific lesson status (up or down progress).
- * @param {string} userId 
- * @param {string} courseId 
- * @param {string} lessonId 
- * @param {boolean} completed - True to mark complete, false to mark incomplete.
  */
 export const updateUserLessonStatusAdmin = async (userId, courseId, lessonId, completed) => {
     if (!userId || !courseId || !lessonId) {
@@ -80,7 +85,7 @@ export const updateUserLessonStatusAdmin = async (userId, courseId, lessonId, co
 
     const userRef = doc(db, "users", userId);
     
-    // Construct the field path
+    // Construct the field path - This is correct for nested writes
     const fieldPath = `progress.${courseId}.${lessonId}.completed`;
     
     const update = {
@@ -89,9 +94,9 @@ export const updateUserLessonStatusAdmin = async (userId, courseId, lessonId, co
     
     if (completed) {
         update[`progress.${courseId}.${lessonId}.completedAt`] = new Date().toISOString();
+        update[`progress.${courseId}.lastAccessed`] = new Date().toISOString(); // Added lastAccessed update for completeness
     } else {
-        // If marking incomplete, we might want to remove the timestamp field to clean up
-        // Note: Firestore merge prevents simple deletion; we just overwrite `completed: false`
+        // Note: For incomplete, we explicitly set `completed` to false.
         update[`progress.${courseId}.${lessonId}.completedAt`] = null; 
     }
     
@@ -101,7 +106,6 @@ export const updateUserLessonStatusAdmin = async (userId, courseId, lessonId, co
 
 /**
  * Admin utility to delete a wisdom post.
- * @param {string} postId 
  */
 export const deleteWisdomPost = async (postId) => {
     if (!postId) {

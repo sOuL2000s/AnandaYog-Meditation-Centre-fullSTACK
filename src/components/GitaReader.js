@@ -30,6 +30,8 @@ export default function GitaReader() {
     const [selectedLang, setSelectedLang] = useState('en');
     const [pageNumber, setPageNumber] = useState(1);
     const [bookmarks, setBookmarks] = useState([]);
+    // NEW STATE: Input for page jumping
+    const [inputPage, setInputPage] = useState('1'); 
     // State to track if the initial Firestore data has been synchronized
     const [isInitialized, setIsInitialized] = useState(false);
     
@@ -40,15 +42,23 @@ export default function GitaReader() {
     const currentFile = contentMap[selectedLang];
     const numPages = realNumPages; 
 
-    // --- Persistence Handler (FIXED Bookmark Logic and Progress Tracking) ---
-    // Now uses specific field paths to prevent accidental overwrites.
+    // --- Persistence Handler ---
     const updateProgress = useCallback(async (page, lang, isBookmarkToggle = false) => {
-        if (!currentUser) return;
+        if (!currentUser || !page || !lang) {
+            console.warn("Skipping progress save: Missing user or data.");
+            return;
+        }
         const userRef = doc(db, "users", currentUser.uid);
         const updateData = {};
+        
+        // This is a safety check/optimization. Firestore needs a field path, 
+        // but if the base field is missing, we ensure it exists.
+        // (Handled by AuthContext, but good practice.)
+        if (!userData?.gita_progress) {
+             updateData['gita_progress'] = {};
+        }
 
         if (isBookmarkToggle) {
-            // Get current bookmarks from local state for immediate toggle
             let newBookmarks = [...bookmarks];
             const pageIndex = page;
 
@@ -59,30 +69,33 @@ export default function GitaReader() {
             }
             newBookmarks = Array.from(new Set(newBookmarks)).sort((a, b) => a - b);
             
-            // CRITICAL FIX: Use specific field path for bookmarks array
             updateData['gita_progress.bookmarks'] = newBookmarks; 
-            setBookmarks(newBookmarks); // Update local state immediately
+            setBookmarks(newBookmarks); 
 
         } else {
-            // CRITICAL FIX: Use specific field paths for page/language tracking
+            // Save current page and language
             updateData['gita_progress.language'] = lang;
             updateData['gita_progress.lastPage'] = page;
         }
 
         try {
-            // We still use merge: true on the user document
             await setDoc(userRef, updateData, { merge: true });
+            console.log(`[GitaReader] Progress saved: Page ${page}, Lang ${lang}.`);
         } catch (e) {
-            console.error("Error saving progress/bookmark:", e);
+            console.error("[GitaReader] Error saving progress/bookmark. Check network or rules:", e);
         }
-    }, [currentUser, bookmarks]); // Only depends on currentUser and local bookmarks state
+    }, [currentUser, bookmarks, userData]); 
 
     // --- Handler for Page Count received from PDFViewerWrapper ---
     const handleDocumentLoadSuccess = useCallback((count) => {
         setRealNumPages(count);
         
         // Ensure the current page is valid for the newly loaded PDF
-        setPageNumber(p => Math.max(1, Math.min(p, count))); 
+        setPageNumber(p => {
+            const newPage = Math.max(1, Math.min(p, count));
+            setInputPage(newPage.toString());
+            return newPage;
+        }); 
 
     }, []); 
 
@@ -104,10 +117,12 @@ export default function GitaReader() {
                 setSelectedLang(savedLang);
                 setBookmarks(progress?.bookmarks || []);
                 setPageNumber(savedPage); 
+                setInputPage(savedPage.toString()); 
                 
             } else {
                 setSelectedLang('en');
                 setPageNumber(1);
+                setInputPage('1');
                 setBookmarks([]);
             }
             
@@ -120,16 +135,18 @@ export default function GitaReader() {
 
 
     // --- Debounced Tracking of Current Page/Language ---
+    // The dependency array now uses pageNumber and selectedLang as triggers.
     useEffect(() => {
         if (currentUser && !loading && numPages > 0 && isInitialized) { 
             if (pageNumber >= 1 && pageNumber <= numPages) {
                 const timeout = setTimeout(() => {
-                    // This saves the page number AND the current language
+                    // Only save if the current page is valid
                     updateProgress(pageNumber, selectedLang, false); 
-                }, 1000); 
+                }, 1500); // Increased debounce time for less frequent writes
                 return () => clearTimeout(timeout);
             }
         }
+        // Added pageNumber and selectedLang to dependencies to trigger saving on change
     }, [pageNumber, selectedLang, currentUser, loading, numPages, updateProgress, isInitialized]); 
     
     
@@ -139,24 +156,49 @@ export default function GitaReader() {
         if (newLang !== selectedLang) {
             setSelectedLang(newLang);
             setPageNumber(1); 
-            // Important: We don't reset bookmarks here, they are language agnostic (though maybe they shouldn't be, 
-            // for simplicity, we keep them shared across languages for now).
-            setRealNumPages(0); // Reset page count until new PDF loads
+            setInputPage('1'); 
+            setRealNumPages(0); 
         }
     };
-    // -----------------------------------------------------------
+    
+    // --- Handler: Page Jump Feature ---
+    const handlePageJump = () => {
+        const page = parseInt(inputPage, 10);
+        if (isNaN(page) || page < 1 || page > numPages) {
+            alert(`Please enter a valid page number between 1 and ${numPages}.`);
+            // Reset input to current valid page number on error
+            setInputPage(pageNumber.toString()); 
+            return;
+        }
+        setPageNumber(page); // Update the primary page state
+    };
 
-
-    const nextPage = () => setPageNumber(p => Math.min(p + 1, numPages));
-    const prevPage = () => setPageNumber(p => Math.max(p - 1, 1));
+    const nextPage = () => setPageNumber(p => {
+        const newPage = Math.min(p + 1, numPages);
+        setInputPage(newPage.toString());
+        return newPage;
+    });
+    const prevPage = () => setPageNumber(p => {
+        const newPage = Math.max(p - 1, 1);
+        setInputPage(newPage.toString());
+        return newPage;
+    });
     
     const toggleBookmark = () => {
         if (currentUser) {
-            // Pass the current page number for the toggle action
             updateProgress(pageNumber, selectedLang, true); 
         }
     };
     
+    const handleInputPageChange = (e) => {
+        setInputPage(e.target.value);
+    }
+    
+    const handleBookmarkClick = (b) => {
+        setPageNumber(b);
+        setInputPage(b.toString());
+    }
+
     const isBookmarked = bookmarks.includes(pageNumber);
 
     if (loading || !isInitialized) {
@@ -167,8 +209,8 @@ export default function GitaReader() {
 
     return (
         <div className="p-8 max-w-5xl mx-auto">
-            {/* ... (rest of the component JSX remains the same) ... */}
-            <div className="flex justify-between items-center mb-6">
+            {/* ... (Header remains the same) ... */}
+            <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
                 <h1 className="text-3xl font-serif font-bold text-brand-primary">
                     The Bhagavad Gita Reader
                 </h1>
@@ -188,6 +230,7 @@ export default function GitaReader() {
                 
                 {/* PDF Viewer Component */}
                 <PDFViewerWrapper
+                    key={currentFile.path} // Added key to force re-render on file change
                     file={currentFile}
                     pageNumber={pageNumber}
                     onDocumentLoadSuccess={handleDocumentLoadSuccess} 
@@ -195,11 +238,32 @@ export default function GitaReader() {
 
                 {/* Footer and Controls */}
                 {isReady && ( 
-                    <div className="mt-6 pt-4 w-full flex flex-wrap justify-between items-center gap-3">
+                    <div className="mt-6 pt-4 w-full flex flex-wrap justify-between items-center gap-3 border-t border-gray-100">
                         
-                        {/* Pagination */}
-                        <div className="text-base font-semibold text-text-base">
-                            Page {pageNumber} of {numPages}
+                        {/* Pagination & Page Jump (NEW UI) */}
+                        <div className="flex items-center space-x-3">
+                            <div className="text-base font-semibold text-text-base whitespace-nowrap">
+                                Page {pageNumber} of {numPages}
+                            </div>
+                            
+                            {/* Page Jump Input */}
+                            <input
+                                type="number"
+                                min="1"
+                                max={numPages}
+                                value={inputPage}
+                                onChange={handleInputPageChange}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handlePageJump();
+                                }}
+                                className="w-16 px-2 py-1 border border-gray-300 rounded-lg text-center bg-surface-2 text-text-base"
+                            />
+                            <button
+                                onClick={handlePageJump}
+                                className="px-3 py-1 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-darker transition text-sm font-semibold"
+                            >
+                                Jump
+                            </button>
                         </div>
 
                         {/* Controls */}
@@ -244,7 +308,7 @@ export default function GitaReader() {
                         {bookmarks.map(b => (
                             <button 
                                 key={b} 
-                                onClick={() => setPageNumber(b)}
+                                onClick={() => handleBookmarkClick(b)}
                                 className={`mx-1 px-3 py-1 rounded-full text-xs transition ${pageNumber === b ? 'bg-brand-accent text-white shadow-inner' : 'bg-brand-primary-light text-brand-primary hover:bg-brand-accent-darker hover:text-white'}`}
                             >
                                 Page {b}
