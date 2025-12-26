@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import Image from 'next/image';
-import dynamic from 'next/dynamic'; // Import dynamic
+import dynamic from 'next/dynamic'; 
 
 /* 
  * CRITICAL FIX: Dynamically import the viewer component.
@@ -38,19 +38,18 @@ export default function GitaReader() {
     
     // Derived state
     const currentFile = contentMap[selectedLang];
-    const numPages = realNumPages; // Use the real number here
+    const numPages = realNumPages; 
 
-    // --- Persistence Handler (Fixed Bookmark Logic) ---
+    // --- Persistence Handler (FIXED Bookmark Logic and Progress Tracking) ---
+    // Now uses specific field paths to prevent accidental overwrites.
     const updateProgress = useCallback(async (page, lang, isBookmarkToggle = false) => {
         if (!currentUser) return;
         const userRef = doc(db, "users", currentUser.uid);
         const updateData = {};
 
-        // Use the current local state of bookmarks for immediate UI feedback
-        let currentBookmarks = isBookmarkToggle ? bookmarks : userData?.gita_progress?.bookmarks || [];
-
         if (isBookmarkToggle) {
-            let newBookmarks = [...currentBookmarks];
+            // Get current bookmarks from local state for immediate toggle
+            let newBookmarks = [...bookmarks];
             const pageIndex = page;
 
             if (newBookmarks.includes(pageIndex)) {
@@ -60,20 +59,23 @@ export default function GitaReader() {
             }
             newBookmarks = Array.from(new Set(newBookmarks)).sort((a, b) => a - b);
             
-            updateData['gita_progress.bookmarks'] = newBookmarks;
+            // CRITICAL FIX: Use specific field path for bookmarks array
+            updateData['gita_progress.bookmarks'] = newBookmarks; 
             setBookmarks(newBookmarks); // Update local state immediately
 
         } else {
+            // CRITICAL FIX: Use specific field paths for page/language tracking
             updateData['gita_progress.language'] = lang;
             updateData['gita_progress.lastPage'] = page;
         }
 
         try {
+            // We still use merge: true on the user document
             await setDoc(userRef, updateData, { merge: true });
         } catch (e) {
             console.error("Error saving progress/bookmark:", e);
         }
-    }, [currentUser, userData, bookmarks]); // Added bookmarks to dependencies
+    }, [currentUser, bookmarks]); // Only depends on currentUser and local bookmarks state
 
     // --- Handler for Page Count received from PDFViewerWrapper ---
     const handleDocumentLoadSuccess = useCallback((count) => {
@@ -85,7 +87,7 @@ export default function GitaReader() {
     }, []); 
 
 
-    // --- Effect: Load Synchronization State (Initial Load - Fixed sequence) ---
+    // --- Effect: Load Synchronization State (Initial Load) ---
     useEffect(() => {
         if (loading || isInitialized) {
             return;
@@ -117,12 +119,13 @@ export default function GitaReader() {
     }, [loading, currentUser, userData, isInitialized]); 
 
 
-    // --- Debounced Tracking of Current Page ---
+    // --- Debounced Tracking of Current Page/Language ---
     useEffect(() => {
         if (currentUser && !loading && numPages > 0 && isInitialized) { 
             if (pageNumber >= 1 && pageNumber <= numPages) {
                 const timeout = setTimeout(() => {
-                    updateProgress(pageNumber, selectedLang, false);
+                    // This saves the page number AND the current language
+                    updateProgress(pageNumber, selectedLang, false); 
                 }, 1000); 
                 return () => clearTimeout(timeout);
             }
@@ -130,13 +133,14 @@ export default function GitaReader() {
     }, [pageNumber, selectedLang, currentUser, loading, numPages, updateProgress, isInitialized]); 
     
     
-    // --- FIX: Handler: Language Change ---
+    // --- Handler: Language Change ---
     const handleLanguageChange = (e) => {
         const newLang = e.target.value;
         if (newLang !== selectedLang) {
             setSelectedLang(newLang);
             setPageNumber(1); 
-            setBookmarks([]);
+            // Important: We don't reset bookmarks here, they are language agnostic (though maybe they shouldn't be, 
+            // for simplicity, we keep them shared across languages for now).
             setRealNumPages(0); // Reset page count until new PDF loads
         }
     };
@@ -148,7 +152,8 @@ export default function GitaReader() {
     
     const toggleBookmark = () => {
         if (currentUser) {
-            updateProgress(pageNumber, selectedLang, true);
+            // Pass the current page number for the toggle action
+            updateProgress(pageNumber, selectedLang, true); 
         }
     };
     
@@ -162,12 +167,13 @@ export default function GitaReader() {
 
     return (
         <div className="p-8 max-w-5xl mx-auto">
+            {/* ... (rest of the component JSX remains the same) ... */}
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-serif font-bold text-brand-primary">
                     The Bhagavad Gita Reader
                 </h1>
                 <select 
-                    onChange={handleLanguageChange} // Referenced here!
+                    onChange={handleLanguageChange} 
                     value={selectedLang}
                     className="p-2 border border-gray-300 rounded-lg bg-surface-1 text-text-base"
                 >
@@ -184,7 +190,7 @@ export default function GitaReader() {
                 <PDFViewerWrapper
                     file={currentFile}
                     pageNumber={pageNumber}
-                    onDocumentLoadSuccess={handleDocumentLoadSuccess} // Pass the new handler
+                    onDocumentLoadSuccess={handleDocumentLoadSuccess} 
                 />
 
                 {/* Footer and Controls */}

@@ -153,6 +153,12 @@ export default config;
 
 --- END FILE: public\globe.svg ---
 
+--- START FILE: public\google9fadf39c931a8e62.html ---
+
+google-site-verification: google9fadf39c931a8e62.html
+
+--- END FILE: public\google9fadf39c931a8e62.html ---
+
 --- START FILE: public\next.svg ---
 
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
@@ -390,7 +396,8 @@ const BlissfulHero = () => (
       <Link 
         href="/dashboard" // Changed to point to dashboard for login/status check
         // Refactored to use custom accent colors
-        className="bg-brand-accent text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5"
+        // FIX: Added whitespace-nowrap for responsiveness
+        className="bg-brand-accent text-white text-xl font-bold py-4 px-12 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-2xl border-2 border-white/50 transform hover:-translate-y-0.5 whitespace-nowrap"
       >
         Start 7 Days Free
       </Link>
@@ -444,7 +451,8 @@ export default function HomePage() {
             <Link 
                 href="/teachings" // <-- UPDATED LINK
                 // Refactored CTA to use custom accent colors
-                className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg"
+                // FIX: Added whitespace-nowrap for responsiveness
+                className="bg-brand-accent text-white font-bold text-lg py-4 px-10 rounded-full hover:bg-brand-accent-darker transition duration-300 shadow-lg whitespace-nowrap"
             >
                 Learn What We Teach
             </Link>
@@ -462,7 +470,7 @@ const ValueCard = ({ icon, title, description }) => (
         {/* Refactored background color */}
         <div className="text-4xl mb-4 p-3 bg-surface-2 rounded-lg inline-block">{icon}</div>
         {/* Refactored text color */}
-        <h3 className="text-2xl font-semibold text-brand-primary mb-3 font-serif">{title}</h3>
+        <h3 className="text-2xl font-semibold font-serif text-brand-primary mb-3">{title}</h3>
         {/* Refactored text color */}
         <p className="text-text-base">{description}</p>
     </div>
@@ -590,6 +598,358 @@ export default function AccountPage() {
 }
 
 --- END FILE: src\app\account\page.js ---
+
+--- START FILE: src\app\admin\page.js ---
+
+// src/app/admin/page.js
+"use client";
+
+import { useAuth } from '@/context/AuthContext';
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, query, where, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+import { updateUserDataAdmin, updateUserLessonStatusAdmin } from '@/lib/utils';
+import Link from 'next/link';
+
+// Dummy list to map user progress keys
+const TRACKED_COURSES = [
+    { id: 'beginners_mind', name: "Beginner's Mind (7 Days)", totalLessons: 7 },
+    { id: 'vipassana_deep_dive', name: "Vipassana Deep Dive", totalLessons: 15 },
+    { id: 'hatha_flow', name: "Hatha Flow for Flexibility", totalLessons: 10 },
+    { id: 'pranayama_masterclass', name: "Pranayama Masterclass", totalLessons: 12 },
+    { id: 'ashtanga_ultimatum', name: "Ashtanga Yoga Ultimatum", totalLessons: 20 },
+    { id: 'raja_yoga_supreme', name: "Raja Yoga Supreme", totalLessons: 8 },
+];
+
+// Component to handle individual user management
+const UserManagementCard = ({ user }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [notes, setNotes] = useState(user.adminNotes || '');
+    const [subscriptionExpires, setSubscriptionExpires] = useState(user.subscriptionExpires || '');
+    const [isSaving, setIsSaving] = useState(false);
+
+    const isSubscribed = user.isSubscribed;
+    const accessColor = isSubscribed ? 'bg-status-success' : 'bg-status-warning';
+
+    const handleSaveDetails = async () => {
+        setIsSaving(true);
+        const updateData = {
+            adminNotes: notes,
+            subscriptionExpires: subscriptionExpires || null,
+            isSubscribed: !!subscriptionExpires && new Date(subscriptionExpires) > new Date(),
+            subscriptionPlan: !!subscriptionExpires && new Date(subscriptionExpires) > new Date() ? (user.subscriptionPlan || 'Admin Granted') : null
+        };
+
+        try {
+            await updateUserDataAdmin(user.uid, updateData);
+            alert("User details updated successfully!");
+        } catch (error) {
+            console.error("Error saving user details:", error);
+            alert("Failed to save user details.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+    
+    // Admin function to toggle lesson status
+    const toggleLessonStatus = async (courseId, lessonId, isCompleted) => {
+        try {
+            await updateUserLessonStatusAdmin(user.uid, courseId, lessonId, !isCompleted);
+        } catch (error) {
+            alert(`Failed to update lesson status: ${error.message}`);
+        }
+    };
+
+
+    const calculateProgress = (courseId) => {
+        const courseData = TRACKED_COURSES.find(c => c.id === courseId);
+        if (!user.progress || !courseData) return '0%';
+
+        const lessonProgress = user.progress[courseId];
+        if (!lessonProgress) return '0%';
+
+        const completedLessons = Object.values(lessonProgress).filter(
+            (lesson) => lesson.completed === true
+        ).length;
+
+        const percentage = Math.round((completedLessons / courseData.totalLessons) * 100);
+        return isNaN(percentage) ? '0%' : `${percentage}%`;
+    };
+
+
+    return (
+        <div className="bg-surface-1 p-5 rounded-xl shadow-lg border-l-4 border-brand-primary">
+            <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+                <div>
+                    <h3 className="text-lg font-semibold text-text-base">{user.displayName || user.email}</h3>
+                    <p className="text-sm text-text-muted">{user.uid}</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full text-white ${accessColor}`}>
+                        {isSubscribed ? `Subscribed (${user.subscriptionPlan})` : 'Free Member'}
+                    </span>
+                    <button className="text-brand-primary">
+                        {isExpanded ? 'Collapse ▲' : 'Expand ▼'}
+                    </button>
+                </div>
+            </div>
+
+            {isExpanded && (
+                <div className="mt-4 border-t border-gray-200 pt-4 space-y-6">
+                    
+                    {/* Subscription Management */}
+                    <div className="p-4 bg-surface-2 rounded-lg">
+                        <h4 className="font-bold text-brand-primary mb-2">Subscription Control</h4>
+                        <label className="block text-sm text-text-base mb-1">
+                            Set Expiration Date (ISO Format or blank to revoke)
+                        </label>
+                        <input
+                            type="date"
+                            value={subscriptionExpires ? subscriptionExpires.split('T')[0] : ''}
+                            onChange={(e) => {
+                                const date = e.target.value;
+                                setSubscriptionExpires(date ? new Date(date).toISOString() : '');
+                            }}
+                            className="w-full px-3 py-2 border rounded-md"
+                        />
+                        <p className={`text-xs mt-1 ${isSubscribed ? 'text-status-success' : 'text-status-warning'}`}>
+                            Current Status: {isSubscribed ? `Expires ${new Date(user.subscriptionExpires).toLocaleDateString()}` : 'Inactive'}
+                        </p>
+                    </div>
+
+                    {/* Admin Notes/Remarks */}
+                    <div>
+                        <h4 className="font-bold text-brand-primary mb-2">Admin Notes (Visible on User Dashboard)</h4>
+                        <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            rows="3"
+                            className="w-full px-3 py-2 border rounded-md"
+                            placeholder="Enter remarks for the user here..."
+                        />
+                    </div>
+                    
+                    <button
+                        onClick={handleSaveDetails}
+                        className="w-full bg-brand-accent text-white py-2 rounded-lg hover:bg-brand-accent-darker disabled:opacity-50 transition"
+                        disabled={isSaving}
+                    >
+                        {isSaving ? 'Saving...' : 'Save User Details & Subscription'}
+                    </button>
+                    
+                    {/* Progress Control */}
+                    <div className="mt-6">
+                        <h4 className="font-bold text-brand-primary mb-2">Course Progress Management</h4>
+                        <div className="space-y-3 max-h-60 overflow-y-auto p-2 bg-surface-2 rounded-lg">
+                            {TRACKED_COURSES.map(course => (
+                                <CourseProgressAdmin 
+                                    key={course.id} 
+                                    course={course}
+                                    userProgress={user.progress?.[course.id] || {}}
+                                    toggleLessonStatus={toggleLessonStatus}
+                                    currentProgress={calculateProgress(course.id)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                </div>
+            )}
+        </div>
+    );
+};
+
+const CourseProgressAdmin = ({ course, userProgress, toggleLessonStatus, currentProgress }) => {
+    const [lessonsExpanded, setLessonsExpanded] = useState(false);
+    
+    return (
+        <div className="border border-gray-300 rounded-md p-3">
+            <div className='flex justify-between items-center'>
+                <p className="text-sm font-semibold text-text-base">{course.name} <span className='text-xs text-brand-accent'>({currentProgress})</span></p>
+                <button 
+                    onClick={() => setLessonsExpanded(!lessonsExpanded)}
+                    className="text-xs text-brand-primary hover:underline"
+                >
+                    {lessonsExpanded ? 'Hide Lessons' : 'Manage Lessons'}
+                </button>
+            </div>
+            
+            {lessonsExpanded && (
+                <ul className='mt-2 space-y-1 text-xs bg-surface-1 p-2 rounded'>
+                    {course.lessons.map(lesson => {
+                        const isCompleted = userProgress[lesson.id]?.completed || false;
+                        return (
+                            <li key={lesson.id} className='flex justify-between items-center'>
+                                <span className={isCompleted ? 'text-status-success line-through' : 'text-text-base'}>
+                                    {lesson.title}
+                                </span>
+                                <button 
+                                    onClick={() => toggleLessonStatus(course.id, lesson.id, isCompleted)}
+                                    className={`ml-2 px-2 py-0.5 rounded transition ${isCompleted ? 'bg-red-200 text-red-700 hover:bg-red-300' : 'bg-green-200 text-green-700 hover:bg-green-300'}`}
+                                >
+                                    {isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+                                </button>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </div>
+    );
+}
+
+
+export default function AdminPage() {
+    const { currentUser, loading, isAdmin, theme } = useAuth();
+    const [allUsers, setAllUsers] = useState([]);
+    const [simulatedAccess, setSimulatedAccess] = useState('admin'); // admin, premium, free
+
+    // 1. Fetch ALL users (requires proper Firestore security rules for production!)
+    useEffect(() => {
+        if (!isAdmin) return;
+
+        const usersCol = collection(db, "users");
+        
+        // NOTE: Firestore doesn't provide a simple 'get all' snapshot across the entire collection 
+        // without performance implications. We'll simulate fetching all user documents.
+        // In a real application, pagination or cloud functions are used here.
+        
+        const q = query(usersCol); 
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const fetchedUsers = snapshot.docs.map(doc => {
+                const data = doc.data();
+                // Re-calculate isSubscribed flag for dashboard consistency
+                let isSubscribed = data.isSubscribed || false;
+                if (data.subscriptionExpires) {
+                    const expiryDate = new Date(data.subscriptionExpires);
+                    const now = new Date();
+                    if (isSubscribed && expiryDate <= now) {
+                        isSubscribed = false; 
+                    }
+                }
+                
+                return { 
+                    uid: doc.id,
+                    ...data,
+                    // Note: UID is not stored in the document, but is derived from doc.id
+                    email: data.email || 'N/A', // Placeholder for email (usually only available via Auth API)
+                    displayName: data.displayName || 'Unnamed User',
+                    isSubscribed,
+                };
+            });
+            setAllUsers(fetchedUsers.filter(u => u.uid !== currentUser.uid)); // Exclude admin from the list
+        }, (error) => {
+            console.error("Error fetching all users:", error);
+        });
+
+        return () => unsubscribe();
+    }, [isAdmin, currentUser]);
+
+
+    if (loading) {
+        return <div className="text-center py-20 text-text-muted">Loading Admin Panel...</div>;
+    }
+
+    if (!isAdmin) {
+        return (
+            <div className="text-center py-20">
+                <h1 className="text-4xl font-serif font-bold text-red-600 mb-4">Access Denied</h1>
+                <p className="text-text-muted">You must be the site administrator to access this page.</p>
+                <Link href="/dashboard" className="mt-4 inline-block bg-brand-primary text-white py-2 px-6 rounded-full">Go to Dashboard</Link>
+            </div>
+        );
+    }
+    
+    // --- View As Mode Logic ---
+    const usersToDisplay = allUsers.length;
+    const premiumCount = allUsers.filter(u => u.isSubscribed).length;
+    const freeCount = usersToDisplay - premiumCount;
+
+    return (
+        <div className="container mx-auto p-8 max-w-7xl">
+            <h1 className="text-4xl font-serif font-bold text-brand-primary mb-2">
+                Specialized Admin Control Panel
+            </h1>
+            <p className="text-lg text-text-muted mb-8">
+                {usersToDisplay} Total Users ({premiumCount} Premium, {freeCount} Free)
+            </p>
+
+            <div className='grid lg:grid-cols-3 gap-8'>
+                
+                {/* Column 1: Control & Quick Links */}
+                <div className='lg:col-span-1 space-y-6'>
+                    {/* View As Simulator */}
+                    <div className="p-6 bg-surface-1 rounded-xl shadow-lg border-t-4 border-brand-accent">
+                        <h2 className="text-xl font-bold text-brand-primary mb-3">View As Simulator</h2>
+                        <div className="flex space-x-2">
+                            <button 
+                                onClick={() => setSimulatedAccess('admin')} 
+                                className={`flex-1 py-2 rounded-lg font-semibold transition ${simulatedAccess === 'admin' ? 'bg-brand-primary text-white' : 'bg-surface-2 text-text-base hover:bg-gray-300'}`}
+                            >
+                                Admin View
+                            </button>
+                            <button 
+                                onClick={() => setSimulatedAccess('premium')} 
+                                className={`flex-1 py-2 rounded-lg font-semibold transition ${simulatedAccess === 'premium' ? 'bg-brand-accent text-white' : 'bg-surface-2 text-text-base hover:bg-gray-300'}`}
+                            >
+                                Premium User
+                            </button>
+                            <button 
+                                onClick={() => setSimulatedAccess('free')} 
+                                className={`flex-1 py-2 rounded-lg font-semibold transition ${simulatedAccess === 'free' ? 'bg-status-success text-white' : 'bg-surface-2 text-text-base hover:bg-gray-300'}`}
+                            >
+                                Free User
+                            </button>
+                        </div>
+                        <p className='text-xs text-text-muted mt-3'>
+                            Simulates access level for content pages (e.g., /wisdom). Current mode: <span className='font-bold uppercase'>{simulatedAccess}</span>
+                        </p>
+                        {simulatedAccess !== 'admin' && (
+                            <Link 
+                                href="/wisdom" 
+                                target="_blank"
+                                className="mt-3 block text-center bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition"
+                            >
+                                Open Wisdom in New Tab ({simulatedAccess})
+                            </Link>
+                        )}
+                    </div>
+                    
+                    {/* Content Management Link */}
+                    <Link href="/wisdom" className="block text-center p-4 bg-brand-primary text-white font-bold rounded-lg shadow-lg hover:bg-brand-primary-darker transition">
+                        Manage Wisdom Posts
+                    </Link>
+                    
+                </div>
+                
+                {/* Column 2 & 3: User List */}
+                <div className='lg:col-span-2 space-y-4'>
+                    <h2 className="text-2xl font-serif font-bold text-brand-primary mb-4">User List & Management</h2>
+                    
+                    {allUsers.length === 0 ? (
+                        <div className="p-8 bg-surface-2 rounded-lg text-center text-text-muted">
+                            No users registered yet.
+                        </div>
+                    ) : (
+                        allUsers.map(user => (
+                            <UserManagementCard key={user.uid} user={user} />
+                        ))
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// NOTE: We need to temporarily override the access check for content viewing
+// when in simulation mode. This is best done by having the content components
+// check a temporary state if it existed (e.g., query params or session storage).
+// Since we are limited to file output, the AdminPanel.js won't be able to easily
+// update a global simulation state, so the link above is the simplest form of simulation.
+
+
+--- END FILE: src\app\admin\page.js ---
 
 --- START FILE: src\app\api\contact\route.js ---
 
@@ -1001,7 +1361,6 @@ import Link from 'next/link';
 import PaymentInitiator from '@/components/PaymentInitiator'; 
 import AuthStatus from '@/components/AuthStatus'; 
 import { useAuth } from '@/context/AuthContext'; 
-import AdminPanel from '@/components/AdminPanel'; // Import Admin Panel
 
 // Define hardcoded course list for dashboard progress display (must match IDs in src/app/courses/[id]/page.js)
 const TRACKED_COURSES = [
@@ -1069,6 +1428,8 @@ export default function DashboardPage() {
   const expirationDate = userData?.subscriptionExpires ? 
     new Date(userData.subscriptionExpires).toLocaleDateString() : 'N/A';
 
+  const adminNotes = userData?.adminNotes; // Get admin notes
+    
   // Use standard Tailwind colors for status indicators for clear differentiation
   const accessColor = isSubscribed ? 'text-green-600' : 'text-amber-600'; 
   const accessBorderColor = isSubscribed ? 'border-green-500' : 'border-amber-500';
@@ -1106,6 +1467,17 @@ export default function DashboardPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Column 1: Status & Logout */}
         <div className="lg:col-span-1 space-y-8">
+            
+            {/* Admin Notes/Remarks Display (NEW FEATURE) */}
+            {adminNotes && (
+                <div className="p-6 bg-brand-accent/10 border-l-4 border-brand-accent rounded-lg shadow-md">
+                    <h2 className="text-lg font-semibold mb-2 text-brand-accent flex items-center">
+                        <span className="text-2xl mr-2">★</span> Admin Note for You
+                    </h2>
+                    <p className="text-sm text-text-base italic">{adminNotes}</p>
+                </div>
+            )}
+            
             {/* Subscription Status Card - Refactored background to Surface 1 */}
             <div className={`bg-surface-1 p-6 rounded-lg shadow-2xl border-l-4 ${accessBorderColor} `}>
                 <h2 className="text-2xl font-semibold mb-3 text-text-base">Membership Status</h2>
@@ -1177,8 +1549,9 @@ export default function DashboardPage() {
             
             {/* Admin Link */}
             {isAdmin && (
-                <Link href="/wisdom" className="block text-center p-4 bg-brand-accent text-white font-bold rounded-lg shadow-lg hover:bg-brand-accent-darker transition">
-                    ★ Go to Admin Wisdom Portal
+                // Changed link target to the new Admin Panel
+                <Link href="/admin" className="block text-center p-4 bg-brand-accent text-white font-bold rounded-lg shadow-lg hover:bg-brand-accent-darker transition">
+                    ★ Go to Admin Control Panel
                 </Link>
             )}
         </div>
@@ -1268,6 +1641,7 @@ const CourseLink = ({ title, href, isPremium, isLocked = false }) => {
     
     return isLocked ? <div className='block'>{content}</div> : <Link href={href}>{content}</Link>;
 };
+
 
 --- END FILE: src\app\dashboard\page.js ---
 
@@ -1489,9 +1863,10 @@ export default function TeachingsPage() {
                         All our premium courses are structured to facilitate growth at your own pace. Content is delivered via high-quality video, audio, and supplementary text guides. Access to our entire library is unlocked through a single monthly or annual subscription.
                     </p>
                     <ul className="list-disc list-inside ml-4 space-y-2">
-                        <li>**Foundational Courses:** Accessible to all (even free tier) to establish the basics.</li>
-                        <li>**Deep Dive Modules:** Reserved for subscribed members, providing structured paths in specific disciplines like Vipassana or Ashtanga.</li>
-                        <li>**Progress Tracking:** Your completion status is saved in real-time to your dashboard.</li>
+                        {/* FIX: Corrected the text formatting for bolding using Tailwind class */}
+                        <li><span className="font-bold">Foundational Courses:</span> Accessible to all (even free tier) to establish the basics.</li>
+                        <li><span className="font-bold">Deep Dive Modules:</span> Reserved for subscribed members, providing structured paths in specific disciplines like Vipassana or Ashtanga.</li>
+                        <li><span className="font-bold">Progress Tracking:</span> Your completion status is saved in real-time to your dashboard.</li>
                     </ul>
                 </div>
                 
@@ -1508,7 +1883,6 @@ export default function TeachingsPage() {
         </div>
     );
 }
-
 
 --- END FILE: src\app\teachings\page.js ---
 
@@ -1568,14 +1942,15 @@ import { useAuth } from '@/context/AuthContext';
 import { db } from '@/lib/firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
-import AdminPanel from '@/components/AdminPanel';
+import AdminPostEditor from '@/components/AdminPostEditor'; // Updated name
+import { deleteWisdomPost } from '@/lib/utils';
 import Link from 'next/link';
 
 export default function WisdomPage() {
-    const { currentUser, userData, loading } = useAuth();
+    const { currentUser, userData, loading, isAdmin } = useAuth();
     const [posts, setPosts] = useState([]);
+    const [editingPost, setEditingPost] = useState(null); // State to hold post being edited
 
-    const isAdmin = currentUser?.uid === process.env.NEXT_PUBLIC_ADMIN_FIREBASE_UID;
     const isSubscribed = userData?.isSubscribed;
     
     // Fetch posts in real-time
@@ -1607,6 +1982,16 @@ export default function WisdomPage() {
         
         return false;
     });
+    
+    const handleDelete = async (postId) => {
+        if (window.confirm("Are you sure you want to delete this wisdom post?")) {
+            try {
+                await deleteWisdomPost(postId);
+            } catch (error) {
+                alert("Failed to delete post.");
+            }
+        }
+    }
 
     if (loading) {
         return <div className="text-center py-20 text-text-muted">Loading Wisdom Library...</div>;
@@ -1623,7 +2008,19 @@ export default function WisdomPage() {
 
             {isAdmin && (
                 <div className="mb-8">
-                    <AdminPanel currentUser={currentUser} />
+                    {/* Render editor component (reused for creation/editing) */}
+                    <AdminPostEditor 
+                        postToEdit={editingPost}
+                        onClose={() => setEditingPost(null)}
+                    />
+                    <div className='text-center mt-4'>
+                        <button 
+                            onClick={() => setEditingPost(editingPost ? null : {})}
+                            className='bg-brand-primary text-white py-2 px-6 rounded-full hover:bg-brand-primary-darker transition'
+                        >
+                            {editingPost ? 'Cancel Editing' : 'Create New Wisdom Post'}
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -1635,6 +2032,8 @@ export default function WisdomPage() {
                             post={post} 
                             isSubscribed={isSubscribed}
                             isAdmin={isAdmin}
+                            onEdit={() => setEditingPost(post)}
+                            onDelete={() => handleDelete(post.id)}
                         />
                     ))
                 ) : (
@@ -1659,15 +2058,18 @@ export default function WisdomPage() {
     );
 }
 
-const PostCard = ({ post, isSubscribed, isAdmin }) => {
+const PostCard = ({ post, isSubscribed, isAdmin, onEdit, onDelete }) => {
     const isPremium = post.access === 'premium';
     const isLocked = isPremium && !isSubscribed && !isAdmin;
+    const [isExpanded, setIsExpanded] = useState(false);
     
     // Style adjustments for locked content
     const cardClass = isLocked ? 'opacity-50 blur-sm' : 'hover:shadow-xl';
     
     return (
-        <div className={`p-6 bg-surface-1 rounded-lg shadow-md border-l-4 ${isPremium ? 'border-brand-accent' : 'border-status-success'} transition duration-300 ${cardClass}`}>
+        <div className={`relative p-6 bg-surface-1 rounded-lg shadow-md border-l-4 ${isPremium ? 'border-brand-accent' : 'border-status-success'} transition duration-300 ${cardClass}`}>
+            
+            {/* Header */}
             <div className="flex justify-between items-start mb-2">
                 <h2 className="text-2xl font-serif font-bold text-text-base">{post.title}</h2>
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full ${isPremium ? 'bg-brand-accent text-white' : 'bg-status-success text-white'}`}>
@@ -1675,22 +2077,54 @@ const PostCard = ({ post, isSubscribed, isAdmin }) => {
                 </span>
             </div>
             
+            {/* Summary */}
+            <p className="text-text-muted mb-4">{post.summary}</p>
+            
+            {/* Locked Overlay */}
             {isLocked && (
-                <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm">
+                <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm z-10">
                     <span className="text-xl font-bold text-red-600 dark:text-red-400">Content Locked</span>
                 </div>
             )}
-
-            <p className="text-text-muted mb-4">{post.summary}</p>
             
-            {!isLocked && (
-                <Link href={`#post-${post.id}`} className="text-brand-primary hover:underline font-medium text-sm">
-                    Read Full Post →
-                </Link>
+            {/* Full Content (Visible only if not locked and expanded) */}
+            {!isLocked && isExpanded && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold mb-2 text-brand-primary">Full Content:</h3>
+                    {/* CRITICAL: Allows rich content (HTML/Markdown converted to HTML) */}
+                    <div 
+                        className="prose dark:prose-invert max-w-none text-text-base text-sm" 
+                        dangerouslySetInnerHTML={{ __html: post.content || post.summary }}
+                    ></div>
+                </div>
             )}
+
+            {/* Actions */}
+            <div className='mt-4 flex justify-between items-center'>
+                {!isLocked && (
+                    <button 
+                        onClick={() => setIsExpanded(!isExpanded)}
+                        className="text-brand-primary hover:underline font-medium text-sm"
+                    >
+                        {isExpanded ? 'Collapse ▲' : 'Read Full Post →'}
+                    </button>
+                )}
+                
+                {isAdmin && (
+                    <div className='flex space-x-2 z-20'>
+                        <button onClick={onEdit} className='text-xs text-brand-accent hover:text-brand-accent-darker font-medium'>
+                            Edit
+                        </button>
+                        <button onClick={onDelete} className='text-xs text-red-600 hover:text-red-800 font-medium'>
+                            Delete
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
+
 
 --- END FILE: src\app\wisdom\page.js ---
 
@@ -1797,6 +2231,164 @@ export default function AdminPanel({ currentUser }) {
 }
 
 --- END FILE: src\components\AdminPanel.js ---
+
+--- START FILE: src\components\AdminPostEditor.js ---
+
+// src/components/AdminPostEditor.js (Formerly AdminPanel.js, now a dedicated editor)
+"use client";
+
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+
+export default function AdminPostEditor({ currentUser, postToEdit, onClose }) {
+    
+    // State is initialized based on postToEdit prop
+    const [title, setTitle] = useState('');
+    const [summary, setSummary] = useState(''); // Short text for card preview
+    const [content, setContent] = useState(''); // Full HTML/Markdown content
+    const [access, setAccess] = useState('free');
+    const [status, setStatus] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const isEditing = !!postToEdit && !!postToEdit.id;
+
+    useEffect(() => {
+        if (postToEdit) {
+            setTitle(postToEdit.title || '');
+            setSummary(postToEdit.summary || '');
+            setContent(postToEdit.content || '');
+            setAccess(postToEdit.access || 'free');
+            setStatus('');
+        } else {
+            // Reset for new post mode
+            setTitle('');
+            setSummary('');
+            setContent('');
+            setAccess('free');
+            setStatus('');
+        }
+    }, [postToEdit]);
+
+
+    // Admin check is assumed to be handled by the parent component (wisdom/page.js)
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!title || !summary || !content) {
+            setStatus("Title, Summary, and Content are required.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setStatus(isEditing ? "Updating content..." : "Posting content...");
+        
+        const postData = {
+            title,
+            summary,
+            content, // Full rich content field
+            access,
+            author: currentUser?.displayName || 'Admin',
+            updatedAt: serverTimestamp(),
+        };
+
+        try {
+            if (isEditing) {
+                // Update existing post
+                const postRef = doc(db, "wisdom_posts", postToEdit.id);
+                await updateDoc(postRef, postData);
+                setStatus("Post updated successfully!");
+                onClose();
+            } else {
+                // Create new post
+                await addDoc(collection(db, "wisdom_posts"), {
+                    ...postData,
+                    createdAt: serverTimestamp(),
+                });
+                setStatus("Post created successfully!");
+                setTitle('');
+                setSummary('');
+                setContent('');
+                setAccess('free');
+            }
+        } catch (error) {
+            console.error("Error managing document: ", error);
+            setStatus(`Error: Failed to manage post. ${error.message}`);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (!postToEdit) {
+        return null; // Only show if we are actively editing or creating
+    }
+
+    return (
+        <div className="p-6 bg-surface-2 rounded-lg shadow-inner border border-brand-primary">
+            <h2 className="text-2xl font-serif font-bold text-brand-primary mb-4">
+                {isEditing ? `Editing Post: ${postToEdit.title}` : 'Create New Wisdom Post'}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label htmlFor="title" className="block text-sm font-medium text-text-base">Title</label>
+                    <input
+                        type="text"
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 border rounded-md"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="summary" className="block text-sm font-medium text-text-base">Summary (For Card Preview)</label>
+                    <textarea
+                        id="summary"
+                        value={summary}
+                        onChange={(e) => setSummary(e.target.value)}
+                        rows="2"
+                        required
+                        className="w-full px-3 py-2 border rounded-md"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="content" className="block text-sm font-medium text-text-base">Full Content (HTML / Markdown Supported)</label>
+                    <textarea
+                        id="content"
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        rows="8"
+                        required
+                        className="w-full px-3 py-2 border rounded-md font-mono text-xs"
+                        placeholder="Paste your rich content (HTML, links, image tags) here. Example: <h3>Title</h3><p>Content with <a href='...'>link</a></p><img src='...' />"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="access" className="block text-sm font-medium text-text-base">Access Level</label>
+                    <select
+                        id="access"
+                        value={access}
+                        onChange={(e) => setAccess(e.target.value)}
+                        className="w-full px-3 py-2 border rounded-md"
+                    >
+                        <option value="free">Free (All Users)</option>
+                        <option value="premium">Premium (Subscribed Users Only)</option>
+                    </select>
+                </div>
+                <button
+                    type="submit"
+                    className="w-full bg-brand-primary text-white py-2 rounded-lg hover:bg-brand-primary-darker disabled:opacity-50 transition"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? (isEditing ? 'Updating...' : 'Publishing...') : (isEditing ? 'Save Changes' : 'Publish Post')}
+                </button>
+                {status && <p className={`text-sm mt-2 text-center ${status.includes('Error') ? 'text-red-500' : 'text-status-success'}`}>{status}</p>}
+            </form>
+        </div>
+    );
+}
+
+--- END FILE: src\components\AdminPostEditor.js ---
 
 --- START FILE: src\components\AuthStatus.js ---
 
@@ -2985,7 +3577,7 @@ export const db = getFirestore(app);
 
 // src/lib/utils.js
 import { db } from './firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 /**
  * Updates the user's course progress in Firestore.
@@ -3030,8 +3622,74 @@ export const getLessonStatus = (userData, courseId, lessonId) => {
     return userData?.progress?.[courseId]?.[lessonId]?.completed || false;
 };
 
+
+// ------------------------------------------------------------------
+// --- ADMIN FUNCTIONS ---
+// ------------------------------------------------------------------
+
+/**
+ * Admin utility to update generalized user data (like notes or subscription fields).
+ * @param {string} userId 
+ * @param {object} data - Data object to merge (e.g., { adminNotes: '...', subscriptionExpires: '...' })
+ */
+export const updateUserDataAdmin = async (userId, data) => {
+    if (!userId) {
+        console.error("Admin update failed: Missing User ID.");
+        return;
+    }
+    const userRef = doc(db, "users", userId);
+    await setDoc(userRef, data, { merge: true });
+    console.log(`[Admin] Successfully updated general data for user: ${userId}`);
+};
+
+/**
+ * Admin utility to manually set a specific lesson status (up or down progress).
+ * @param {string} userId 
+ * @param {string} courseId 
+ * @param {string} lessonId 
+ * @param {boolean} completed - True to mark complete, false to mark incomplete.
+ */
+export const updateUserLessonStatusAdmin = async (userId, courseId, lessonId, completed) => {
+    if (!userId || !courseId || !lessonId) {
+        console.error("Admin progress update failed: Missing IDs.");
+        return;
+    }
+
+    const userRef = doc(db, "users", userId);
+    
+    // Construct the field path
+    const fieldPath = `progress.${courseId}.${lessonId}.completed`;
+    
+    const update = {
+        [fieldPath]: completed,
+    };
+    
+    if (completed) {
+        update[`progress.${courseId}.${lessonId}.completedAt`] = new Date().toISOString();
+    } else {
+        // If marking incomplete, we might want to remove the timestamp field to clean up
+        // Note: Firestore merge prevents simple deletion; we just overwrite `completed: false`
+        update[`progress.${courseId}.${lessonId}.completedAt`] = null; 
+    }
+    
+    await setDoc(userRef, update, { merge: true });
+    console.log(`[Admin] Progress updated for user ${userId}: ${courseId}/${lessonId} set to ${completed}`);
+};
+
+/**
+ * Admin utility to delete a wisdom post.
+ * @param {string} postId 
+ */
+export const deleteWisdomPost = async (postId) => {
+    if (!postId) {
+        console.error("Delete failed: Missing Post ID.");
+        return;
+    }
+    const postRef = doc(db, "wisdom_posts", postId);
+    await deleteDoc(postRef);
+    console.log(`[Admin] Successfully deleted wisdom post: ${postId}`);
+};
+
 --- END FILE: src\lib\utils.js ---
-
------------------------------------------------------
-
-Let the admin be able to add posts in the Wisdom page, and edit posts, delete posts, and also let the admin add links in their posts, and also photos in their blog posts. So that, and what admin will also be able to do is update the progress of the users or the enrolled participants, so that, and also write remarks on their account, which they will be able to see if the admin has to say something to some of the users, then the admin can communicate through the remarks on notes placed in their personal dashboard. So yeah, the admin will be able to see what people are enrolled in the program, and the admin will be able to enroll people into certain programs, and that will be shown in the user's dashboard. The admin will be able to see who have active subscriptions, and who haven't, who are free members, and who aren't. And one more thing is that, in the what we teach section, I see that under our course methodology, there I saw that you tried to bold three points, but they were not bolded. I can see the stars right beside the point headings, like foundational courses, deep dive modules, progress tracking. These things should be taken care of. And I think within the dashboard, within the user's dashboard, there should be, please can you remove your course library, or you can keep it there, but each user's course library will be managed by the admin, and for the admin, make a specialized admin panel where the admin will be able to handle, control everything inside the website, and in case of the blog posts again, hear me out again, the blog posts will be about anything, the admin should be able to post anything, each and every kind of content there. Yeah, that's it. And yeah, the admin will be able to up or down the progress bar of each and every participant. For the admin view, there will be a lot, lot, lot, lot more controls there, so yeah, keep that in mind, and make a specified specialized admin dashboard there, which will be separate from the, yeah, and the admin will also be able to preview as what the normal user will be able to see, and yeah, the admin should be able to preview what a premium subscriber is able to see, and what a free user is able to see, yeah, that as well. I want all these features to be implemented, and after implementing all these features, can you please send me the updated codes and the proper guidance along with it, so I can set it up, test it myself, and deploy it finally. Thanks a lot.
+----------------------------------------------------------
+What I want now is, I want to show a user validation for suppose a user is clicked on what we teach page, then there should be a validation showing he is currently on that page and that page title should be outlined, or just something like that. There should be something creative in showing, creative and relative or relevant to the theme in case of outlining that page, the page that the user is currently on. I want to implement that feature plus I want to fix the fact that the Bhagavad Gita page saving or something like bookmark saving is not being done. If a user has bookmarked a page, then that is not being saved to the database. Find out why and tell me the fix and also I want the Bhagavad Gita progress to be tracked as well, which was my first intention but it was not implemented before. Can you implement that as well? And what else do I have to do? Another thing is that in the wisdom page there, whenever I try to create a post, I want to have, I want to upload images in that. So, can you help me upload images in there? And please verify if the current uploading system has link identification or something like that. It says full content or HTML or markdown support, but will it let me give a link there and it'll identify it as a link and highlight it so user can click it like that? Yeah. Okay. So, that's it. And yeah, that's it. That's all for now. Hope you can do it and send me the updated codes and all the guidance along with it, how to implement them and everything. Thank you.
